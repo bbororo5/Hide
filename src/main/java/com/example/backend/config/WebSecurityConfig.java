@@ -1,6 +1,10 @@
 package com.example.backend.config;
 
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +18,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.backend.security.JwtAuthenticationFilter;
 import com.example.backend.security.JwtAuthorizationFilter;
@@ -66,9 +74,30 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(
 				request -> request
+					.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+					.requestMatchers("/").permitAll() // 메인 페이지
+					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers(GET, "/api/musics").permitAll()
 					.anyRequest().permitAll()
 			);
 
 		return http.build();
+	}
+
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		List<String> allowedOrigins = Arrays.asList(
+			"http://localhost:3000",
+			"http://Localhost:8080" //예시...
+		);
+		configuration.setAllowedOrigins(allowedOrigins);
+		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.addExposedHeader("Authorization");
+		configuration.setAllowCredentials(true);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 }
