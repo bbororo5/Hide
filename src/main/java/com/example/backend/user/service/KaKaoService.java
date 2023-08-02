@@ -30,17 +30,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class KaKaoService {
-	@Value("${kakao.client.id}")
-	private String googleClientId;
-
-	@Value("${google.client.pw}")
-	private String googleClientPw;
-
-	@Value("${google.client.redirect}")
-	private String redirectUri;
-
-	@Value("${google.client.api}")
-	private String apiKey;
+	@Value("${oauth2.kakao.client-id}")
+	private String kakaoClientId;
+	@Value("${oauth2.kakao.client-secret}")
+	private String kakaoClientPw;
+	@Value("${oauth2.kakao.redirect-uri}")
+	private String kakaoRedirectUri;
 
 	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepository;
@@ -80,8 +75,9 @@ public class KaKaoService {
 		// HTTP Body 생성
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("grant_type", "authorization_code");
-		body.add("client_id", "26398a73418ff36fe44d3750d2545424");
-		body.add("redirect_uri", "http://localhost:8080/api/users/kakao");
+		body.add("client_id", kakaoClientId);
+		body.add("client_secret", kakaoClientPw);
+		body.add("redirect_uri", kakaoRedirectUri);
 		body.add("code", code);
 
 		RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity
@@ -167,5 +163,13 @@ public class KaKaoService {
 		}
 
 		return kakaoUser;
+	}
+
+	public String getKakaoLoginForm() {
+		return "https://kauth.kakao.com/oauth/authorize?client_id="
+			+ kakaoClientId
+			+ "&redirect_uri="
+			+ kakaoRedirectUri
+			+ "&response_type=code";
 	}
 }
