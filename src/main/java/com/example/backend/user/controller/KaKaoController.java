@@ -18,7 +18,7 @@ import lombok.Value;
 public class KaKaoController {
 
 	private final KaKaoService kaKaoService;
-	// 로그인 페이지 반환
+	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/kakao")
 	public String getLoginUrl() {
 		return kaKaoService.getKakaoLoginForm();

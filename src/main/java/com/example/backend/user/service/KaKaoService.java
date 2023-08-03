@@ -59,7 +59,6 @@ public class KaKaoService {
 	}
 
 	private String getKakaoToken(String code) throws JsonProcessingException {
-		log.info("인가코드 : " + code);
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://kauth.kakao.com")
@@ -97,7 +96,6 @@ public class KaKaoService {
 	}
 
 	private UserInfoDto getUserInfo(String accessToken) throws JsonProcessingException {
-		log.info("엑세스 토큰 : " + accessToken);
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://kapi.kakao.com")
@@ -130,7 +128,6 @@ public class KaKaoService {
 		String email = jsonNode.get("kakao_account")
 			.get("email").asText();
 
-		log.info("카카오 사용자 정보: " + kakaoId + ", " + nickname + ", " + email);
 		return new UserInfoDto(kakaoId, nickname, email);
 	}
 

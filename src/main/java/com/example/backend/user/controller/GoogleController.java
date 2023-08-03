@@ -17,16 +17,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GoogleController {
 	private final GoogleService googleService;
-	//구글 로그인 페이지 반환
+	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/google")
 	public String getLoginUrl() {
 		return googleService.getGoogleLoginForm();
 	}
-	// 구글
+
+	// 구글 로그인
 	@GetMapping("/api/users/oauth2/google")
-	public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+	public void kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
 		String token = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-		return "redirect:/";
 	}
 }

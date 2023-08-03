@@ -41,9 +41,9 @@ public class GoogleService {
 
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
-	private final PasswordEncoder passwordEncoder;
 
 	public String googleLogin(String code) throws JsonProcessingException {
 		// 1. "인가 코드"로 "액세스 토큰" 요청
@@ -61,7 +61,6 @@ public class GoogleService {
 	}
 
 	private String getGoogleToken(String code) throws JsonProcessingException {
-		log.info("인가코드 : " + code);
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://oauth2.googleapis.com")
@@ -99,7 +98,6 @@ public class GoogleService {
 	}
 
 	private UserInfoDto getUserInfo(String accessToken) throws JsonProcessingException {
-		log.info("엑세스 토큰 : " + accessToken);
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://oauth2.googleapis.com")
@@ -130,7 +128,6 @@ public class GoogleService {
 		String email = jsonNode.get("email").asText();
 		String nickname = email.substring(0,email.indexOf('@'));
 
-		log.info("구글 사용자 정보: " + googleId + ", " + nickname + ", " + email);
 		return new UserInfoDto(googleId, nickname, email);
 	}
 

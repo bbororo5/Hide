@@ -77,8 +77,8 @@ public class WebSecurityConfig {
 					.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 					.requestMatchers("/").permitAll() // 메인 페이지
 					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers("/login").permitAll() // 유저관련 요청 허가
 					.requestMatchers(GET, "/api/musics").permitAll()
-					.anyRequest().permitAll()
 			);
 
 		return http.build();
