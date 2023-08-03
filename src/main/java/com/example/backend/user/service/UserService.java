@@ -50,7 +50,7 @@ public class UserService {
 	}
 
 	public ResponseEntity<String> removeUser(UserDetailsImpl userDetails) {
-		User deleteUser = userRepository.findById(userDetails.getUser().getId())
+		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
 			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
 		return new ResponseEntity<>("회원 삭제", HttpStatus.ACCEPTED);
