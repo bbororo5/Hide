@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.entity.UserRoleEnum;
@@ -46,5 +47,12 @@ public class UserService {
 
 		userRepository.save(user);
 		return new ResponseEntity<>("회원가입 성공", HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<String> removeUser(UserDetailsImpl userDetails) {
+		User deleteUser = userRepository.findById(userDetails.getUser().getId())
+			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+		userRepository.delete(deleteUser);
+		return new ResponseEntity<>("회원 삭제", HttpStatus.ACCEPTED);
 	}
 }

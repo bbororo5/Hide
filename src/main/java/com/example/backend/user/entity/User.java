@@ -27,6 +27,7 @@ public class User {
 	@Enumerated(value = EnumType.STRING)
 	private UserRoleEnum role;
 	private Long kakaoId;
+	private Long googleId;
 
 	public User(String email, String password, String nickname, UserRoleEnum role) {
 		this.email = email;
@@ -34,16 +35,21 @@ public class User {
 		this.nickname = nickname;
 		this.role = role;
 	}
-	public User(String email, String password, String nickname, UserRoleEnum role, Long kakaoId) {
+	public User(String email, String password, String nickname, UserRoleEnum role, Long googleId ,Long kakaoId) {
 		this.email = email;
 		this.password = password;
 		this.nickname = nickname;
 		this.role = role;
+		this.googleId =googleId;
 		this.kakaoId = kakaoId;
 	}
 
 	public User kakaoIdUpdate(Long kakaoId) {
 		this.kakaoId = kakaoId;
+		return this;
+	}
+	public User googleIdUpdate(Long googleId) {
+		this.googleId = googleId;
 		return this;
 	}
 

@@ -5,29 +5,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.user.service.KaKaoService;
+import com.example.backend.user.service.GoogleService;
 import com.example.backend.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 @RestController
 @RequiredArgsConstructor
-public class KaKaoController {
-
-	private final KaKaoService kaKaoService;
-	// 로그인 페이지 반환
-	@GetMapping("/login/oauth2/kakao")
+public class GoogleController {
+	private final GoogleService googleService;
+	//구글 로그인 페이지 반환
+	@GetMapping("/login/oauth2/google")
 	public String getLoginUrl() {
-		return kaKaoService.getKakaoLoginForm();
+		return googleService.getGoogleLoginForm();
 	}
-
-	//카카오 로그인
-	@GetMapping("/api/users/oauth2/kakao")
-	public void kakaoLogin(@RequestParam (value = "code") String code, HttpServletResponse response) throws JsonProcessingException {
-		String token = kaKaoService.kakaoLogin(code);
+	// 구글
+	@GetMapping("/api/users/oauth2/google")
+	public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+		String token = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+		return "redirect:/";
 	}
 }
