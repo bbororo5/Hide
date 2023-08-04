@@ -66,4 +66,7 @@ public class User {
 		return this;
 	}
 
+	public void updatePassword(String newPassword){
+		this.password=newPassword;
+	}
 }

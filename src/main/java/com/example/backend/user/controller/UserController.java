@@ -2,6 +2,7 @@ package com.example.backend.user.controller;
 
 import com.example.backend.StatusResponseDto;
 import com.example.backend.security.UserDetailsImpl;
+import com.example.backend.user.dto.PasswordDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.service.UserService;
@@ -32,10 +33,16 @@ public class UserController {
     public ResponseEntity<StatusResponseDto> sendEmail(@RequestBody UserInfoDto email) {
         return userService.sendEmail(email);
     }
-//	@PatchMapping("/users/reset-password")
+
+    @PatchMapping("/users/reset-password")
+    public ResponseEntity<StatusResponseDto> changePw(@RequestBody PasswordDto passwordDto,
+                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.changePw(passwordDto, userDetails);
+    }
 
     @PostMapping("/follow/users/{userId}")
-    public ResponseEntity<StatusResponseDto> followUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<StatusResponseDto> followUser(@PathVariable Long userId,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.followUser(userId, userDetails);
     }
 }
