@@ -1,5 +1,8 @@
 package com.example.backend.user.controller;
 
+import com.example.backend.StatusResponseDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,8 +29,9 @@ public class KaKaoController {
 
 	//카카오 로그인
 	@GetMapping("/api/users/oauth2/kakao")
-	public void kakaoLogin(@RequestParam (value = "code") String code, HttpServletResponse response) throws JsonProcessingException {
+	public ResponseEntity<StatusResponseDto> kakaoLogin(@RequestParam (value = "code") String code, HttpServletResponse response) throws JsonProcessingException {
 		String token = kaKaoService.kakaoLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+		return new ResponseEntity<>(new StatusResponseDto("카카오 로그인 완료되었습니다."), HttpStatus.OK);
 	}
 }

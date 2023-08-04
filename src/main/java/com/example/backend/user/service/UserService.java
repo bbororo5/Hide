@@ -3,6 +3,7 @@ package com.example.backend.user.service;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.example.backend.StatusResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,20 +31,20 @@ public class UserService {
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
 
-	public ResponseEntity<String> signup(SignupRequestDto signupRequestDto) {
+	public ResponseEntity<StatusResponseDto> signup(SignupRequestDto signupRequestDto) {
 		String email = signupRequestDto.getEmail();
 		String password = passwordEncoder.encode(signupRequestDto.getPassword());
 		String nickname = signupRequestDto.getNickname();
 		Optional<User> findUser = userRepository.findByEmail(email);
 		if (findUser.isPresent()) {
-			throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
+			return new ResponseEntity<>(new StatusResponseDto("이미 존재하는 사용자 입니다."), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		// 사용자 ROLE 확인
 		UserRoleEnum role = UserRoleEnum.USER;
 		if (signupRequestDto.isAdmin()) {
 			if (!ADMIN_TOKEN.equals(signupRequestDto.getAdminToken())) {
-				throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+				return new ResponseEntity<>(new StatusResponseDto("관리자 암호가 틀려 등록이 불가능합니다."), HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			role = UserRoleEnum.ADMIN;
 		}
@@ -51,18 +52,19 @@ public class UserService {
 		User user = new User(email, password, nickname, role);
 
 		userRepository.save(user);
-		return new ResponseEntity<>("회원가입 성공", HttpStatus.CREATED);
+		return new ResponseEntity<>(new StatusResponseDto("회원가입 성공"), HttpStatus.CREATED);
+
 	}
 
-	public ResponseEntity<String> removeUser(UserDetailsImpl userDetails) {
+	public ResponseEntity<StatusResponseDto> removeUser(UserDetailsImpl userDetails) {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
 			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
-		return new ResponseEntity<>("회원 삭제", HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다."), HttpStatus.ACCEPTED);
 	}
 
 	@Transactional
-	public ResponseEntity<String> followUser(Long userId, UserDetailsImpl userDetails) {
+	public ResponseEntity<StatusResponseDto> followUser(Long userId, UserDetailsImpl userDetails) {
 		User following = userRepository.findById(userId)
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		User follower = userDetails.getUser();
@@ -73,10 +75,10 @@ public class UserService {
 		if(follow== null){
 			Follow newFollow = new Follow(follower,following);
 			followRepository.save(newFollow);
-			return new ResponseEntity<>("팔로우 성공", HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("팔로우 하였습니다."), HttpStatus.OK);
 		}else{
 			followRepository.delete(follow);
-			return new ResponseEntity<>("팔로우 취소", HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("팔로우가 취소되었습니다."), HttpStatus.OK);
 		}
 	}
 }

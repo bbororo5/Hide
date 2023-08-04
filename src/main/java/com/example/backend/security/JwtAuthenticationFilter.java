@@ -2,6 +2,8 @@ package com.example.backend.security;
 
 import java.io.IOException;
 
+import com.example.backend.StatusResponseDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,7 +35,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				LoginRequestDto.class);
 			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				loginRequestDto.getEmail(), loginRequestDto.getPassword());
-
 			return getAuthenticationManager().authenticate(authenticationToken);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -42,12 +43,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		Authentication authResult) throws IOException,
+													  Authentication authResult) throws IOException,
 		ServletException {
 		String email = ((UserDetailsImpl)authResult.getPrincipal()).getUsername(); //getUsername이지만 email을 받아옴.
 		UserRoleEnum role = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getRole();
 		String token = jwtUtil.createToken(email, role);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.")));
 	}
 
 	@Override
