@@ -1,5 +1,8 @@
 package com.example.backend.user.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,6 +32,13 @@ public class User {
 	private UserRoleEnum role;
 	private Long kakaoId;
 	private Long googleId;
+
+	@OneToMany(mappedBy = "following") //user
+	private List<Follow> followingList = new ArrayList<>();
+	@OneToMany(mappedBy = "follower")  //pin
+	private List<Follow> followerList = new ArrayList<>();
+
+
 
 	public User(String email, String password, String nickname, UserRoleEnum role) {
 		this.email = email;
