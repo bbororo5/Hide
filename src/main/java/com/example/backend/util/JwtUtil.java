@@ -32,6 +32,7 @@ public class JwtUtil {
 	public static final String BEARER_PREFIX = "Bearer ";
 	// 토큰 만료시간
 	private final long ACCESS_TOKEN_TIME = 60 * 120 * 1000L; // 120분
+	private final long TEMPORAL_TOKEN_TIME = 5 * 60 * 1000L; // 120분
 
 	@Value("${jwt.secret.key}")
 	private String secretKey;
@@ -56,6 +57,16 @@ public class JwtUtil {
 				.setIssuedAt(date) // 발급일
 				.signWith(key, SignatureAlgorithm.HS256) // 암호화 알고리즘
 				.compact();
+	}
+	public String createTemporalToken(String email, UserRoleEnum role) {
+		Date date = new Date();
+		return Jwts.builder()
+						.setSubject(email) // 사용자 식별자값(ID)
+						.claim(AUTHORIZATION_KEY, role) // 사용자 권한
+						.setExpiration(new Date(date.getTime() + TEMPORAL_TOKEN_TIME)) // 만료 시간
+						.setIssuedAt(date) // 발급일
+						.signWith(key, SignatureAlgorithm.HS256) // 암호화 알고리즘
+						.compact();
 	}
 
 	// jwt 토큰을 받아올때 - substring

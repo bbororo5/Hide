@@ -75,11 +75,13 @@ public class WebSecurityConfig {
 			.authorizeHttpRequests(
 				request -> request
 					.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-					.requestMatchers("/").permitAll() // 메인 페이지
-					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers("/api/users/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(GET, "/api/musics/**").permitAll()
+						.anyRequest().permitAll()
+//					.requestMatchers("/").permitAll() // 메인 페이지
+//					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
+//					.requestMatchers(GET,"/api/users/**").permitAll() // 유저관련 요청 허가
+//					.requestMatchers(POST,"/api/users/**").permitAll() // 유저관련 요청 허가
+//					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
+//					.requestMatchers(GET, "/api/musics/**").permitAll()
 			);
 		return http.build();
 	}
@@ -89,7 +91,7 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 		List<String> allowedOrigins = Arrays.asList(
 			"http://localhost:3000",
-			"http://Localhost:8080" //예시...
+			"https://front-end-omega-topaz-47.vercel.app" //예시...
 		);
 		configuration.setAllowedOrigins(allowedOrigins);
 		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));

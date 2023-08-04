@@ -50,7 +50,7 @@ public class KaKaoService {
 		// 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
 		UserInfoDto kakaoUserInfo = getUserInfo(accessToken);
 
-		// 3. 필요시에 회원가입
+		// 3. 필요시에 회원가입 후 User 반환
 		User kakaoUser = signupWithKaKaoEmail(kakaoUserInfo);
 
 		// 4. JWT 토큰 반환

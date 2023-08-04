@@ -1,8 +1,10 @@
 package com.example.backend.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserInfoDto {
 	private Long id;
 	private String nickname;

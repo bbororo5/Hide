@@ -41,6 +41,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     //WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    //SMTP
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 }
 
