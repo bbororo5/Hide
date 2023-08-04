@@ -67,6 +67,7 @@ public class WebSecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.csrf(AbstractHttpConfigurer::disable)
+			.cors(cors -> cors.disable())
 			.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable).disable())
 			.sessionManagement(
 				sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(STATELESS))
@@ -75,13 +76,12 @@ public class WebSecurityConfig {
 			.authorizeHttpRequests(
 				request -> request
 					.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-						.anyRequest().permitAll()
-//					.requestMatchers("/").permitAll() // 메인 페이지
-//					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
-//					.requestMatchers(GET,"/api/users/**").permitAll() // 유저관련 요청 허가
-//					.requestMatchers(POST,"/api/users/**").permitAll() // 유저관련 요청 허가
-//					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
-//					.requestMatchers(GET, "/api/musics/**").permitAll()
+					.requestMatchers("/").permitAll() // 메인 페이지
+					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers(GET,"/api/users/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers(POST,"/api/users/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
+					.requestMatchers(GET, "/api/musics/**").permitAll()
 			);
 		return http.build();
 	}
@@ -90,8 +90,8 @@ public class WebSecurityConfig {
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		List<String> allowedOrigins = Arrays.asList(
-			"http://localhost:3000",
-			"https://front-end-omega-topaz-47.vercel.app" //예시...
+			"http://localhost:3000"
+			 //예시...
 		);
 		configuration.setAllowedOrigins(allowedOrigins);
 		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));

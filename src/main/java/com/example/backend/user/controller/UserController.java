@@ -37,8 +37,7 @@ public class UserController {
 	public ResponseEntity<StatusResponseDto> sendEmail(@RequestBody UserInfoDto email){
 		return userService.sendEmail(email);
 	}
-	@PatchMapping("/users/reset-password")
-
+//	@PatchMapping("/users/reset-password")
 
 	@PostMapping("/follow/users/{userId}")
 	public ResponseEntity<StatusResponseDto> followUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){

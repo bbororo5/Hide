@@ -34,7 +34,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final FollowRepository followRepository;
     private final JwtUtil jwtUtil;
-    private final JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
 
     @Value("${admin.token}")
     private String ADMIN_TOKEN;
