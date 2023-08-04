@@ -67,7 +67,6 @@ public class WebSecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.csrf(AbstractHttpConfigurer::disable)
-			.cors(cors -> cors.disable())
 			.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable).disable())
 			.sessionManagement(
 				sessionManagementConfigurer -> sessionManagementConfigurer.sessionCreationPolicy(STATELESS))
@@ -82,6 +81,7 @@ public class WebSecurityConfig {
 					.requestMatchers(POST,"/api/users/**").permitAll() // 유저관련 요청 허가
 					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
 					.requestMatchers(GET, "/api/musics/**").permitAll()
+					.anyRequest().permitAll()
 			);
 		return http.build();
 	}
@@ -94,7 +94,7 @@ public class WebSecurityConfig {
 			 //예시...
 		);
 		configuration.setAllowedOrigins(allowedOrigins);
-		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE"));
+		configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE","PATCH"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.addExposedHeader("Authorization");
 		configuration.setAllowCredentials(true);
