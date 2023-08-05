@@ -31,6 +31,8 @@ public class User {
 	@Enumerated(value = EnumType.STRING)
 	private UserRoleEnum role;
 	@Column
+	private String userImageUrl;
+	@Column
 	private Long kakaoId;
 	@Column
 	private Long googleId;

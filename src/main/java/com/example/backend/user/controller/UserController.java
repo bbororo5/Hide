@@ -61,12 +61,13 @@ public class UserController {
 
 	//user가 팔로우 하는 팔로잉 목록
 	@GetMapping("/following/users/{user-id}")
-	public List<UserResponseDto> getToUsers(@PathVariable("user-id") Long userId){
+	public List<UserResponseDto> getToUsers(@PathVariable("user-id") Long userId) {
 		return userService.getToUsers(userId);
 	}
+
 	//user를 팔로우 하는 팔로워 목록
 	@GetMapping("/follower/users/{user-id}")
-	public List<UserResponseDto> getFromUsers(@PathVariable("user-id") Long userId){
+	public List<UserResponseDto> getFromUsers(@PathVariable("user-id") Long userId) {
 		return userService.getFromUsers(userId);
 	}
 }
