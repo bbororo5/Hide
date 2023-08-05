@@ -110,7 +110,7 @@ public class UserService {
 
 		String subject = "하이드(HIDE) 비밀번호 재설정 요청";
 		String resetLink = "http://localhost:3000/changepw?token=" + token;
-		String message = "비밀번호를 재설정 하시려면 링크를 클릭하세요: " + resetLink;
+		String message = "제한시간은 5분입니다.\n비밀번호를 재설정 하시려면 링크를 클릭하세요\n\n " + resetLink;
 
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		mailMessage.setTo(email.getEmail());
