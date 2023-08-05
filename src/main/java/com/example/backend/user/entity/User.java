@@ -35,9 +35,9 @@ public class User {
 	@Column
 	private Long googleId;
 
-	@OneToMany(mappedBy = "following") //user
+	@OneToMany(mappedBy = "toUser") //user
 	private List<Follow> followingList = new ArrayList<>();
-	@OneToMany(mappedBy = "follower")  //pin
+	@OneToMany(mappedBy = "fromUser")  //pin
 	private List<Follow> followerList = new ArrayList<>();
 
 
