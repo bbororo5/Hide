@@ -119,7 +119,7 @@ public class UserService {
 
 		try {
 			javaMailSender.send(mailMessage);
-			return new ResponseEntity<>(new StatusResponseDto("이메일 전송 완료",true), HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("이메일 전송 완료.",true), HttpStatus.OK);
 		} catch (MailException e) {
 			throw new RuntimeException(e);
 		}
