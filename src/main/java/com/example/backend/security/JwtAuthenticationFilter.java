@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.")));
+		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.",true)));
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import com.example.backend.user.repository.FollowRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,11 +46,15 @@ public class UserService {
 
 	public ResponseEntity<StatusResponseDto> signup(SignupRequestDto signupRequestDto) {
 		String email = signupRequestDto.getEmail();
-		String password = passwordEncoder.encode(signupRequestDto.getPassword());
 		String nickname = signupRequestDto.getNickname();
-		Optional<User> findUser = userRepository.findByEmail(email);
-		if (findUser.isPresent()) {
-			return new ResponseEntity<>(new StatusResponseDto("이미 존재하는 사용자 입니다."), HttpStatus.INTERNAL_SERVER_ERROR);
+		String password = passwordEncoder.encode(signupRequestDto.getPassword());
+		Optional<User> findEmailUser = userRepository.findByEmail(email);
+		if (findEmailUser.isPresent()) {
+			return new ResponseEntity<>(new StatusResponseDto("이미 존재하는 이메일 입니다."), HttpStatus.CONFLICT);
+		}
+		Optional<User> findNicknameUser = userRepository.findByNickname(email);
+		if (findNicknameUser.isPresent()) {
+			return new ResponseEntity<>(new StatusResponseDto("이미 존재하는 닉네임 입니다."), HttpStatus.CONFLICT);
 		}
 
 		// 사용자 ROLE 확인
@@ -65,7 +70,7 @@ public class UserService {
 		User user = new User(email, password, nickname, role);
 
 		userRepository.save(user);
-		return new ResponseEntity<>(new StatusResponseDto("회원가입 성공"), HttpStatus.CREATED);
+		return new ResponseEntity<>(new StatusResponseDto("회원가입 성공",true), HttpStatus.CREATED);
 
 	}
 
@@ -73,7 +78,7 @@ public class UserService {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
 			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
-		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다."), HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다.",true), HttpStatus.ACCEPTED);
 	}
 
 	@Transactional
@@ -88,10 +93,10 @@ public class UserService {
 		if (follow == null) {
 			Follow newFollow = new Follow(fromUser, toUser);
 			followRepository.save(newFollow);
-			return new ResponseEntity<>(new StatusResponseDto("팔로우 하였습니다."), HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("팔로우 하였습니다.",true), HttpStatus.OK);
 		} else {
 			followRepository.delete(follow);
-			return new ResponseEntity<>(new StatusResponseDto("팔로우가 취소되었습니다."), HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("팔로우가 취소되었습니다.",true), HttpStatus.OK);
 		}
 	}
 
@@ -99,7 +104,6 @@ public class UserService {
 		if (userRepository.findByEmail(email.getEmail()).isEmpty()) {
 			return new ResponseEntity<>(new StatusResponseDto("회원이 존재하지 않습니다."), HttpStatus.CONFLICT);
 		}
-
 		User user = userRepository.findByEmail(email.getEmail())
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		String token = jwtUtil.createTemporalToken(user.getEmail(), user.getRole());
@@ -115,7 +119,7 @@ public class UserService {
 
 		try {
 			javaMailSender.send(mailMessage);
-			return new ResponseEntity<>(new StatusResponseDto("이메일 전송 완료"), HttpStatus.OK);
+			return new ResponseEntity<>(new StatusResponseDto("이메일 전송 완료",true), HttpStatus.OK);
 		} catch (MailException e) {
 			throw new RuntimeException(e);
 		}
@@ -123,12 +127,15 @@ public class UserService {
 	}
 
 	@Transactional
-	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails) {
+	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails, HttpServletRequest request) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		String newPassword = passwordEncoder.encode(userInfo.getPassword());
+		if(!jwtUtil.validateToken(request.getHeader(JwtUtil.AUTHORIZATION_HEADER))){
+			return new ResponseEntity<>(new StatusResponseDto("비밀번호 변경이 실패했습니다."), HttpStatus.UNAUTHORIZED);
+		}
 		user.updatePassword(newPassword);
-		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다."), HttpStatus.OK);
+		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.",true), HttpStatus.OK);
 	}
 
 	public List<UserResponseDto> getToUsers(Long userId) {

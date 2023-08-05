@@ -28,6 +28,6 @@ public class GoogleController {
     public ResponseEntity<StatusResponseDto> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         String token = googleService.googleLogin(code);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-        return new ResponseEntity<>(new StatusResponseDto("구글 로그인 완료되었습니다."), HttpStatus.OK);
+        return new ResponseEntity<>(new StatusResponseDto("구글 로그인 완료되었습니다.",true), HttpStatus.OK);
     }
 }

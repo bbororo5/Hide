@@ -20,6 +20,7 @@ import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -47,8 +48,9 @@ public class UserController {
 
 	@PatchMapping("/users/reset-password")
 	public ResponseEntity<StatusResponseDto> changePw(@RequestBody UserInfoDto userInfo,
+		HttpServletRequest request,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return userService.changePw(userInfo, userDetails);
+		return userService.changePw(userInfo, userDetails, request);
 	}
 
 	@PostMapping("/follow/users/{user-id}")
@@ -57,12 +59,12 @@ public class UserController {
 		return userService.followUser(userId, userDetails);
 	}
 
-	//user가 팔로우 하는 사람들 목록
+	//user가 팔로우 하는 팔로잉 목록
 	@GetMapping("/following/users/{user-id}")
 	public List<UserResponseDto> getToUsers(@PathVariable("user-id") Long userId){
 		return userService.getToUsers(userId);
 	}
-	//user를 팔로우 하는 사람들 목록
+	//user를 팔로우 하는 팔로워 목록
 	@GetMapping("/follower/users/{user-id}")
 	public List<UserResponseDto> getFromUsers(@PathVariable("user-id") Long userId){
 		return userService.getFromUsers(userId);

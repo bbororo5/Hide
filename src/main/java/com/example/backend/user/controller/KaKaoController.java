@@ -32,6 +32,6 @@ public class KaKaoController {
 	public ResponseEntity<StatusResponseDto> kakaoLogin(@RequestParam (value = "code") String code, HttpServletResponse response) throws JsonProcessingException {
 		String token = kaKaoService.kakaoLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-		return new ResponseEntity<>(new StatusResponseDto("카카오 로그인 완료되었습니다."), HttpStatus.OK);
+		return new ResponseEntity<>(new StatusResponseDto("카카오 로그인 완료되었습니다.",true), HttpStatus.OK);
 	}
 }
