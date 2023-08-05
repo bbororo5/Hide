@@ -123,7 +123,6 @@ public class UserService {
 		} catch (MailException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Transactional
