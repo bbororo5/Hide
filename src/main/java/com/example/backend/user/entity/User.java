@@ -3,6 +3,7 @@ package com.example.backend.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,7 +11,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,8 +34,6 @@ public class User {
 	@Enumerated(value = EnumType.STRING)
 	private UserRoleEnum role;
 	@Column
-	private String userImageUrl;
-	@Column
 	private Long kakaoId;
 	@Column
 	private Long googleId;
@@ -42,7 +43,14 @@ public class User {
 	@OneToMany(mappedBy = "fromUser")  //pin
 	private List<Follow> followerList = new ArrayList<>();
 
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "image_key")
+	private Image image;
 
+	public void updateUserProfile(String nickname, Image image) {
+		this.nickname = nickname;
+		this.image = image;
+	}
 
 	public User(String email, String password, String nickname, UserRoleEnum role) {
 		this.email = email;
@@ -50,12 +58,13 @@ public class User {
 		this.nickname = nickname;
 		this.role = role;
 	}
-	public User(String email, String password, String nickname, UserRoleEnum role, Long googleId ,Long kakaoId) {
+
+	public User(String email, String password, String nickname, UserRoleEnum role, Long googleId, Long kakaoId) {
 		this.email = email;
 		this.password = password;
 		this.nickname = nickname;
 		this.role = role;
-		this.googleId =googleId;
+		this.googleId = googleId;
 		this.kakaoId = kakaoId;
 	}
 
@@ -63,12 +72,13 @@ public class User {
 		this.kakaoId = kakaoId;
 		return this;
 	}
+
 	public User googleIdUpdate(Long googleId) {
 		this.googleId = googleId;
 		return this;
 	}
 
-	public void updatePassword(String newPassword){
-		this.password=newPassword;
+	public void updatePassword(String newPassword) {
+		this.password = newPassword;
 	}
 }

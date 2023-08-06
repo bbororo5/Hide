@@ -16,17 +16,22 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.example.backend.StatusResponseDto;
 import com.example.backend.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
-import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.Follow;
+import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.user.repository.FollowRepository;
+import com.example.backend.user.repository.ImageRepository;
 import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,8 +43,12 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final FollowRepository followRepository;
+	private final ImageRepository imageRepository;
 	private final JwtUtil jwtUtil;
+	private final ImageUtil imageUtil;
 	private final JavaMailSender javaMailSender;
+	private final AmazonS3 amazonS3;
+	private final String bucket;
 
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
@@ -74,6 +83,28 @@ public class UserService {
 
 	}
 
+	@Transactional
+	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
+		UserDetailsImpl userDetails) {
+		User user = userDetails.getUser();
+		Image profileImage= null;
+		if (imageFile != null) {
+			imageUtil.validateFile(imageFile);
+			//기존 이미지를 bucket과 Image 테이블에서 삭제.
+			if(user.getImage()!=null){
+				DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, user.getImage().getImageKey());
+				amazonS3.deleteObject(deleteObjectRequest);
+				imageRepository.delete(user.getImage());
+			}
+			//새로운 image 객체 생성.
+			String fileUUID = imageUtil.uploadToS3(imageFile, amazonS3, bucket);
+			profileImage = new Image(fileUUID, amazonS3.getUrl(bucket,fileUUID).toString());
+		}
+		user.updateUserProfile(nickname,profileImage);
+		return new ResponseEntity<>(new StatusResponseDto("프로필 수정이 완료되었습니다.", true), HttpStatus.ACCEPTED);
+	}
+
+	@Transactional
 	public ResponseEntity<StatusResponseDto> removeUser(UserDetailsImpl userDetails) {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
 			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
@@ -138,26 +169,28 @@ public class UserService {
 		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.", true), HttpStatus.OK);
 	}
 
-	public List<UserResponseDto> getToUsers(Long userId) {
+	@Transactional
+	public List<UserInfoDto> getToUsers(Long userId) {
 		User fromUser = userRepository.findById(userId)
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		List<Follow> followingList = followRepository.findAllByFromUser(fromUser);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
-		List<UserResponseDto> userResponseDtoList = new ArrayList<>();
+		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
 		for (Follow follow : followingList) {
-			userResponseDtoList.add(new UserResponseDto(follow.getToUser()));
+			userResponseDtoList.add(new UserInfoDto(follow.getToUser()));
 		}
 		return userResponseDtoList;
 	}
 
-	public List<UserResponseDto> getFromUsers(Long userId) {
+	@Transactional
+	public List<UserInfoDto> getFromUsers(Long userId) {
 		User toUser = userRepository.findById(userId)
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		List<Follow> followingList = followRepository.findAllByToUser(toUser);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
-		List<UserResponseDto> userResponseDtoList = new ArrayList<>();
+		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
 		for (Follow follow : followingList) {
-			userResponseDtoList.add(new UserResponseDto(follow.getFromUser()));
+			userResponseDtoList.add(new UserInfoDto(follow.getFromUser()));
 		}
 		return userResponseDtoList;
 	}
