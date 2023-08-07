@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-//@Repository
-//public interface RecentRepository extends JpaRepository<Recent, Long> {
-    //List<Recent> findByUserOrderByCreationDateDesc(User user);
+@Repository
+public interface RecentRepository extends JpaRepository<Recent, Long> {
+    List<String> findTrackIdByUserOrderByCreationDateDesc(User user);
+}
 
 

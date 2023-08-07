@@ -26,4 +26,10 @@ public class SpotifyController {
         List<Track> tracks = spotifyService.getTracksInfo(trackIds);
         return ResponseEntity.ok(tracks);
     }
+
+    @GetMapping("/recentTracks")
+    public ResponseEntity<List<Track>> getRecentTracks(@RequestParam Long userId) {
+        List<Track> tracks = spotifyService.getRecentTracks(userId);
+        return ResponseEntity.ok(tracks);
+    }
 }

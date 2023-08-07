@@ -3,6 +3,9 @@ package com.example.backend.spotify.service;
 import com.example.backend.spotify.dto.Track;
 import com.example.backend.user.entity.User;
 //import com.example.backend.user.repository.RecentRepository;
+import com.example.backend.user.repository.RecentRepository;
+import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.execption.UserNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -28,7 +32,8 @@ import java.util.List;
 public class SpotifyService {
 
     private String accessToken;
-    //private final RecentRepository recentRepository;
+    private final RecentRepository recentRepository;
+    private final UserRepository userRepository;
 
     public void requestAccessToken() {
         String clientId = "f780b05092934735af74590a2db00115";
@@ -155,5 +160,11 @@ public class SpotifyService {
         return false;
     }
 
+    public List<Track> getRecentTracks(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+        List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
+        return getTracksInfo(trackIds);
+    }
 }
 
