@@ -47,9 +47,11 @@ public class User {
 	@JoinColumn(name = "image_key")
 	private Image image;
 
-	public void updateUserProfile(String nickname, Image image) {
-		this.nickname = nickname;
+	public void updateUserImage(Image image) {
 		this.image = image;
+	}
+	public void updateUserNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public User(String email, String password, String nickname, UserRoleEnum role) {
