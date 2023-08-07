@@ -2,12 +2,17 @@ package com.example.backend.track.entity;
 
 import com.example.backend.user.entity.User;
 import jakarta.persistence.*;
+
 import lombok.Getter;
+
 
 @Entity
 @Getter
 public class TrackCount {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String trackId;
 
     @ManyToOne
@@ -21,6 +26,9 @@ public class TrackCount {
         this.trackId = trackId;
         this.user = user;
         this.playCount = playCount;
+    }
+
+    public TrackCount() {
     }
 
     public void increasePlayCount() {
