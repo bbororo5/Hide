@@ -1,12 +1,11 @@
-package com.example.backend.spotify.service;
+package com.example.backend.util.spotify.service;
 
-import com.example.backend.spotify.dto.Track;
+import com.example.backend.util.spotify.dto.Track;
 import com.example.backend.user.entity.User;
 //import com.example.backend.user.repository.RecentRepository;
 import com.example.backend.user.repository.RecentRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.UserNotFoundException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
