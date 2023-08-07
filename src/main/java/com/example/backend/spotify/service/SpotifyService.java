@@ -1,11 +1,16 @@
 package com.example.backend.spotify.service;
 
 import com.example.backend.spotify.dto.Track;
+import com.example.backend.user.entity.User;
+//import com.example.backend.user.repository.RecentRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -19,9 +24,11 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class SpotifyService {
 
     private String accessToken;
+    //private final RecentRepository recentRepository;
 
     public void requestAccessToken() {
         String clientId = "f780b05092934735af74590a2db00115";
@@ -52,8 +59,15 @@ public class SpotifyService {
         });
     }
 
-    public List<Track> getPopularMusics() {
-        String resourcePath = "/v1/playlists/37i9dQZF1DXcBWIGoYBM5M";
+    public List<Track> getTracksInfo(List<String> trackIds) {
+        return getTracksInfo(trackIds, 0);
+    }
+
+    private List<Track> getTracksInfo(List<String> trackIds, int attempt) {
+        if (attempt > 2) {
+            throw new IllegalStateException("재시도 2회 후에도 트랙 정보 가져오기 실패");
+        }
+
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -62,49 +76,43 @@ public class SpotifyService {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
+        String ids = String.join(",", trackIds);
+        String url = String.format("https://api.spotify.com/v1/tracks?ids=%s", ids);
+
         ArrayList<Track> tracklist = new ArrayList<>();
+
         try {
             ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    ("https://api.spotify.com" + resourcePath),
+                    url,
                     HttpMethod.GET,
                     entity,
                     JsonNode.class
             );
 
             JsonNode responseBody = response.getBody();
-            JsonNode items = responseBody.path("tracks").path("items");
+            JsonNode tracksNode = responseBody.path("tracks");
 
-            if (items.isMissingNode()) {
-                // 노드가 누락되었을 때의 처리
+            if (tracksNode.isMissingNode()) {
                 throw new RuntimeException("노드를 찾을 수 없습니다.");
             }
 
-            int count = 0;
-
-            for (JsonNode item : items) {
-                if (count == 10) {
-                    break;
-                }
-
-                String trackTitle = item
-                        .path("track")
+            for (JsonNode trackNode : tracksNode) {
+                String trackTitle = trackNode
                         .path("name")
                         .asText();
 
-                String albumName = item.path("track")
+                String albumName = trackNode
                         .path("album")
                         .path("name")
                         .asText();
 
-                JsonNode imageNodes = item.path("track")
+                JsonNode imageNodes = trackNode
                         .path("album")
                         .path("images");
-                String imageUrl640 = imageNodes.get(0).path("url").asText();
-                String imageUrl300 = imageNodes.get(1).path("url").asText();
-                String imageUrl64 = imageNodes.get(2).path("url").asText();
+                String imageUrl640 = imageNodes.size() > 0 ? imageNodes.get(0).path("url").asText() : "";
 
                 List<Track.Artist> artists = new ArrayList<>();
-                JsonNode artistNodes = item.path("track").path("artists");
+                JsonNode artistNodes = trackNode.path("artists");
                 for (JsonNode artistNode : artistNodes) {
                     String artistName = artistNode.path("name").asText();
                     Track.Artist artist = Track.Artist.builder()
@@ -117,19 +125,35 @@ public class SpotifyService {
                         .trackTitle(trackTitle)
                         .albumName(albumName)
                         .album640Image(imageUrl640)
-                        .album300Image(imageUrl300)
-                        .album64Image(imageUrl64)
                         .artists(artists)
                         .build();
                 tracklist.add(track);
-
-                count++;
             }
         } catch (RestClientException e) {
-            System.err.println("Error occurred: " + e.getMessage());
+            if (isTokenExpired(e)) {
+                requestAccessToken();
+                return getTracksInfo(trackIds, attempt + 1); // 재시도
+            } else {
+                throw e;
+            }
         }
 
         return tracklist;
     }
+
+    private boolean isTokenExpired(RestClientException e) {
+        if (e instanceof HttpStatusCodeException) {
+            HttpStatusCodeException httpException = (HttpStatusCodeException) e;
+
+            //401 여부 체크
+            if (httpException.getStatusCode() == HttpStatus.UNAUTHORIZED) {
+                //반환되는 메세지 확인하여 토큰 만료 여부 확인
+                return httpException.getResponseBodyAsString().contains("The access token expired");
+            }
+        }
+
+        return false;
+    }
+
 }
 

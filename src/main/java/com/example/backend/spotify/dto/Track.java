@@ -9,8 +9,6 @@ public class Track {
     private String trackTitle;
     private String albumName;
     private String album640Image;
-    private String album300Image;
-    private String album64Image;
     private List<Artist> artists;
 
     @Getter
@@ -25,13 +23,10 @@ public class Track {
     }
 
     @Builder
-    public Track(String trackTitle, String albumName, String album640Image,
-                 String album300Image, String album64Image, List<Artist> artists) {
+    public Track(String trackTitle, String albumName, String album640Image, List<Artist> artists) {
         this.trackTitle = trackTitle;
         this.albumName = albumName;
         this.album640Image = album640Image;
-        this.album300Image = album300Image;
-        this.album64Image = album64Image;
         this.artists = artists;
     }
 }
