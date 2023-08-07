@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.example.backend.StatusResponseDto;
-import com.example.backend.security.UserDetailsImpl;
+import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.entity.Follow;

@@ -1,4 +1,4 @@
-package com.example.backend.spotify.dto;
+package com.example.backend.util.spotify.dto;
 
 import lombok.Builder;
 import lombok.Getter;

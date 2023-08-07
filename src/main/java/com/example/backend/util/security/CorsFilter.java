@@ -1,4 +1,4 @@
-package com.example.backend.security;
+package com.example.backend.util.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

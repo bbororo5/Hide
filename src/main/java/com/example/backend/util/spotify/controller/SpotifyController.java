@@ -1,7 +1,7 @@
-package com.example.backend.spotify.controller;
+package com.example.backend.util.spotify.controller;
 
-import com.example.backend.spotify.dto.Track;
-import com.example.backend.spotify.service.SpotifyService;
+import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.util.spotify.service.SpotifyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
