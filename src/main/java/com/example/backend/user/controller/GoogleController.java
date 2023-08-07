@@ -25,7 +25,7 @@ public class GoogleController {
 
 	// 구글 로그인
 	@GetMapping("/api/users/oauth2/google")
-	public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws
+	public RedirectView googleLogin(@RequestParam String code, HttpServletResponse response) throws
 		JsonProcessingException {
 		String token = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
