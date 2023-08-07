@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.example.backend.user.repository.RecentRepository;
+import com.example.backend.util.execption.UserNotFoundException;
+import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.util.spotify.SpotifyUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,9 +53,13 @@ public class UserService {
 	private final JavaMailSender javaMailSender;
 	private final AmazonS3 amazonS3;
 	private final String bucket;
+	private final RecentRepository recentRepository;
+	private SpotifyUtil spotifyUtil;
 
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
+
+
 
 	public ResponseEntity<StatusResponseDto> signup(SignupRequestDto signupRequestDto) {
 		String email = signupRequestDto.getEmail();
@@ -193,5 +201,12 @@ public class UserService {
 			userResponseDtoList.add(new UserInfoDto(follow.getFromUser()));
 		}
 		return userResponseDtoList;
+	}
+
+	public List<Track> getRecentTracks(Long userId) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+		List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
+		return spotifyUtil.getTracksInfo(trackIds);
 	}
 }

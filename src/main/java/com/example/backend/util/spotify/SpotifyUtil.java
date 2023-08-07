@@ -1,4 +1,4 @@
-package com.example.backend.util.spotify.service;
+package com.example.backend.util.spotify;
 
 import com.example.backend.util.spotify.dto.Track;
 import com.example.backend.user.entity.User;
@@ -27,7 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SpotifyService {
+public class SpotifyUtil {
 
     private String accessToken;
     private final RecentRepository recentRepository;
@@ -63,10 +63,18 @@ public class SpotifyService {
     }
 
     public List<Track> getTracksInfo(List<String> trackIds) {
-        return getTracksInfo(trackIds, 0);
+        return fetchDataFromSpotifyAPI(String.join(",", trackIds), "tracks", trackIds.size());
     }
 
-    private List<Track> getTracksInfo(List<String> trackIds, int attempt) {
+    public List<Track> getRecommendTracks(String seedTrackId) {
+        return fetchDataFromSpotifyAPI(seedTrackId, "recommendations", 5);
+    }
+
+    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint, int limit) {
+        return fetchDataFromSpotifyAPI(parameter, endpoint, limit, 0);
+    }
+
+    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint, int limit, int attempt) {
         if (attempt > 2) {
             throw new IllegalStateException("재시도 2회 후에도 트랙 정보 가져오기 실패");
         }
@@ -79,8 +87,7 @@ public class SpotifyService {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        String ids = String.join(",", trackIds);
-        String url = String.format("https://api.spotify.com/v1/tracks?ids=%s", ids);
+        String url = generateSpotifyUrl(parameter, endpoint, limit);
 
         ArrayList<Track> tracklist = new ArrayList<>();
 
@@ -100,48 +107,62 @@ public class SpotifyService {
             }
 
             for (JsonNode trackNode : tracksNode) {
-                String trackTitle = trackNode
-                        .path("name")
-                        .asText();
-
-                String albumName = trackNode
-                        .path("album")
-                        .path("name")
-                        .asText();
-
-                JsonNode imageNodes = trackNode
-                        .path("album")
-                        .path("images");
-                String imageUrl640 = imageNodes.size() > 0 ? imageNodes.get(0).path("url").asText() : "";
-
-                List<Track.Artist> artists = new ArrayList<>();
-                JsonNode artistNodes = trackNode.path("artists");
-                for (JsonNode artistNode : artistNodes) {
-                    String artistName = artistNode.path("name").asText();
-                    Track.Artist artist = Track.Artist.builder()
-                            .artistName(artistName)
-                            .build();
-                    artists.add(artist);
-                }
-
-                Track track = Track.builder()
-                        .trackTitle(trackTitle)
-                        .albumName(albumName)
-                        .album640Image(imageUrl640)
-                        .artists(artists)
-                        .build();
-                tracklist.add(track);
+                tracklist.add(parseTrackNode(trackNode));
             }
         } catch (RestClientException e) {
             if (isTokenExpired(e)) {
                 requestAccessToken();
-                return getTracksInfo(trackIds, attempt + 1); // 재시도
+                return fetchDataFromSpotifyAPI(parameter, endpoint, limit, attempt + 1); // 재시도
             } else {
                 throw e;
             }
         }
 
         return tracklist;
+    }
+
+    private String generateSpotifyUrl(String parameter, String endpoint, int limit) {
+        switch (endpoint) {
+            case "tracks":
+                return String.format("https://api.spotify.com/v1/%s?ids=%s", endpoint, parameter);
+            case "recommendations":
+                return String.format("https://api.spotify.com/v1/%s?limit=%d&seed_tracks=%s", endpoint, limit, parameter);
+            default:
+                throw new IllegalArgumentException("지원하지 않는 엔드포인트입니다.");
+        }
+    }
+
+    private Track parseTrackNode(JsonNode trackNode) {
+        String trackTitle = trackNode
+                .path("name")
+                .asText();
+
+        String albumName = trackNode
+                .path("album")
+                .path("name")
+                .asText();
+
+        JsonNode imageNodes = trackNode
+                .path("album")
+                .path("images");
+        String imageUrl640 = imageNodes.size() > 0 ? imageNodes.get(0).path("url").asText() : "";
+
+        List<Track.Artist> artists = new ArrayList<>();
+        JsonNode artistNodes = trackNode.path("artists");
+        for (JsonNode artistNode : artistNodes) {
+            String artistName = artistNode.path("name").asText();
+            Track.Artist artist = Track.Artist.builder()
+                    .artistName(artistName)
+                    .build();
+            artists.add(artist);
+        }
+
+        return Track.builder()
+                .trackTitle(trackTitle)
+                .albumName(albumName)
+                .album640Image(imageUrl640)
+                .artists(artists)
+                .build();
     }
 
     private boolean isTokenExpired(RestClientException e) {
@@ -164,5 +185,6 @@ public class SpotifyService {
         List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
         return getTracksInfo(trackIds);
     }
+
 }
 
