@@ -3,6 +3,7 @@ package com.example.backend.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.backend.track.entity.TrackCount;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,6 +38,9 @@ public class User {
 	private Long kakaoId;
 	@Column
 	private Long googleId;
+
+	@OneToMany(mappedBy = "user")
+	private List<TrackCount> trackCounts = new ArrayList<>();
 
 	@OneToMany(mappedBy = "toUser") //user
 	private List<Follow> followingList = new ArrayList<>();
