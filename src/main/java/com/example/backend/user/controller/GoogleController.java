@@ -1,5 +1,7 @@
 package com.example.backend.user.controller;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +21,9 @@ public class GoogleController {
 
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/google")
-	public String getLoginUrl() {
-		return googleService.getGoogleLoginForm();
+	public void getLoginUrl(HttpServletResponse response) throws IOException {
+		String url = googleService.getGoogleLoginForm();
+		response.sendRedirect(url);
 	}
 
 	// 구글 로그인
@@ -30,7 +33,7 @@ public class GoogleController {
 		String token = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl("http://localhost:3000");
+		redirectView.setUrl("https://front-end-omega-topaz-47.vercel.app");
 		return redirectView;
 	}
 }
