@@ -31,7 +31,7 @@ public class JwtUtil {
 	// Token 식별자
 	public static final String BEARER_PREFIX = "Bearer ";
 	// 토큰 만료시간
-	private final long ACCESS_TOKEN_TIME = 60 * 120 * 1000L; // 120분
+	private final long ACCESS_TOKEN_TIME = 60 * 120 * 1000L; // 60분
 	private final long TEMPORAL_TOKEN_TIME = 5 * 60 * 1000L; // 120분
 
 	@Value("${jwt.secret.key}")
@@ -46,13 +46,15 @@ public class JwtUtil {
 	}
 
 	// 토큰 생성
-	public String createToken(String email, UserRoleEnum role) {
+	public String createToken(String email,Long userId,String nickname, UserRoleEnum role) {
 		Date date = new Date();
 
 		return BEARER_PREFIX +
 			Jwts.builder()
 				.setSubject(email) // 사용자 식별자값(ID)
 				.claim(AUTHORIZATION_KEY, role) // 사용자 권한
+				.claim("nickname",nickname)
+				.claim("userId",userId)
 				.setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
 				.setIssuedAt(date) // 발급일
 				.signWith(key, SignatureAlgorithm.HS256) // 암호화 알고리즘

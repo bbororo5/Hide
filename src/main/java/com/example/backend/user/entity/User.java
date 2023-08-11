@@ -3,7 +3,10 @@ package com.example.backend.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.backend.chat.entity.ChatRoom;
 import com.example.backend.track.entity.TrackCount;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,9 +54,19 @@ public class User {
 	@JoinColumn(name = "image_key")
 	private Image image;
 
-	public void updateUserProfile(String nickname, Image image) {
-		this.nickname = nickname;
+	@OneToMany(mappedBy = "sender")
+	@JsonManagedReference
+	private List<ChatRoom> sentChatRooms = new ArrayList<>();
+
+	@OneToMany(mappedBy = "receiver")
+	@JsonManagedReference
+	private List<ChatRoom> receivedChatRooms = new ArrayList<>();
+
+	public void updateUserImage(Image image) {
 		this.image = image;
+	}
+	public void updateUserNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 	public User(String email, String password, String nickname, UserRoleEnum role) {

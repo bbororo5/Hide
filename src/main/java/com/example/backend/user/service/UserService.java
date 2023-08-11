@@ -94,8 +94,9 @@ public class UserService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
 		UserDetailsImpl userDetails) {
-		User user = userDetails.getUser();
-		Image profileImage= null;
+		User user = userRepository.findById(userDetails.getUser().getUserId())
+			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+
 		if (imageFile != null) {
 			imageUtil.validateFile(imageFile);
 			//기존 이미지를 bucket과 Image 테이블에서 삭제.
@@ -106,16 +107,19 @@ public class UserService {
 			}
 			//새로운 image 객체 생성.
 			String fileUUID = imageUtil.uploadToS3(imageFile, amazonS3, bucket);
-			profileImage = new Image(fileUUID, amazonS3.getUrl(bucket,fileUUID).toString());
+			Image profileImage = new Image(fileUUID, amazonS3.getUrl(bucket,fileUUID).toString());
+			user.updateUserImage(profileImage);
 		}
-		user.updateUserProfile(nickname,profileImage);
+		if(nickname!=null){
+			user.updateUserNickname(nickname);
+		}
 		return new ResponseEntity<>(new StatusResponseDto("프로필 수정이 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> removeUser(UserDetailsImpl userDetails) {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
 		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}

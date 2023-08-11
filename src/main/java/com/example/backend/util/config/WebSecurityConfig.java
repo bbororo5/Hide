@@ -89,7 +89,8 @@ public class WebSecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> allowedOrigins = Arrays.asList(
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://front-end-omega-topaz-47.vercel.app"
                 //예시...
         );
         configuration.setAllowedOrigins(allowedOrigins);

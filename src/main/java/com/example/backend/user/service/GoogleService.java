@@ -39,7 +39,6 @@ public class GoogleService {
 	@Value("${oauth2.google.redirect-uri}")
 	private String googleRedirectUri;
 
-
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final RestTemplate restTemplate;
@@ -56,7 +55,7 @@ public class GoogleService {
 		User googleUser = signupWithGoogleEmail(googleUserInfo);
 
 		// 4. JWT 토큰 반환
-		String createToken = jwtUtil.createToken(googleUser.getEmail(), googleUser.getRole());
+		String createToken = jwtUtil.createToken(googleUser.getEmail(),googleUser.getUserId(), googleUser.getNickname(), googleUser.getRole());
 		return createToken;
 	}
 
@@ -124,9 +123,9 @@ public class GoogleService {
 
 		JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
 		log.info(jsonNode.toString());
-		Long googleId = Long.parseLong(jsonNode.get("sub").asText().substring(0,13));
+		Long googleId = Long.parseLong(jsonNode.get("sub").asText().substring(0, 13));
 		String email = jsonNode.get("email").asText();
-		String nickname = email.substring(0,email.indexOf('@'));
+		String nickname = email.substring(0, email.indexOf('@'));
 
 		return new UserInfoDto(googleId, nickname, email);
 	}
@@ -153,7 +152,8 @@ public class GoogleService {
 				// email: google email
 				String email = UserInfo.getEmail();
 
-				googleUser = new User(email, encodedPassword, UserInfo.getNickname(), UserRoleEnum.USER, googleId ,null);
+				googleUser = new User(email, encodedPassword, UserInfo.getNickname(), UserRoleEnum.USER, googleId,
+					null);
 			}
 
 			userRepository.save(googleUser);
@@ -166,7 +166,8 @@ public class GoogleService {
 			+ googleClientId
 			+ "&redirect_uri="
 			+ googleRedirectUri
-			+ "&response_type=code" + "&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile"
+			+ "&response_type=code"
+			+ "&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile"
 			+ "&access_type=offline";
 	}
 }

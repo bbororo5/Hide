@@ -45,12 +45,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		Authentication authResult) throws IOException,
 		ServletException {
 		String email = ((UserDetailsImpl)authResult.getPrincipal()).getUsername(); //getUsername이지만 email을 받아옴.
+		String nickname = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getNickname();
+		Long userId = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getUserId();
 		UserRoleEnum role = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getRole();
-		String token = jwtUtil.createToken(email, role);
+		String token = jwtUtil.createToken(email,userId, nickname, role);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.",true)));
+		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.", true)));
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -37,8 +38,8 @@ public class UserController {
 	}
 
 	@PatchMapping("/users/update-profile")
-	public ResponseEntity<StatusResponseDto> updateUser(@RequestPart("image") MultipartFile imageFile,
-		@RequestPart("nickname") String nickname,
+	public ResponseEntity<StatusResponseDto> updateUser(@RequestPart(value = "image",required = false) MultipartFile imageFile,
+		@RequestPart(value = "nickname", required = false) String nickname,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		return userService.updateUser(imageFile, nickname ,userDetails);
 	}
