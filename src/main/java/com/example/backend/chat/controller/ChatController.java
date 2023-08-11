@@ -36,8 +36,8 @@ public class ChatController {
 	}
 
 	@ResponseBody
-	@GetMapping("/chat/{roomName}/chat-list")
-	public List<ChatMessage> getAllMessages(@PathVariable String roomName){
+	@GetMapping("/chat/{room-name}/chat-list")
+	public List<ChatMessage> getAllMessages(@PathVariable(value = "room-name") String roomName){
 		return chatService.getAllMessages(roomName);
 	}
 
