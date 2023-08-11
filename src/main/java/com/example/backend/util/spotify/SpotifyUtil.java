@@ -62,19 +62,24 @@ public class SpotifyUtil {
         });
     }
 
-    public List<Track> getTracksInfo(List<String> trackIds) {
-        return fetchDataFromSpotifyAPI(String.join(",", trackIds), "tracks", trackIds.size());
+    public List<Track> getTracksInfo(List<String> trackIdList) {
+        return fetchDataFromSpotifyAPI(String.join(",", trackIdList), "tracks");
     }
 
-    public List<Track> getRecommendTracks(String seedTrackId) {
-        return fetchDataFromSpotifyAPI(seedTrackId, "recommendations", 5);
+    public List<Track> getRecommendTracks(List<String> trackIdList) {
+        return fetchDataFromSpotifyAPI(String.join(",", trackIdList), "recommendations");
     }
 
-    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint, int limit) {
-        return fetchDataFromSpotifyAPI(parameter, endpoint, limit, 0);
+    public List<Track> getSearchResult(String keyword) {
+        return fetchDataFromSpotifyAPI(keyword, "search");
     }
 
-    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint, int limit, int attempt) {
+
+    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint) {
+        return fetchDataFromSpotifyAPI(parameter, endpoint, 0);
+    }
+
+    private List<Track> fetchDataFromSpotifyAPI(String parameter, String endpoint, int attempt) {
         if (attempt > 2) {
             throw new IllegalStateException("재시도 2회 후에도 트랙 정보 가져오기 실패");
         }
@@ -87,7 +92,7 @@ public class SpotifyUtil {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        String url = generateSpotifyUrl(parameter, endpoint, limit);
+        String url = generateSpotifyUrl(parameter, endpoint);
 
         ArrayList<Track> tracklist = new ArrayList<>();
 
@@ -112,7 +117,7 @@ public class SpotifyUtil {
         } catch (RestClientException e) {
             if (isTokenExpired(e)) {
                 requestAccessToken();
-                return fetchDataFromSpotifyAPI(parameter, endpoint, limit, attempt + 1); // 재시도
+                return fetchDataFromSpotifyAPI(parameter, endpoint, attempt + 1); // 재시도
             } else {
                 throw e;
             }
@@ -121,12 +126,14 @@ public class SpotifyUtil {
         return tracklist;
     }
 
-    private String generateSpotifyUrl(String parameter, String endpoint, int limit) {
+    private String generateSpotifyUrl(String parameter, String endpoint) {
         switch (endpoint) {
             case "tracks":
                 return String.format("https://api.spotify.com/v1/%s?ids=%s", endpoint, parameter);
             case "recommendations":
-                return String.format("https://api.spotify.com/v1/%s?limit=%d&seed_tracks=%s", endpoint, limit, parameter);
+                return String.format("https://api.spotify.com/v1/%s?limit=10&seed_tracks=%s", endpoint, parameter);
+            case "search":
+                return String.format("https://api.spotify.com/v1/%s?q=%s&type=&limit=20", endpoint, parameter);
             default:
                 throw new IllegalArgumentException("지원하지 않는 엔드포인트입니다.");
         }
@@ -185,6 +192,5 @@ public class SpotifyUtil {
         List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
         return getTracksInfo(trackIds);
     }
-
 }
 
