@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -26,27 +27,44 @@ public class TrackService {
     private final UserRepository userRepository;
     private SpotifyUtil spotifyUtil;
 
+
+
     public void increasePlayCount(String trackId, User user) {
         TrackCount trackCount = trackCountRepository.findById(trackId)
-                .orElse(new TrackCount(trackId, user, 1)); // 트랙이 없는 경우 새 TrackCount 생성
+                .orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성
+        handleTrackCountLimit();
         trackCount.increasePlayCount();
         trackCountRepository.save(trackCount);
     }
 
-    public List<Track> getTracksOrderedByPlayCount() {
-        Pageable topTen = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "playCount"));
-        List<TrackCount> trackCounts = (List<TrackCount>) trackCountRepository.findAll(topTen).getContent();
 
-        List<String> trackIds = new ArrayList<>();
-        for (TrackCount trackCount : trackCounts) {
-            trackIds.add(trackCount.getTrackId());
+    private void handleTrackCountLimit() {
+        long count = trackCountRepository.count();
+        if (count >= 500) {
+            removeOldestTrackCount();
         }
+    }
+
+    private void removeOldestTrackCount() {
+        trackCountRepository.findFirstByOrderByCreatedAtAsc().ifPresent(trackCountRepository::delete);
+    }
+
+    public List<Track> getTopTracks() {
+        Pageable top10 = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "playCount"));
+        List<TrackCount> trackCounts = trackCountRepository.findAll(top10).getContent();
+
+        List<String> trackIds = trackCounts.stream()
+                .map(TrackCount::getTrackId)
+                .collect(Collectors.toList());
 
         return spotifyUtil.getTracksInfo(trackIds);
     }
 
-    public List<String> getTop2TracksByUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
+
+
+
+    private List<String> getTop2TracksByUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저 " +userId + "를 찾을 수 없습니다."));
 
         List<TrackCount> trackCounts = trackCountRepository.findTop2ByUserOrderByPlayCountDesc(user);
 
@@ -55,19 +73,22 @@ public class TrackService {
             trackIds.add(trackCount.getTrackId());
         }
 
+        // 초기 사용자 체크: trackCounts가 비어있거나 크기가 2보다 작을 경우 인기곡 로직 추가 필요
+
         return trackIds;
     }
 
     public List<Track> recommendTracks(UserDetailsImpl userDetails) {
         List<String> trackIds = getTop2TracksByUser(userDetails.getUser().getUserId());
-        for (String trackId : trackIds) {
-            try {
-                return spotifyUtil.getRecommendTracks(trackId);
-            } catch (NotFoundTrackException e) {
-                throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
-            }
 
+        if (trackIds.isEmpty()) {
+            throw new RuntimeException("추천 트랙을 받아오지 못했습니다");
         }
-        throw new RuntimeException("추천 트랙을 받아오지 못했습니다");
+
+        try {
+            return spotifyUtil.getRecommendTracks(trackIds);
+        } catch (NotFoundTrackException e) {
+            throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
+        }
     }
 }

@@ -4,16 +4,28 @@ import com.example.backend.user.entity.User;
 import jakarta.persistence.*;
 
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class TrackCount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String trackId;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -34,6 +46,4 @@ public class TrackCount {
     public void increasePlayCount() {
         this.playCount += 1;
     }
-
-
 }

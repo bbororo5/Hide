@@ -7,9 +7,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TrackCountRepository extends JpaRepository<TrackCount, String> {
-    Page<TrackCount> findAll(Pageable pageable);
+    Optional<TrackCount> findFirstByOrderByCreatedAtAsc();
+
     List<TrackCount> findTop2ByUserOrderByPlayCountDesc(User user);
 }
 
