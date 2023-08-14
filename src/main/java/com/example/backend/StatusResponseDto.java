@@ -13,7 +13,7 @@ public class StatusResponseDto {
 		this.msg = msg;
 	}
 
-	public StatusResponseDto(String msg, Boolean isSuccess) {
+	public StatusResponseDto(String msg, boolean isSuccess) {
 		this.msg = msg;
 		this.isSuccess = isSuccess;
 	}
