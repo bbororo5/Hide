@@ -3,7 +3,6 @@ package com.example.backend.chat.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.backend.chat.entity.ChatMessage;
 import com.example.backend.chat.entity.ChatRoom;
 
 import lombok.Getter;
@@ -12,14 +11,17 @@ import lombok.Getter;
 public class ChatRoomDto {
 	private String roomName;
 	private LocalDateTime modifiedAt;
-	private ChatMessage lastChatMessage;
+	private String oppositeNickname;
+	private MessageDto lastChatMessage;
 
-	public ChatRoomDto(ChatRoom chatRoom) {
+	public ChatRoomDto(ChatRoom chatRoom, String oppositeNickname) {
 		this.roomName = chatRoom.getRoomName();
 		this.modifiedAt = chatRoom.getModifiedAt();
-		List<ChatMessage> messages = chatRoom.getChatMessage();
-		if(!messages.isEmpty()){
-			this.lastChatMessage = messages.get(messages.size()-1);
+		this.oppositeNickname = oppositeNickname;
+		List<MessageDto> messages = chatRoom.getChatMessage().stream().map(MessageDto::new)
+			.toList();
+		if (!messages.isEmpty()) {
+			this.lastChatMessage = messages.get(messages.size() - 1);
 		}
 	}
 }

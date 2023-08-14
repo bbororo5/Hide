@@ -14,9 +14,12 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.example.backend.user.dto.TokenDto;
 import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,10 +44,11 @@ public class GoogleService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
 
-	public String googleLogin(String code) throws JsonProcessingException {
+	public TokenDto googleLogin(String code) throws JsonProcessingException {
 		// 1. "인가 코드"로 "액세스 토큰" 요청
 		String accessToken = getGoogleToken(code);
 
@@ -55,8 +59,19 @@ public class GoogleService {
 		User googleUser = signupWithGoogleEmail(googleUserInfo);
 
 		// 4. JWT 토큰 반환
-		String createToken = jwtUtil.createToken(googleUser.getEmail(),googleUser.getUserId(), googleUser.getNickname(), googleUser.getRole());
-		return createToken;
+		String createAccessToken = jwtUtil.createAccessToken(googleUser.getEmail(), googleUser.getUserId(),
+			googleUser.getNickname(), googleUser.getRole());
+		String createRefreshToken = jwtUtil.createRefreshToken(googleUser.getEmail());
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken);
+		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(googleUser.getEmail()).orElse(null);
+		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
+		if (CheckRefreshToken != null) {
+			refreshTokenRepository.delete(CheckRefreshToken);
+		}
+		RefreshToken newRefreshToken = new RefreshToken(
+			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), googleUser.getEmail());
+		refreshTokenRepository.save(newRefreshToken);
+		return tokenDto;
 	}
 
 	private String getGoogleToken(String code) throws JsonProcessingException {

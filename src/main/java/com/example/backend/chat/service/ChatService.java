@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.backend.chat.dto.ChatResponse;
 import com.example.backend.chat.dto.ChatRoomDto;
 import com.example.backend.chat.dto.MessageDto;
 import com.example.backend.chat.entity.ChatMessage;
@@ -17,6 +18,7 @@ import com.example.backend.chat.repository.ChatMessageRepository;
 import com.example.backend.chat.repository.ChatRoomRepository;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -51,10 +53,20 @@ public class ChatService {
 		chatMessageRepository.save(newChatMessage);
 	}
 
-	public List<ChatMessage> getAllMessages(String roomName) {
+	public ChatResponse getAllMessages(String roomName , UserDetailsImpl userDetails) {
 		ChatRoom chatRoom = chatRoomRepository.findByRoomName(roomName)
 			.orElseThrow(() -> new NullPointerException("채팅방이 존재하지 않습니다."));
-		return chatRoom.getChatMessage();
+		User sender = chatRoom.getSender();
+		User receiver = chatRoom.getReceiver();
+
+		ChatResponse chatResponse = new ChatResponse();
+		chatResponse.changeToMessageDto(chatRoom.getChatMessage());
+		if(userDetails.getUser().getUserId()==sender.getUserId()){
+			chatResponse.setNickname(receiver.getNickname());
+		}else{
+			chatResponse.setNickname(sender.getNickname());
+		}
+		return chatResponse;
 	}
 
 	public List<ChatRoomDto> getAllRooms(Long userId) {  //이러면 다른사람 채팅방 목록도 볼 수 있음 토큰에서 가져와야할듯
@@ -62,8 +74,25 @@ public class ChatService {
 			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
 		List<ChatRoom> received = user.getReceivedChatRooms();
 		List<ChatRoom> sent = user.getSentChatRooms(); // 이 부분을 올바르게 변경
-		return Stream.concat(received.stream(), sent.stream())
-			.sorted(Comparator.comparing(ChatRoom::getModifiedAt).reversed()).map(ChatRoomDto::new)
-			.collect(Collectors.toList());
+		List<ChatRoom> combined = new ArrayList<>();
+		combined.addAll(received);
+		combined.addAll(sent);
+
+		combined.sort(Comparator.comparing(ChatRoom::getModifiedAt).reversed());
+
+		List<ChatRoomDto> result = new ArrayList<>();
+
+		for (ChatRoom chatRoom : combined) {
+			String oppositeNickname;
+			if(userId==chatRoom.getSender().getUserId()){
+				oppositeNickname = chatRoom.getReceiver().getNickname();
+			}else{
+				oppositeNickname = chatRoom.getSender().getNickname();
+			}
+			ChatRoomDto chatRoomDto = new ChatRoomDto(chatRoom,oppositeNickname); // 필요한 경우 파라미터 추가
+			result.add(chatRoomDto);
+		}
+
+		return result;
 	}
 }
