@@ -74,8 +74,25 @@ public class ChatService {
 			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
 		List<ChatRoom> received = user.getReceivedChatRooms();
 		List<ChatRoom> sent = user.getSentChatRooms(); // 이 부분을 올바르게 변경
-		return Stream.concat(received.stream(), sent.stream())
-			.sorted(Comparator.comparing(ChatRoom::getModifiedAt).reversed()).map(ChatRoomDto::new)
-			.toList();
+		List<ChatRoom> combined = new ArrayList<>();
+		combined.addAll(received);
+		combined.addAll(sent);
+
+		combined.sort(Comparator.comparing(ChatRoom::getModifiedAt).reversed());
+
+		List<ChatRoomDto> result = new ArrayList<>();
+
+		for (ChatRoom chatRoom : combined) {
+			String oppositeNickname;
+			if(userId==chatRoom.getSender().getUserId()){
+				oppositeNickname = chatRoom.getReceiver().getNickname();
+			}else{
+				oppositeNickname = chatRoom.getSender().getNickname();
+			}
+			ChatRoomDto chatRoomDto = new ChatRoomDto(chatRoom,oppositeNickname); // 필요한 경우 파라미터 추가
+			result.add(chatRoomDto);
+		}
+
+		return result;
 	}
 }
