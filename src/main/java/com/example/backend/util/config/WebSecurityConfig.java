@@ -76,7 +76,6 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(
 				request -> request
-					.requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 					.requestMatchers("/").permitAll() // 메인 페이지
 					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
 					.requestMatchers(GET, "/api/users/**").permitAll() // 유저관련 요청 허가
@@ -86,23 +85,5 @@ public class WebSecurityConfig {
 					.anyRequest().permitAll()
 			);
 		return http.build();
-	}
-
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		List<String> allowedOrigins = Arrays.asList(
-			"http://localhost:3000",
-			"https://front-end-omega-topaz-47.vercel.app"
-			//예시...
-		);
-		configuration.setAllowedOrigins(allowedOrigins);
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
-		configuration.setAllowedHeaders(Arrays.asList("*"));
-		configuration.addExposedHeader("Authorization");
-		configuration.setAllowCredentials(true);
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
 	}
 }
