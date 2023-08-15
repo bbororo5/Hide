@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class TrackService {
     private final TrackCountRepository trackCountRepository;
     private final UserRepository userRepository;
-    private SpotifyUtil spotifyUtil;
+    private final SpotifyUtil spotifyUtil;
 
 
 
