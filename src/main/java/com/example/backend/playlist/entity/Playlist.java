@@ -1,5 +1,4 @@
 package com.example.backend.playlist.entity;
-
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -43,3 +42,4 @@ public class Playlist {
 		this.user = user;
 	}
 }
+

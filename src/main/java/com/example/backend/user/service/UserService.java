@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.example.backend.user.repository.RecentRepository;
+import com.example.backend.util.execption.UserNotFoundException;
+import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.util.spotify.SpotifyUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,28 +25,21 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.example.backend.StatusResponseDto;
+import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserProfileDto;
 import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
-import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.user.repository.FollowRepository;
 import com.example.backend.user.repository.ImageRepository;
-import com.example.backend.user.repository.RecentRepository;
-import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
-import com.example.backend.util.execption.UserNotFoundException;
-import com.example.backend.util.security.UserDetailsImpl;
-import com.example.backend.util.spotify.SpotifyUtil;
-import com.example.backend.util.spotify.dto.Track;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,7 +49,6 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final FollowRepository followRepository;
 	private final ImageRepository imageRepository;
-	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtUtil jwtUtil;
 	private final ImageUtil imageUtil;
 	private final JavaMailSender javaMailSender;
@@ -63,6 +59,8 @@ public class UserService {
 
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
+
+
 
 	public ResponseEntity<StatusResponseDto> signup(SignupRequestDto signupRequestDto) {
 		String email = signupRequestDto.getEmail();
@@ -97,33 +95,28 @@ public class UserService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
 		UserDetailsImpl userDetails) {
-		User user = userRepository.findById(userDetails.getUser().getUserId())
-			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
-
+		User user = userDetails.getUser();
+		Image profileImage= null;
 		if (imageFile != null) {
 			imageUtil.validateFile(imageFile);
 			//기존 이미지를 bucket과 Image 테이블에서 삭제.
-			if (user.getImage() != null) {
-				DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket,
-					user.getImage().getImageKey());
+			if(user.getImage()!=null){
+				DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, user.getImage().getImageKey());
 				amazonS3.deleteObject(deleteObjectRequest);
 				imageRepository.delete(user.getImage());
 			}
 			//새로운 image 객체 생성.
 			String fileUUID = imageUtil.uploadToS3(imageFile, amazonS3, bucket);
-			Image profileImage = new Image(fileUUID, amazonS3.getUrl(bucket, fileUUID).toString());
-			user.updateUserImage(profileImage);
+			profileImage = new Image(fileUUID, amazonS3.getUrl(bucket,fileUUID).toString());
 		}
-		if (nickname != null) {
-			user.updateUserNickname(nickname);
-		}
+		user.updateUserProfile(nickname,profileImage);
 		return new ResponseEntity<>(new StatusResponseDto("프로필 수정이 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> removeUser(UserDetailsImpl userDetails) {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
-			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
 		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}
@@ -174,10 +167,13 @@ public class UserService {
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails,
-		HttpServletRequest request, HttpServletResponse response) {
+		HttpServletRequest request) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		String newPassword = passwordEncoder.encode(userInfo.getPassword());
+		if (!jwtUtil.validateToken(request.getHeader(JwtUtil.AUTHORIZATION_HEADER))) {
+			return new ResponseEntity<>(new StatusResponseDto("비밀번호 변경이 실패했습니다."), HttpStatus.UNAUTHORIZED);
+		}
 		user.updatePassword(newPassword);
 		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.", true), HttpStatus.OK);
 	}
@@ -210,7 +206,7 @@ public class UserService {
 
 	public List<Track> getRecentTracks(Long userId) {
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+				.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
 		return spotifyUtil.getTracksInfo(trackIds);
 	}
@@ -236,4 +232,5 @@ public class UserService {
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		return new ResponseEntity<>(new UserProfileDto(user),HttpStatus.OK);
 	}
+
 }
