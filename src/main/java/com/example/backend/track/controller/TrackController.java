@@ -23,8 +23,8 @@ public class TrackController {
         return ResponseEntity.ok(trackService.getTopTracks());
     }
 
-    @PatchMapping("/play-count")
-    public ResponseEntity<?> increasePlayCount(String trackId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PatchMapping("/play-count/{track-id}")
+    public ResponseEntity<?> increasePlayCount(@PathVariable(name = "track-id") String trackId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         trackService.increasePlayCount(trackId, userDetails.getUser());
         return ResponseEntity.ok().body("Play count가 1 올랐습니다.");
     }
