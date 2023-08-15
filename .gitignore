@@ -39,3 +39,6 @@ out/
 
 ### application properties ###
 application-secret.properties
+
+#keystore
+keystore.p12
