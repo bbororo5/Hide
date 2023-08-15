@@ -66,6 +66,18 @@ public class SpotifyUtil {
         return fetchDataFromSpotifyAPI(String.join(",", trackIdList), "tracks");
     }
 
+    public Track getTracksInfo(String trackId) {
+        return fetchSingleTrackFromSpotifyAPI(trackId, "tracks");
+    }
+
+    private Track fetchSingleTrackFromSpotifyAPI(String parameter, String endpoint) {
+        List<Track> tracks = fetchDataFromSpotifyAPI(parameter, endpoint);
+        if (tracks.isEmpty()) {
+            throw new RuntimeException("트랙을 찾을 수 없습니다.");
+        }
+        return tracks.get(0);
+    }
+
     public List<Track> getRecommendTracks(List<String> trackIdList) {
         return fetchDataFromSpotifyAPI(String.join(",", trackIdList), "recommendations");
     }
