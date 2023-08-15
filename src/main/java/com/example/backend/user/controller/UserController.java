@@ -10,18 +10,20 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.StatusResponseDto;
-import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.service.UserService;
+import com.example.backend.util.security.UserDetailsImpl;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,10 +39,11 @@ public class UserController {
 	}
 
 	@PatchMapping("/users/update-profile")
-	public ResponseEntity<StatusResponseDto> updateUser(@RequestPart("image") MultipartFile imageFile,
-		@RequestPart("nickname") String nickname,
+	public ResponseEntity<StatusResponseDto> updateUser(
+		@RequestPart(value = "image", required = false) MultipartFile imageFile,
+		@RequestPart(value = "nickname", required = false) String nickname,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return userService.updateUser(imageFile, nickname ,userDetails);
+		return userService.updateUser(imageFile, nickname, userDetails);
 	}
 
 	@DeleteMapping("/users")
@@ -57,8 +60,9 @@ public class UserController {
 	@PatchMapping("/users/reset-password")
 	public ResponseEntity<StatusResponseDto> changePw(@RequestBody UserInfoDto userInfo,
 		HttpServletRequest request,
+		HttpServletResponse response,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return userService.changePw(userInfo, userDetails, request);
+		return userService.changePw(userInfo, userDetails, request, response);
 	}
 
 	@PostMapping("/follow/users/{user-id}")
@@ -77,5 +81,11 @@ public class UserController {
 	@GetMapping("/follower/users/{user-id}")
 	public List<UserInfoDto> getFromUsers(@PathVariable("user-id") Long userId) {
 		return userService.getFromUsers(userId);
+	}
+
+	@PostMapping("/token/refresh")
+	public ResponseEntity<StatusResponseDto> refreshAccessToken(@RequestHeader("Refresh-Token") String refreshToken,
+		HttpServletResponse response) {
+		return userService.refreshAccessToken(refreshToken, response);
 	}
 }
