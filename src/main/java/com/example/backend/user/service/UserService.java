@@ -23,6 +23,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.example.backend.StatusResponseDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.dto.UserProfileDto;
 import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.RefreshToken;
@@ -228,5 +229,11 @@ public class UserService {
 		} else {
 			return new ResponseEntity<>(new StatusResponseDto("리프레시 토큰이 유효하지 않습니다.", false), HttpStatus.CONFLICT);
 		}
+	}
+
+	public ResponseEntity<UserProfileDto> getUserInfo(Long userId) {
+		User user = userRepository.findByUserId(userId)
+			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+		return new ResponseEntity<>(new UserProfileDto(user),HttpStatus.OK);
 	}
 }

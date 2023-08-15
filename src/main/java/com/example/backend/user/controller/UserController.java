@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.backend.StatusResponseDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.dto.UserProfileDto;
 import com.example.backend.user.service.UserService;
 import com.example.backend.util.security.UserDetailsImpl;
 
@@ -36,6 +37,11 @@ public class UserController {
 	@PostMapping("/users/signup")
 	public ResponseEntity<StatusResponseDto> signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
 		return userService.signup(signupRequestDto);
+	}
+
+	@GetMapping("/users/user-info/{user-id}")
+	public ResponseEntity<UserProfileDto> getUserInfo(@PathVariable(name = "user-id") Long userId){
+		return userService.getUserInfo(userId);
 	}
 
 	@PatchMapping("/users/update-profile")
