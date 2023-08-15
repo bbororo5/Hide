@@ -203,10 +203,5 @@ public class UserService {
 		return userResponseDtoList;
 	}
 
-	public List<Track> getRecentTracks(Long userId) {
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-		List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
-		return spotifyUtil.getTracksInfo(trackIds);
-	}
+
 }

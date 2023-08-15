@@ -9,9 +9,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.backend.StatusResponseDto;
 import com.example.backend.user.dto.UserInfoDto;
-import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.UserRoleEnum;
-import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,11 +20,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final JwtUtil jwtUtil;
-	private final RefreshTokenRepository refreshTokenRepository;
 
-	public JwtAuthenticationFilter(JwtUtil jwtUtil , RefreshTokenRepository refreshTokenRepository) {
+	public JwtAuthenticationFilter(JwtUtil jwtUtil) {
 		this.jwtUtil = jwtUtil;
-		this.refreshTokenRepository = refreshTokenRepository;
 		setFilterProcessesUrl("/api/users/login");
 	}
 
@@ -49,25 +45,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		Authentication authResult) throws IOException,
 		ServletException {
 		String email = ((UserDetailsImpl)authResult.getPrincipal()).getUsername(); //getUsername이지만 email을 받아옴.
-		String nickname = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getNickname();
-		Long userId = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getUserId();
 		UserRoleEnum role = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getRole();
-		String createAccessToken = jwtUtil.createAccessToken(email, userId, nickname, role);
-		String createRefreshToken = jwtUtil.createRefreshToken(email);
-
-		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(email).orElse(null);
-		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
-		if(CheckRefreshToken!=null){
-			refreshTokenRepository.delete(CheckRefreshToken);
-		}
-		RefreshToken newRefreshToken = new RefreshToken(jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), email);
-		refreshTokenRepository.save(newRefreshToken);
-
-		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createAccessToken);
-		response.addHeader(JwtUtil.REFRESH_HEADER, createRefreshToken);
+		String token = jwtUtil.createToken(email, role);
+		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.", true)));
+		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.",true)));
 	}
 
 	@Override

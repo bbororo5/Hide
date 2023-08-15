@@ -26,6 +26,5 @@ public abstract class Timestamped {
 	@LastModifiedDate // 객체의 값이 변경될 때 변경되는 시간을 자동 저장
 	@Column
 	@Temporal(TemporalType.TIMESTAMP)
-	protected LocalDateTime modifiedAt; // 마지막 수정 시간 필드
-
+	private LocalDateTime modifiedAt; // 마지막 수정 시간 필드
 }
