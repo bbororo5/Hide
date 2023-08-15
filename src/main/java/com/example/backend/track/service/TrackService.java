@@ -32,6 +32,7 @@ public class TrackService {
 
 
 
+
     public void increasePlayCount(String trackId, User user) {
         TrackCount trackCount = trackCountRepository.findById(trackId)
                 .orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성

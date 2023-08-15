@@ -32,10 +32,11 @@ public class SpotifyUtil {
     private String accessToken;
     private final RecentRepository recentRepository;
     private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
 
     public void requestAccessToken() {
-        String clientId = "f780b05092934735af74590a2db00115";
-        String clientSecret = "42de17c59f66414f9bcbb95ba597b59a";
+        String clientId = "0904e40581b74ecc9771dc2bf24754ce";
+        String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
         String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
         WebClient webClient = WebClient.builder()
@@ -50,7 +51,7 @@ public class SpotifyUtil {
                 .retrieve()
                 .bodyToMono(String.class);
 
-        responseMono.subscribe(response -> {
+        String response = responseMono.block(); // 기다리기
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(response);
@@ -59,7 +60,7 @@ public class SpotifyUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        });
+
     }
 
     public List<Track> getTracksInfo(List<String> trackIdList) {
@@ -95,6 +96,7 @@ public class SpotifyUtil {
         if (attempt > 2) {
             throw new IllegalStateException("재시도 2회 후에도 트랙 정보 가져오기 실패");
         }
+        requestAccessToken();
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -203,6 +205,36 @@ public class SpotifyUtil {
                 .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
         List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
         return getTracksInfo(trackIds);
+    }
+
+    public Track getTrackInfo(String trackId) {
+        requestAccessToken();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>("", headers);
+
+        String url = String.format("https://api.spotify.com/v1/tracks/%s", trackId);
+
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                JsonNode.class
+            );
+
+            return parseTrackNode(response.getBody());
+        } catch (RestClientException e) {
+            if (isTokenExpired(e)) {
+                requestAccessToken();
+                return getTrackInfo(trackId); // 재시도
+            } else {
+                throw e;
+            }
+        }
     }
 }
 

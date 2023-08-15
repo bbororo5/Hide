@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.backend.chat.entity.ChatRoom;
+import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.track.entity.TrackCount;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -45,9 +46,9 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<TrackCount> trackCounts = new ArrayList<>();
 
-	@OneToMany(mappedBy = "toUser") //user
+	@OneToMany(mappedBy = "toUser")
 	private List<Follow> followingList = new ArrayList<>();
-	@OneToMany(mappedBy = "fromUser")  //pin
+	@OneToMany(mappedBy = "fromUser")
 	private List<Follow> followerList = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL)
@@ -61,6 +62,9 @@ public class User {
 	@OneToMany(mappedBy = "receiver")
 	@JsonManagedReference
 	private List<ChatRoom> receivedChatRooms = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private List<Playlist> playlists = new ArrayList<>();
 
 	public void updateUserImage(Image image) {
 		this.image = image;

@@ -1,36 +1,45 @@
 package com.example.backend.playlist.entity;
+import java.time.LocalDateTime;
 
-import com.example.backend.playlist.entity.Music;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.example.backend.user.entity.User;
+import com.example.backend.util.spotify.dto.Track;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
-@Setter
-@Table(name = "playlist")
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Playlist {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	@Column(nullable = false)
+	private String trackId;
+	@CreatedDate
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@ManyToOne
+	User user;
 
-    @Column(name = "userId", nullable = false)
-    private String userId;
-
-    @ManyToMany
-    @JoinTable(
-            name = "playlist_music",
-            joinColumns = @JoinColumn(name = "playlist_id"),
-            inverseJoinColumns = @JoinColumn(name = "music_id"))
-    private List<Music> musics = new ArrayList<>();
-
-    public Playlist(String userId) {
-        this.userId = userId;
-    }
+	public Playlist(String trackId, User user) {
+		this.trackId = trackId;
+		this.user = user;
+	}
 }
+

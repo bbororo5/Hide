@@ -28,6 +28,7 @@ import com.example.backend.StatusResponseDto;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.dto.UserProfileDto;
 import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.User;
@@ -209,4 +210,27 @@ public class UserService {
 		List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
 		return spotifyUtil.getTracksInfo(trackIds);
 	}
+
+	public ResponseEntity<StatusResponseDto> refreshAccessToken(String refreshToken, HttpServletResponse response) {
+		String token = jwtUtil.substringToken(refreshToken);
+		String email = jwtUtil.getUserInfoFromToken(token).getSubject();
+		User user = userRepository.findByEmail(email)
+			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+		String newAccessToken = jwtUtil.createAccessToken(email, user.getUserId(), user.getNickname(), user.getRole());
+		RefreshToken refreshTokenFromDB = refreshTokenRepository.findByKeyEmail(email)
+			.orElseThrow(() -> new NullPointerException("리프레시 토큰이 없습니다."));
+		if (jwtUtil.encryptRefreshToken(token).equals(refreshTokenFromDB.getRefreshToken())) {
+			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
+			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(new StatusResponseDto("리프레시 토큰이 유효하지 않습니다.", false), HttpStatus.CONFLICT);
+		}
+	}
+
+	public ResponseEntity<UserProfileDto> getUserInfo(Long userId) {
+		User user = userRepository.findByUserId(userId)
+			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+		return new ResponseEntity<>(new UserProfileDto(user),HttpStatus.OK);
+	}
+
 }
