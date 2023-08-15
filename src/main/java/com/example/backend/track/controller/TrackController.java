@@ -38,13 +38,18 @@ public class TrackController {
     }
 
     @GetMapping("{track-id}/modal")
-    public ResponseEntity<TrackDetailModal> getTrackDetail(@PathVariable String trackId) {
+    public ResponseEntity<TrackDetailModal> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
         return ResponseEntity.ok(trackService.getTrackDetail(trackId));
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<Track>> trackSearch(@RequestParam String keyword) {
         return ResponseEntity.ok(spotifyUtil.getSearchResult(keyword));
+    }
+
+    @GetMapping("/{userId}/recent")
+    public ResponseEntity<List<Track>> getRecentTracks(@PathVariable Long userId) {
+        return ResponseEntity.ok(trackService.getRecentTracks(userId));
     }
 
 

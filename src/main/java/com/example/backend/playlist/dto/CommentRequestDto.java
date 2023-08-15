@@ -7,10 +7,9 @@ import lombok.Setter;
 @Setter
 public class CommentRequestDto {
     private String content;
-    private String nickname;
-    private String star;
+    private Double star;
 
-    public CommentRequestDto(String content, String nickname, String star) {
+    public CommentRequestDto(String content, Double star) {
         this.content = content;
         this.star = star;
     }
@@ -19,11 +18,7 @@ public class CommentRequestDto {
         return content;
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public String getStar() {
+    public Double getStar() {
         return star;
     }
 
@@ -31,11 +26,7 @@ public class CommentRequestDto {
         this.content = content;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void setStar(String star) {
+    public void setStar(Double star) {
         this.star = star;
     }
 }

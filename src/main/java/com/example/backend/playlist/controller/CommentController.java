@@ -27,21 +27,23 @@ public class CommentController {
     }
 
     //감상평 조회
-    @GetMapping("/comments")
-    public List<CommentResponseDto> getComments(@PathVariable("userId") Long id) {
-        return commentService.getComments(id);
+    @GetMapping("/{track-id}/comments")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable(name = "track-id") String trackId) {
+        return ResponseEntity.ok(commentService.getComments(trackId));
     }
 
     //감상평 수정
-    @PutMapping("/comments")
-    public CommentResponseDto updateComment(@PathVariable("userId") Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest req) {
-        return commentService.updateComment(id, requestDto, req);
+    @PutMapping("/comments/{comment-id}")
+    public ResponseEntity<StatusResponseDto> updateComment(@PathVariable(name = "comment-id") Long commentId,
+                                            @RequestBody CommentRequestDto requestDto,
+                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.updateComment(commentId, requestDto, userDetails);
     }
 
     //감상평 삭제
-    @DeleteMapping("/comments")
-    public ResponseEntity<String> deleteComment(@PathVariable("userId") Long id, HttpServletRequest req) {
-        commentService.deleteComment(id, req);
-        return ResponseEntity.ok().body("게시글을 성공적으로 삭제하였습니다.");
+    @DeleteMapping("/{track-id}/comments/{comment-id}")
+    public ResponseEntity<StatusResponseDto> deleteComment(@PathVariable(name = "comment-id") Long commentId,
+                                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.deleteComment(commentId, userDetails);
     }
 }

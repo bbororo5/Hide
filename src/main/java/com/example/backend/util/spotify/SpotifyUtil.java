@@ -31,9 +31,7 @@ import java.util.List;
 public class SpotifyUtil {
 
     private String accessToken;
-    private final RecentRepository recentRepository;
-    private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
+    private final Object lock = new Object();
 
     public void requestAccessToken() {
         synchronized (lock) {
@@ -46,17 +44,17 @@ public class SpotifyUtil {
             String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
             String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://accounts.spotify.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .build();
+            WebClient webClient = WebClient.builder()
+                    .baseUrl("https://accounts.spotify.com")
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                    .build();
 
-        Mono<String> responseMono = webClient.post()
-                .uri("/api/token")
-                .header("Authorization", "Basic " + credentials)
-                .body(BodyInserters.fromFormData("grant_type", "client_credentials"))
-                .retrieve()
-                .bodyToMono(String.class);
+            Mono<String> responseMono = webClient.post()
+                    .uri("/api/token")
+                    .header("Authorization", "Basic " + credentials)
+                    .body(BodyInserters.fromFormData("grant_type", "client_credentials"))
+                    .retrieve()
+                    .bodyToMono(String.class);
 
             String response = responseMono.block(); // 기다리기
             try {
@@ -67,6 +65,7 @@ public class SpotifyUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
     }
 
@@ -207,11 +206,10 @@ public class SpotifyUtil {
         return false;
     }
 
-    public List<Track> getRecentTracks(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-        List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
-        return getTracksInfo(trackIds);
+    private boolean isValid(String token) {
+        // accessToken의 유효성 검사. 예를 들어, 만료 시간을 저장해둔다면 그것을 기반으로 판별 가능
+        // 이 예제에서는 단순히 null 또는 빈 문자열인지만 검사
+        return token != null && !token.isEmpty();
     }
 
 }

@@ -10,7 +10,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "comment")
 @NoArgsConstructor
 public class Comment extends Timestamped {
@@ -23,12 +22,23 @@ public class Comment extends Timestamped {
     private String content;
 
     @Column(name = "star", nullable = false)
-    private String star;
+    private Double star;
 
-    public Comment(String nickname, String content, String userId) {
-        this.nickname = nickname;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    private String trackId;
+
+    public Comment(String content, User user, Double star, String trackId) {
         this.content = content;
-        this.userId = userId;
+        this.user = user;
         this.star = star;
+        this.trackId = trackId;
+    }
+
+    public void updateComment(CommentRequestDto requestDto) {
+        this.content = requestDto.getContent();
+        this.star = requestDto.getStar();
     }
 }
