@@ -23,6 +23,6 @@ public class Recent {
     private LocalDateTime creationDate;
 
     @Column(name = "track_id")
-    private Long trackId;
+    private String trackId;
 
 }
