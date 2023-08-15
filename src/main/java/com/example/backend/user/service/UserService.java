@@ -49,6 +49,7 @@ public class UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final FollowRepository followRepository;
 	private final ImageRepository imageRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtUtil jwtUtil;
 	private final ImageUtil imageUtil;
 	private final JavaMailSender javaMailSender;
@@ -94,22 +95,27 @@ public class UserService {
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
-		UserDetailsImpl userDetails) {
-		User user = userDetails.getUser();
-		Image profileImage= null;
+														UserDetailsImpl userDetails) {
+		User user = userRepository.findById(userDetails.getUser().getUserId())
+				.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+
 		if (imageFile != null) {
 			imageUtil.validateFile(imageFile);
 			//기존 이미지를 bucket과 Image 테이블에서 삭제.
-			if(user.getImage()!=null){
-				DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, user.getImage().getImageKey());
+			if (user.getImage() != null) {
+				DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket,
+						user.getImage().getImageKey());
 				amazonS3.deleteObject(deleteObjectRequest);
 				imageRepository.delete(user.getImage());
 			}
 			//새로운 image 객체 생성.
 			String fileUUID = imageUtil.uploadToS3(imageFile, amazonS3, bucket);
-			profileImage = new Image(fileUUID, amazonS3.getUrl(bucket,fileUUID).toString());
+			Image profileImage = new Image(fileUUID, amazonS3.getUrl(bucket, fileUUID).toString());
+			user.updateUserImage(profileImage);
 		}
-		user.updateUserProfile(nickname,profileImage);
+		if (nickname != null) {
+			user.updateUserNickname(nickname);
+		}
 		return new ResponseEntity<>(new StatusResponseDto("프로필 수정이 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}
 
@@ -167,13 +173,10 @@ public class UserService {
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails,
-		HttpServletRequest request) {
+													  HttpServletRequest request, HttpServletResponse response) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
-			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+				.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		String newPassword = passwordEncoder.encode(userInfo.getPassword());
-		if (!jwtUtil.validateToken(request.getHeader(JwtUtil.AUTHORIZATION_HEADER))) {
-			return new ResponseEntity<>(new StatusResponseDto("비밀번호 변경이 실패했습니다."), HttpStatus.UNAUTHORIZED);
-		}
 		user.updatePassword(newPassword);
 		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.", true), HttpStatus.OK);
 	}

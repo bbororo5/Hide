@@ -9,6 +9,7 @@ import com.example.backend.util.execption.UserNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -35,9 +36,15 @@ public class SpotifyUtil {
     private final RestTemplate restTemplate;
 
     public void requestAccessToken() {
-        String clientId = "0904e40581b74ecc9771dc2bf24754ce";
-        String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
-        String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+        synchronized (lock) {
+            // 이미 다른 스레드가 토큰을 갱신한 경우, 재요청을 피하기 위한 추가 검사
+            if (isValid(accessToken)) {
+                return;
+            }
+
+            String clientId = "0904e40581b74ecc9771dc2bf24754ce";
+            String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
+            String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://accounts.spotify.com")
@@ -51,7 +58,7 @@ public class SpotifyUtil {
                 .retrieve()
                 .bodyToMono(String.class);
 
-        String response = responseMono.block(); // 기다리기
+            String response = responseMono.block(); // 기다리기
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(response);
@@ -207,34 +214,5 @@ public class SpotifyUtil {
         return getTracksInfo(trackIds);
     }
 
-    public Track getTrackInfo(String trackId) {
-        requestAccessToken();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-        String url = String.format("https://api.spotify.com/v1/tracks/%s", trackId);
-
-        try {
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                JsonNode.class
-            );
-
-            return parseTrackNode(response.getBody());
-        } catch (RestClientException e) {
-            if (isTokenExpired(e)) {
-                requestAccessToken();
-                return getTrackInfo(trackId); // 재시도
-            } else {
-                throw e;
-            }
-        }
-    }
 }
 

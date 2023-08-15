@@ -1,5 +1,6 @@
 package com.example.backend.playlist.service;
 
+import com.example.backend.StatusResponseDto;
 import com.example.backend.playlist.dto.CommentRequestDto;
 import com.example.backend.playlist.dto.CommentResponseDto;
 import com.example.backend.playlist.entity.Comment;
@@ -7,6 +8,8 @@ import com.example.backend.playlist.repository.CommentRepository;
 import com.example.backend.playlist.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,20 +22,20 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final JwtUtil jwtUtil;
 
-    public CommentResponseDto createComment(Long id, CommentRequestDto requestDto, HttpServletRequest req) {
+    public ResponseEntity<StatusResponseDto> createComment(String trackId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
 
         Comment comment = new Comment(requestDto.getNickname(), requestDto.getContent(), requestDto.getStar());
         Comment savedComment = commentRepository.save(comment);
 
-        return new CommentResponseDto(savedComment);
+        return new ResponseEntity<>( new StatusResponseDto("감상평 작성이 완료되었습니다.",true) , HttpStatus.OK );
     }
 
-    public List<CommentResponseDto> getComments(Long id) {
-        List<Comment> comments = commentRepository.findAll();
+    public List<CommentResponseDto> getComments(String trackId) {
+        List<Comment> comments = commentRepository.findAllbyTrackId(trackId);
         return comments.stream()
                 .map(CommentResponseDto::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, HttpServletRequest req) {
@@ -42,28 +45,28 @@ public class CommentService {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시물을 찾을 수가 없습니다."));
 
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getUserId().equals(userDetails.getUser().getUserId())) {
             throw new RuntimeException("게시물을 수정할 권한이 없습니다.");
         }
 
         comment.setContent(requestDto.getContent());
         Comment updatedComment = commentRepository.save(comment);
 
-        return new CommentResponseDto(updatedComment);
+        return new ResponseEntity<>( new StatusResponseDto("감상평 수정이 완료되었습니다.",true) ,HttpStatus.OK);
     }
 
     public void deleteComment(Long id, HttpServletRequest req) {
         String token = auth(req);
         String userId = getId(token);
 
-        Comment comment = commentRepository.findById(id)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("게시물을 찾을 수가 없습니다."));
 
-        if (!comment.getUserId().equals(userId)) {
+        if (!comment.getUser().getUserId().equals(userDetails.getUser().getUserId())) {
             throw new RuntimeException("게시물을 삭제할 권한이 없습니다.");
         }
-
-        commentRepository.deleteById(id);
+        commentRepository.delete(comment);
+        return new ResponseEntity<>( new StatusResponseDto("감상평 삭제가 완료되었습니다.",true) ,HttpStatus.OK);
     }
 
     private String auth(HttpServletRequest req) {

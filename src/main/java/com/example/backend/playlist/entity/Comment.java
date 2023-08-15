@@ -1,6 +1,8 @@
 package com.example.backend.playlist.entity;
 
+import com.example.backend.playlist.dto.CommentRequestDto;
 import com.example.backend.playlist.entity.Timestamped;
+import com.example.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,14 +19,8 @@ public class Comment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "nickname", nullable = false)
-    private String nickname;
-
     @Column(name = "content", nullable = false)
     private String content;
-
-    @Column(name = "userId", nullable = false)
-    private String userId;
 
     @Column(name = "star", nullable = false)
     private String star;

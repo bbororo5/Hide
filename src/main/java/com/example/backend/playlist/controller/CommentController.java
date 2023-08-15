@@ -1,25 +1,29 @@
 package com.example.backend.playlist.controller;
 
+import com.example.backend.StatusResponseDto;
 import com.example.backend.playlist.dto.CommentRequestDto;
 import com.example.backend.playlist.dto.CommentResponseDto;
 import com.example.backend.playlist.service.CommentService;
+import com.example.backend.util.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/musics/{user-id}")
+@RequestMapping("/api/musics")
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
 
     //감상평 작성
-    @PostMapping("/comments")
-    public CommentResponseDto createComment(@PathVariable("userId") Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest req) {
-        return commentService.createComment(id, requestDto, req);
+    @PostMapping("/{track-id}/comments")
+    public ResponseEntity<StatusResponseDto> createComment(@PathVariable(name = "track-id") String trackId, @RequestBody CommentRequestDto requestDto,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.createComment(trackId, requestDto, userDetails);
     }
 
     //감상평 조회

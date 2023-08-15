@@ -12,7 +12,6 @@ public class CommentRequestDto {
 
     public CommentRequestDto(String content, String nickname, String star) {
         this.content = content;
-        this.nickname = nickname;
         this.star = star;
     }
 
