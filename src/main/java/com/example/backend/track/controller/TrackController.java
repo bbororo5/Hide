@@ -23,7 +23,7 @@ public class TrackController {
 
     @GetMapping("/popular")
     public ResponseEntity<List<Track>> getTopTracks() {
-        return ResponseEntity.ok(trackService.getTopTracks());
+        return ResponseEntity.ok(trackService.getTopTracksByAllUser());
     }
 
     @PatchMapping("/play-count/{track-id}")
