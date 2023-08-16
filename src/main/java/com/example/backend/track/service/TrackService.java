@@ -91,6 +91,7 @@ public class TrackService {
         }
     }
 
+
     private List<Track> getRecommendTracksForNewUsers() {
         List<String> trackIds = new ArrayList<>();
         trackIds.add("7iN1s7xHE4ifF5povM6A48");

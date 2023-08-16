@@ -7,14 +7,13 @@ import com.example.backend.playlist.entity.Comment;
 import com.example.backend.playlist.repository.CommentRepository;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.security.UserDetailsImpl;
-import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +32,7 @@ public class CommentService {
     }
 
     public List<CommentResponseDto> getComments(String trackId) {
-        List<Comment> comments = commentRepository.findAllbyTrackId(trackId);
+        List<Comment> comments = commentRepository.findAllByTrackId(trackId);
         return comments.stream()
                 .map(CommentResponseDto::new)
                 .toList();
