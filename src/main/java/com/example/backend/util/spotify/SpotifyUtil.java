@@ -1,6 +1,6 @@
 package com.example.backend.util.spotify;
 
-import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.track.dto.Track;
 //import com.example.backend.track.repository.RecentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -164,6 +164,10 @@ public class SpotifyUtil {
     }
 
     private Track parseTrackNode(JsonNode trackNode) {
+        String trackId = trackNode
+                .path("id")
+                .asText();
+
         String trackTitle = trackNode
                 .path("name")
                 .asText();
@@ -176,7 +180,8 @@ public class SpotifyUtil {
         JsonNode imageNodes = trackNode
                 .path("album")
                 .path("images");
-        String imageUrl640 = imageNodes.size() > 0 ? imageNodes.get(0).path("url").asText() : "";
+
+        String image = imageNodes.size() > 0 ? imageNodes.get(0).path("url").asText() : "";
 
         List<Track.Artist> artists = new ArrayList<>();
         JsonNode artistNodes = trackNode.path("artists");
@@ -188,11 +193,24 @@ public class SpotifyUtil {
             artists.add(artist);
         }
 
+        List<Track.Genre> genreList = new ArrayList<>();
+        JsonNode genreNodes = trackNode
+                .path("album");
+        for (JsonNode genreNode : genreNodes) {
+            String genre = genreNode.path("genre").asText();
+            Track.Genre genreElement = Track.Genre.builder()
+                    .genre(genre)
+                    .build();
+            genreList.add(genreElement);
+        }
+
         return Track.builder()
-                .trackTitle(trackTitle)
-                .albumName(albumName)
-                .album640Image(imageUrl640)
+                .id(trackId)
+                .title(trackTitle)
+                .album(albumName)
+                .image(image)
                 .artists(artists)
+                .genre(genreList)
                 .build();
     }
 

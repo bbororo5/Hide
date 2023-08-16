@@ -1,4 +1,4 @@
-package com.example.backend.util.spotify.dto;
+package com.example.backend.track.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,11 +6,13 @@ import java.util.List;
 
 @Getter
 public class Track {
-    private String trackTitle;
-    private String albumName;
-    private String album640Image;
+    private String id;
+    private String title;
+    private String album;
+    private String image;
     private List<Artist> artists;
     private String artistsStringList;
+    private List<Genre> genre;
 
     @Getter
     public static class Artist {
@@ -23,12 +25,24 @@ public class Track {
 
     }
 
+    @Getter
+    public static class Genre {
+        private String genre;
+
+        @Builder
+        public Genre(String genre) {
+            this.genre = genre;
+        }
+
+    }
+
     @Builder
-    public Track(String trackTitle, String albumName, String album640Image, List<Artist> artists) {
+    public Track(String id, String title, String album, String image, List<Artist> artists, List<Genre> genre) {
         StringBuilder sb = new StringBuilder();
-        this.trackTitle = trackTitle;
-        this.albumName = albumName;
-        this.album640Image = album640Image;
+        this.id = id;
+        this.title = title;
+        this.album = album;
+        this.image = image;
         this.artists = artists;
         for(Artist artist : artists){
             sb.append(artist.getArtistName()+", ");
@@ -37,5 +51,6 @@ public class Track {
             sb.setLength(sb.length() - 2); // 마지막 쉼표 제거
         }
         this.artistsStringList = sb.toString();
+        this.genre = genre;
     }
 }

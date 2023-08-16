@@ -5,7 +5,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.example.backend.user.entity.User;
-import com.example.backend.util.spotify.dto.Track;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

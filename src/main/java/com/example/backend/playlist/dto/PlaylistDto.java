@@ -3,9 +3,8 @@ package com.example.backend.playlist.dto;
 import java.time.LocalDateTime;
 
 import com.example.backend.playlist.entity.Playlist;
-import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.track.dto.Track;
 
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +25,9 @@ public class PlaylistDto {
 		this.createdAt = playlist.getCreatedAt();
 	}
 	public void setPlaylistDto(Track track) {
-		this.trackTitle = track.getTrackTitle();
-		this.albumName =track.getAlbumName();
-		this.album640Image = track.getAlbum640Image();
+		this.trackTitle = track.getTitle();
+		this.albumName =track.getAlbum();
+		this.album640Image = track.getImage();
 		this.artistsStringList = track.getArtistsStringList();
 	}
 }

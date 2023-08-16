@@ -4,7 +4,7 @@ import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
-import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.track.dto.Track;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

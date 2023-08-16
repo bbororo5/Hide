@@ -10,7 +10,7 @@ import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
-import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.track.dto.Track;
 import com.example.backend.util.spotify.SpotifyUtil;
 import com.example.backend.util.youtube.YoutubeUtil;
 import lombok.RequiredArgsConstructor;
@@ -104,12 +104,12 @@ public class TrackService {
     public TrackDetailModal getTrackDetail(String trackId) {
         Track track = spotifyUtil.getTracksInfo(trackId);
         String artistName = track.getArtists().get(0).getArtistName();
-        String trackTitle = track.getTrackTitle();
+        String trackTitle = track.getTitle();
         String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle);
 
         return TrackDetailModal.builder()
-                .image(track.getAlbum640Image())
-                .album(track.getAlbumName())
+                .image(track.getImage())
+                .album(track.getAlbum())
                 .artist(artistName)
                 .title(trackTitle)
                 .yUrl("https://www.youtube.com/watch?v=" + videoId)

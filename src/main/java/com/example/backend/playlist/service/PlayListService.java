@@ -18,7 +18,7 @@ import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
-import com.example.backend.util.spotify.dto.Track;
+import com.example.backend.track.dto.Track;
 
 import lombok.RequiredArgsConstructor;
 
