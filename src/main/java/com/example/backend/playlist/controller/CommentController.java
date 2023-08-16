@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/musics")
+@RequestMapping("/api/tracks")
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
@@ -41,7 +41,7 @@ public class CommentController {
     }
 
     //감상평 삭제
-    @DeleteMapping("/{track-id}/comments/{comment-id}")
+    @DeleteMapping("/comments/{comment-id}")
     public ResponseEntity<StatusResponseDto> deleteComment(@PathVariable(name = "comment-id") Long commentId,
                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.deleteComment(commentId, userDetails);

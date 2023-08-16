@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -33,13 +36,16 @@ public class CommentService {
 
     public List<CommentResponseDto> getComments(String trackId) {
         List<Comment> comments = commentRepository.findAllByTrackId(trackId);
-        return comments.stream()
-                .map(CommentResponseDto::new)
-                .toList();
+        comments.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+        for(Comment comment : comments){
+            commentResponseDtoList.add(new CommentResponseDto(comment));
+        }
+        return commentResponseDtoList;
     }
 
+    @Transactional
     public ResponseEntity<StatusResponseDto> updateComment(Long commentId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
-
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("게시물을 찾을 수가 없습니다."));
@@ -47,10 +53,8 @@ public class CommentService {
         if (!comment.getUser().getUserId().equals(userDetails.getUser().getUserId())) {
             throw new RuntimeException("게시물을 수정할 권한이 없습니다.");
         }
-
         comment.updateComment(requestDto);
-        Comment updatedComment = commentRepository.save(comment);
-
+        commentRepository.save(comment);
         return new ResponseEntity<>( new StatusResponseDto("감상평 수정이 완료되었습니다.",true) ,HttpStatus.OK);
     }
 
