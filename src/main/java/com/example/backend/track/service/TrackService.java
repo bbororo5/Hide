@@ -1,10 +1,11 @@
 package com.example.backend.track.service;
 
 import com.example.backend.track.dto.TrackDetailModal;
+import com.example.backend.track.entity.Recent;
 import com.example.backend.track.entity.TrackCount;
 import com.example.backend.track.repository.TrackCountRepository;
 import com.example.backend.user.entity.User;
-import com.example.backend.user.repository.RecentRepository;
+import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;
@@ -120,5 +121,10 @@ public class TrackService {
                 .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
         List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
         return spotifyUtil.getTracksInfo(trackIds);
+    }
+
+    public void createRecentTrack(String trackId, User user) {
+        Recent recent = new Recent(trackId, user);
+        recentRepository.save(recent);
     }
 }
