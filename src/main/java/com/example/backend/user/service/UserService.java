@@ -82,7 +82,6 @@ public class UserService {
 		}
 
 		User user = new User(email, password, nickname, role);
-
 		userRepository.save(user);
 		return new ResponseEntity<>(new StatusResponseDto("회원가입 성공", true), HttpStatus.CREATED);
 
