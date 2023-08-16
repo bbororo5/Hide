@@ -1,6 +1,8 @@
 package com.example.backend.util.execption;
 
-public class NotFoundTrackException extends RuntimeException{
+import java.util.NoSuchElementException;
+
+public class NotFoundTrackException extends NoSuchElementException {
     public NotFoundTrackException(String s) {
         super(s);
     }

@@ -2,6 +2,7 @@ package com.example.backend.playlist.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,7 @@ public class PlayListService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> deleteTrackFromPlaylist(Long id, UserDetailsImpl userDetails) {
 		Playlist playlist = playListRepository.findByIdAndUser(id, userDetails.getUser())
-			.orElseThrow(() -> new NullPointerException("플레이 리스트가 존재하지 않습니다."));
+			.orElseThrow(() -> new NoSuchElementException("플레이 리스트가 존재하지 않습니다."));
 		playListRepository.delete(playlist);
 		return new ResponseEntity<>(new StatusResponseDto("플레이 리스트에서 삭제했습니다.", true), HttpStatus.OK);
 	}

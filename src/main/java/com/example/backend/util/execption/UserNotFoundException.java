@@ -1,6 +1,8 @@
 package com.example.backend.util.execption;
 
-public class UserNotFoundException extends RuntimeException {
+import java.util.NoSuchElementException;
+
+public class UserNotFoundException extends NoSuchElementException {
     public UserNotFoundException(String s) {
         super(s);
     }

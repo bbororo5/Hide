@@ -3,9 +3,11 @@ package com.example.backend.chat.service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.example.backend.util.execption.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +33,9 @@ public class ChatService {
 	@Transactional
 	public void saveMessages(Long receiverId, MessageDto message) {
 		User receiver = userRepository.findById(receiverId)
-			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		User sender = userRepository.findById(message.getSenderId())
-			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		String roomName;
 		if(receiverId>message.getSenderId()){
 			roomName =message.getSenderId()+ "-" + receiverId;
@@ -55,7 +57,7 @@ public class ChatService {
 
 	public ChatResponse getAllMessages(String roomName , UserDetailsImpl userDetails) {
 		ChatRoom chatRoom = chatRoomRepository.findByRoomName(roomName)
-			.orElseThrow(() -> new NullPointerException("채팅방이 존재하지 않습니다."));
+			.orElseThrow(() -> new NoSuchElementException("채팅방이 존재하지 않습니다."));
 		User sender = chatRoom.getSender();
 		User receiver = chatRoom.getReceiver();
 
@@ -71,7 +73,7 @@ public class ChatService {
 
 	public List<ChatRoomDto> getAllRooms(Long userId) {  //이러면 다른사람 채팅방 목록도 볼 수 있음 토큰에서 가져와야할듯
 		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		List<ChatRoom> received = user.getReceivedChatRooms();
 		List<ChatRoom> sent = user.getSentChatRooms(); // 이 부분을 올바르게 변경
 		List<ChatRoom> combined = new ArrayList<>();

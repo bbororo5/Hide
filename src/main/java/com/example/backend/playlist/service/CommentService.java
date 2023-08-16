@@ -11,12 +11,14 @@ import com.example.backend.util.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +50,10 @@ public class CommentService {
     public ResponseEntity<StatusResponseDto> updateComment(Long commentId, CommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("게시물을 찾을 수가 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("게시물을 찾을 수가 없습니다."));
 
         if (!comment.getUser().getUserId().equals(userDetails.getUser().getUserId())) {
-            throw new RuntimeException("게시물을 수정할 권한이 없습니다.");
+            throw new AccessDeniedException("게시물을 수정할 권한이 없습니다.");
         }
         comment.updateComment(requestDto);
         commentRepository.save(comment);
@@ -61,10 +63,10 @@ public class CommentService {
     public ResponseEntity<StatusResponseDto> deleteComment(Long commentId, UserDetailsImpl userDetails) {
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("게시물을 찾을 수가 없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("게시물을 찾을 수가 없습니다."));
 
         if (!comment.getUser().getUserId().equals(userDetails.getUser().getUserId())) {
-            throw new RuntimeException("게시물을 삭제할 권한이 없습니다.");
+            throw new AccessDeniedException("게시물을 삭제할 권한이 없습니다.");
         }
         commentRepository.delete(comment);
         return new ResponseEntity<>( new StatusResponseDto("감상평 삭제가 완료되었습니다.",true) ,HttpStatus.OK);

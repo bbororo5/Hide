@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 
 @Service
@@ -75,7 +76,7 @@ public class SpotifyUtil {
     private Track fetchSingleTrackFromSpotifyAPI(String parameter, String endpoint) {
         List<Track> tracks = fetchDataFromSpotifyAPI(parameter, endpoint);
         if (tracks.isEmpty()) {
-            throw new RuntimeException("트랙을 찾을 수 없습니다.");
+            throw new NoSuchElementException("트랙을 찾을 수 없습니다.");
         }
         return tracks.get(0);
     }
@@ -130,7 +131,7 @@ public class SpotifyUtil {
                 // .path("items");
 
             if (tracksNode.isMissingNode()) {
-                throw new RuntimeException("노드를 찾을 수 없습니다.");
+                throw new NoSuchElementException("노드를 찾을 수 없습니다.");
             }
 
             for (JsonNode trackNode : tracksNode) {

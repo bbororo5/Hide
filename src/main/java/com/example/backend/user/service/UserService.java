@@ -85,7 +85,7 @@ public class UserService {
 	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
 														UserDetailsImpl userDetails) {
 		User user = userRepository.findById(userDetails.getUser().getUserId())
-				.orElseThrow(() -> new NullPointerException("회원이 존재하지 않습니다."));
+				.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 
 		if (imageFile != null) {
 			imageUtil.validateFile(imageFile);
@@ -110,7 +110,7 @@ public class UserService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> removeUser(UserDetailsImpl userDetails) {
 		User deleteUser = userRepository.findById(userDetails.getUser().getUserId())
-			.orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		userRepository.delete(deleteUser);
 		return new ResponseEntity<>(new StatusResponseDto("회원탈퇴가 완료되었습니다.", true), HttpStatus.ACCEPTED);
 	}
@@ -118,7 +118,7 @@ public class UserService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> followUser(Long userId, UserDetailsImpl userDetails) {
 		User toUser = userRepository.findById(userId)
-			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		User fromUser = userDetails.getUser();
 		Follow follow = followRepository.findByFromUserAndToUser(fromUser, toUser).orElse(null);
 		if (userId.equals(userDetails.getUser().getUserId())) {
@@ -139,7 +139,7 @@ public class UserService {
 			return new ResponseEntity<>(new StatusResponseDto("회원이 존재하지 않습니다."), HttpStatus.CONFLICT);
 		}
 		User user = userRepository.findByEmail(email.getEmail())
-			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		String token = jwtUtil.createTemporalToken(user.getEmail(), user.getRole());
 
 		String subject = "하이드(HIDE) 비밀번호 재설정 요청";
@@ -163,7 +163,7 @@ public class UserService {
 	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails,
 													  HttpServletRequest request, HttpServletResponse response) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+				.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		String newPassword = passwordEncoder.encode(userInfo.getPassword());
 		user.updatePassword(newPassword);
 		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.", true), HttpStatus.OK);
@@ -172,7 +172,7 @@ public class UserService {
 	@Transactional
 	public List<UserInfoDto> getToUsers(Long userId) {
 		User fromUser = userRepository.findById(userId)
-			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		List<Follow> followingList = followRepository.findAllByFromUser(fromUser);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
 		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
@@ -185,7 +185,7 @@ public class UserService {
 	@Transactional
 	public List<UserInfoDto> getFromUsers(Long userId) {
 		User toUser = userRepository.findById(userId)
-			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
+			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		List<Follow> followingList = followRepository.findAllByToUser(toUser);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
 		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
@@ -203,7 +203,7 @@ public class UserService {
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		String newAccessToken = jwtUtil.createAccessToken(email, user.getUserId(), user.getNickname(), user.getRole());
 		RefreshToken refreshTokenFromDB = refreshTokenRepository.findByKeyEmail(email)
-			.orElseThrow(() -> new NullPointerException("리프레시 토큰이 없습니다."));
+			.orElseThrow(() -> new NoSuchElementException("리프레시 토큰이 없습니다."));
 		if (jwtUtil.encryptRefreshToken(token).equals(refreshTokenFromDB.getRefreshToken())) {
 			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);
