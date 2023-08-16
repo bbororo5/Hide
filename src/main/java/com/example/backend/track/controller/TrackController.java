@@ -1,7 +1,9 @@
 package com.example.backend.track.controller;
 
+import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
+import com.example.backend.util.spotify.SpotifyUtil;
 import com.example.backend.util.spotify.dto.Track;
 
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.List;
 public class TrackController {
 
     private final TrackService trackService;
+    private final SpotifyUtil spotifyUtil;
 
     @GetMapping("/popular")
     public ResponseEntity<List<Track>> getTopTracks() {
@@ -30,7 +33,24 @@ public class TrackController {
     }
 
     @GetMapping("/recommend")
-    public ResponseEntity<?> recommendTracks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<Track>> recommendTracks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(trackService.recommendTracks(userDetails));
     }
+
+    @GetMapping("{track-id}/modal")
+    public ResponseEntity<TrackDetailModal> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
+        return ResponseEntity.ok(trackService.getTrackDetail(trackId));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Track>> trackSearch(@RequestParam String keyword) {
+        return ResponseEntity.ok(spotifyUtil.getSearchResult(keyword));
+    }
+
+    @GetMapping("/{userId}/recent")
+    public ResponseEntity<List<Track>> getRecentTracks(@PathVariable Long userId) {
+        return ResponseEntity.ok(trackService.getRecentTracks(userId));
+    }
+
+
 }

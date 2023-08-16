@@ -9,6 +9,7 @@ import com.example.backend.util.execption.UserNotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -30,28 +31,32 @@ import java.util.List;
 public class SpotifyUtil {
 
     private String accessToken;
-    private final RecentRepository recentRepository;
-    private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
+    private final Object lock = new Object();
 
     public void requestAccessToken() {
-        String clientId = "0904e40581b74ecc9771dc2bf24754ce";
-        String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
-        String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+        synchronized (lock) {
+            // 이미 다른 스레드가 토큰을 갱신한 경우, 재요청을 피하기 위한 추가 검사
+            if (isValid(accessToken)) {
+                return;
+            }
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://accounts.spotify.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .build();
+            String clientId = "0904e40581b74ecc9771dc2bf24754ce";
+            String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
+            String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
-        Mono<String> responseMono = webClient.post()
-                .uri("/api/token")
-                .header("Authorization", "Basic " + credentials)
-                .body(BodyInserters.fromFormData("grant_type", "client_credentials"))
-                .retrieve()
-                .bodyToMono(String.class);
+            WebClient webClient = WebClient.builder()
+                    .baseUrl("https://accounts.spotify.com")
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                    .build();
 
-        String response = responseMono.block(); // 기다리기
+            Mono<String> responseMono = webClient.post()
+                    .uri("/api/token")
+                    .header("Authorization", "Basic " + credentials)
+                    .body(BodyInserters.fromFormData("grant_type", "client_credentials"))
+                    .retrieve()
+                    .bodyToMono(String.class);
+
+            String response = responseMono.block(); // 기다리기
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(response);
@@ -60,11 +65,24 @@ public class SpotifyUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
 
     }
 
     public List<Track> getTracksInfo(List<String> trackIdList) {
         return fetchDataFromSpotifyAPI(String.join(",", trackIdList), "tracks");
+    }
+
+    public Track getTracksInfo(String trackId) {
+        return fetchSingleTrackFromSpotifyAPI(trackId, "tracks");
+    }
+
+    private Track fetchSingleTrackFromSpotifyAPI(String parameter, String endpoint) {
+        List<Track> tracks = fetchDataFromSpotifyAPI(parameter, endpoint);
+        if (tracks.isEmpty()) {
+            throw new RuntimeException("트랙을 찾을 수 없습니다.");
+        }
+        return tracks.get(0);
     }
 
     public List<Track> getRecommendTracks(List<String> trackIdList) {
@@ -188,41 +206,11 @@ public class SpotifyUtil {
         return false;
     }
 
-    public List<Track> getRecentTracks(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-        List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
-        return getTracksInfo(trackIds);
+    private boolean isValid(String token) {
+        // accessToken의 유효성 검사. 예를 들어, 만료 시간을 저장해둔다면 그것을 기반으로 판별 가능
+        // 이 예제에서는 단순히 null 또는 빈 문자열인지만 검사
+        return token != null && !token.isEmpty();
     }
 
-    public Track getTrackInfo(String trackId) {
-        requestAccessToken();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + this.accessToken);
-
-        HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-        String url = String.format("https://api.spotify.com/v1/tracks/%s", trackId);
-
-        try {
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                JsonNode.class
-            );
-
-            return parseTrackNode(response.getBody());
-        } catch (RestClientException e) {
-            if (isTokenExpired(e)) {
-                requestAccessToken();
-                return getTrackInfo(trackId); // 재시도
-            } else {
-                throw e;
-            }
-        }
-    }
 }
 

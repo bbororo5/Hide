@@ -1,14 +1,17 @@
 package com.example.backend.track.service;
 
+import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.entity.TrackCount;
 import com.example.backend.track.repository.TrackCountRepository;
 import com.example.backend.user.entity.User;
+import com.example.backend.user.repository.RecentRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.dto.Track;
 import com.example.backend.util.spotify.SpotifyUtil;
+import com.example.backend.util.youtube.YoutubeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,9 @@ public class TrackService {
     private final TrackCountRepository trackCountRepository;
     private final UserRepository userRepository;
     private final SpotifyUtil spotifyUtil;
+    private final YoutubeUtil youtubeUtil;
+    private final RecentRepository recentRepository;
+
 
 
 
@@ -81,8 +87,8 @@ public class TrackService {
     public List<Track> recommendTracks(UserDetailsImpl userDetails) {
         List<String> trackIds = getTop2TracksByUser(userDetails.getUser().getUserId());
 
-        if (trackIds.isEmpty()) {
-            throw new RuntimeException("추천 트랙을 받아오지 못했습니다");
+        if (trackIds.isEmpty() || trackIds.size() < 2) {
+            return getPopularTracksForNewUsers();
         }
 
         try {
@@ -90,5 +96,32 @@ public class TrackService {
         } catch (NotFoundTrackException e) {
             throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
         }
+    }
+
+    private List<Track> getPopularTracksForNewUsers() {
+
+    }
+
+    public TrackDetailModal getTrackDetail(String trackId) {
+        Track track = spotifyUtil.getTracksInfo(trackId);
+        String artistName = track.getArtists().get(0).getArtistName();
+        String trackTitle = track.getTrackTitle();
+        String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle);
+
+        return TrackDetailModal.builder()
+                .image(track.getAlbum640Image())
+                .album(track.getAlbumName())
+                .artist(artistName)
+                .title(trackTitle)
+                .yUrl("https://www.youtube.com/watch?v=" + videoId)
+                .build();
+
+    }
+
+    public List<Track> getRecentTracks(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
+        List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
+        return spotifyUtil.getTracksInfo(trackIds);
     }
 }

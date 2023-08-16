@@ -12,9 +12,4 @@ import io.jsonwebtoken.ExpiredJwtException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(ExpiredJwtException.class)
-	public ResponseEntity<StatusResponseDto> handleExpiredJwtException(ExpiredJwtException e) {
-		return new ResponseEntity<>(new StatusResponseDto("Expired JWT token, 만료된 JWT token 입니다." , false),HttpStatus.UNAUTHORIZED);
-	}
-
 }
