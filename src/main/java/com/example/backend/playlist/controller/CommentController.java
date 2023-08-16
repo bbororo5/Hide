@@ -5,7 +5,6 @@ import com.example.backend.playlist.dto.CommentRequestDto;
 import com.example.backend.playlist.dto.CommentResponseDto;
 import com.example.backend.playlist.service.CommentService;
 import com.example.backend.util.security.UserDetailsImpl;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

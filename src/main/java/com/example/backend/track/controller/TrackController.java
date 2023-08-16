@@ -1,7 +1,6 @@
 package com.example.backend.track.controller;
 
 import com.example.backend.track.dto.TrackDetailModal;
-import com.example.backend.track.entity.Recent;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
