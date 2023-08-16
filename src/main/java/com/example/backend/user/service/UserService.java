@@ -6,12 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.user.entity.*;
 import com.example.backend.user.repository.*;
 import com.example.backend.util.execption.UserNotFoundException;
-import com.example.backend.util.spotify.SpotifyUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -23,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.example.backend.StatusResponseDto;
