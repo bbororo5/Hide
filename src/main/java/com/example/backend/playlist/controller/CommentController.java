@@ -41,7 +41,7 @@ public class CommentController {
     }
 
     //감상평 삭제
-    @DeleteMapping("/{track-id}/comments/{comment-id}")
+    @DeleteMapping("/comments/{comment-id}")
     public ResponseEntity<StatusResponseDto> deleteComment(@PathVariable(name = "comment-id") Long commentId,
                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.deleteComment(commentId, userDetails);
