@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.user.entity.*;
 import com.example.backend.user.repository.*;
 import com.example.backend.util.execption.UserNotFoundException;
-import com.example.backend.util.spotify.dto.Track;
 import com.example.backend.util.spotify.SpotifyUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,8 +50,6 @@ public class UserService {
 	private final JavaMailSender javaMailSender;
 	private final AmazonS3 amazonS3;
 	private final String bucket;
-	private final RecentRepository recentRepository;
-	private SpotifyUtil spotifyUtil;
 
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
