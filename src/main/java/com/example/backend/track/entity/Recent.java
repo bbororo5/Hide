@@ -1,5 +1,6 @@
-package com.example.backend.user.entity;
+package com.example.backend.track.entity;
 
+import com.example.backend.user.entity.User;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,5 +25,10 @@ public class Recent {
 
     @Column(name = "track_id")
     private String trackId;
+
+    public Recent(String trackId, User user) {
+        this.trackId = trackId;
+        this.user = user;
+    }
 
 }
