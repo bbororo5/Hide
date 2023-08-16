@@ -120,7 +120,14 @@ public class SpotifyUtil {
             );
 
             JsonNode responseBody = response.getBody();
-            JsonNode tracksNode = responseBody.path("tracks");
+            JsonNode tracksNode;
+            if(endpoint.equals("search")){
+                tracksNode = responseBody.path("tracks").path("items");
+            }else{
+                tracksNode = responseBody.path("tracks");
+            }
+
+                // .path("items");
 
             if (tracksNode.isMissingNode()) {
                 throw new RuntimeException("노드를 찾을 수 없습니다.");
@@ -148,7 +155,8 @@ public class SpotifyUtil {
             case "recommendations":
                 return String.format("https://api.spotify.com/v1/%s?limit=10&seed_tracks=%s", endpoint, parameter);
             case "search":
-                return String.format("https://api.spotify.com/v1/%s?q=%s&type=&limit=20", endpoint, parameter);
+                return String.format("https://api.spotify.com/v1/%s?q=%s&type=track&limit=20", endpoint, parameter);
+            // https://api.spotify.com/v1/search?q=jungkuk&type=track%2Cartist%2Cplaylist&limit=10'
             default:
                 throw new IllegalArgumentException("지원하지 않는 엔드포인트입니다.");
         }
