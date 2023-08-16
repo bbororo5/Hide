@@ -1,15 +1,10 @@
 package com.example.backend.util.spotify;
 
 import com.example.backend.util.spotify.dto.Track;
-import com.example.backend.user.entity.User;
-//import com.example.backend.user.repository.RecentRepository;
-import com.example.backend.user.repository.RecentRepository;
-import com.example.backend.user.repository.UserRepository;
-import com.example.backend.util.execption.UserNotFoundException;
+//import com.example.backend.track.repository.RecentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
