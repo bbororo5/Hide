@@ -32,9 +32,6 @@ public class TrackService {
     private final YoutubeUtil youtubeUtil;
     private final RecentRepository recentRepository;
 
-
-
-
     public void increasePlayCount(String trackId, User user) {
         TrackCount trackCount = trackCountRepository.findByTrackId(trackId)
                 .orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성
@@ -42,7 +39,6 @@ public class TrackService {
         trackCount.increasePlayCount();
         trackCountRepository.save(trackCount);
     }
-
 
     private void handleTrackCountLimit() {
         long count = trackCountRepository.count();
@@ -55,7 +51,7 @@ public class TrackService {
         trackCountRepository.findFirstByOrderByCreatedAtAsc().ifPresent(trackCountRepository::delete);
     }
 
-    public List<Track> getTopTracks() {
+    public List<Track> getTopTracksByAllUser() {
         Pageable top10 = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "playCount"));
         List<TrackCount> trackCounts = trackCountRepository.findAll(top10).getContent();
 
@@ -65,9 +61,6 @@ public class TrackService {
 
         return spotifyUtil.getTracksInfo(trackIds);
     }
-
-
-
 
     private List<String> getTop2TracksByUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("유저 " +userId + "를 찾을 수 없습니다."));
@@ -88,7 +81,7 @@ public class TrackService {
         List<String> trackIds = getTop2TracksByUser(userDetails.getUser().getUserId());
 
         if (trackIds.isEmpty() || trackIds.size() < 2) {
-            return getPopularTracksForNewUsers();
+            return getRecommendTracksForNewUsers();
         }
 
         try {
@@ -98,8 +91,13 @@ public class TrackService {
         }
     }
 
-    private List<Track> getPopularTracksForNewUsers() {
-     return  null;
+
+    private List<Track> getRecommendTracksForNewUsers() {
+        List<String> trackIds = new ArrayList<>();
+        trackIds.add("7iN1s7xHE4ifF5povM6A48");
+        trackIds.add("58dSdjfEYNSxte1aNVxuNf");
+
+        return spotifyUtil.getRecommendTracks(trackIds);
     }
 
     public TrackDetailModal getTrackDetail(String trackId) {
@@ -115,7 +113,6 @@ public class TrackService {
                 .title(trackTitle)
                 .yUrl("https://www.youtube.com/watch?v=" + videoId)
                 .build();
-
     }
 
     public List<Track> getRecentTracks(Long userId) {

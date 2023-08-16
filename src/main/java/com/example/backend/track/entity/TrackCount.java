@@ -22,8 +22,7 @@ public class TrackCount {
 
     @CreatedDate
     private LocalDateTime createdAt;
-
-
+    
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
