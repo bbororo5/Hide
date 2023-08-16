@@ -1,6 +1,7 @@
 package com.example.backend.track.controller;
 
 import com.example.backend.track.dto.TrackDetailModal;
+import com.example.backend.track.entity.Recent;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
@@ -27,7 +28,7 @@ public class TrackController {
     }
 
     @PatchMapping("/play-count/{track-id}")
-    public ResponseEntity<?> increasePlayCount(@PathVariable(name = "track-id") String trackId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> increasePlayCount(@PathVariable(name = "track-id") String trackId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         trackService.increasePlayCount(trackId, userDetails.getUser());
         return ResponseEntity.ok().body("Play count가 1 올랐습니다.");
     }
@@ -47,9 +48,16 @@ public class TrackController {
         return ResponseEntity.ok(spotifyUtil.getSearchResult(keyword));
     }
 
-    @GetMapping("/{userId}/recent")
-    public ResponseEntity<List<Track>> getRecentTracks(@PathVariable Long userId) {
+    @GetMapping("/{user-id}/recent")
+    public ResponseEntity<List<Track>> getRecentTracks(@PathVariable(name = "user-id") Long userId) {
         return ResponseEntity.ok(trackService.getRecentTracks(userId));
+    }
+
+    @PostMapping("/{track-id}/recent")
+    public ResponseEntity<String> postRecentTrack(@PathVariable(name = "track-id") String trackId,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        trackService.createRecentTrack(trackId, userDetails.getUser());
+        return  ResponseEntity.ok("최근 들은 목록에 트랙이 추가되었습니다.");
     }
 
 
