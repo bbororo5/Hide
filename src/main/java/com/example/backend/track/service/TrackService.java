@@ -99,7 +99,7 @@ public class TrackService {
     }
 
     private List<Track> getPopularTracksForNewUsers() {
-
+     return  null;
     }
 
     public TrackDetailModal getTrackDetail(String trackId) {
