@@ -30,7 +30,8 @@ public class CorsFilter implements Filter {
 		ServletException {
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
-		String[] allowedOrigins = {"http://localhost:3000", "https://front-end-omega-topaz-47.vercel.app"};
+		String[] allowedOrigins = {"http://localhost:3000", "https://front-end-omega-topaz-47.vercel.app",
+			"http://moview-bucket.s3-website.ap-northeast-2.amazonaws.com"};
 		String originHeader = request.getHeader("Origin");
 		if (Arrays.asList(allowedOrigins).contains(originHeader)) {
 			response.setHeader("Access-Control-Allow-Origin", originHeader);
@@ -38,8 +39,10 @@ public class CorsFilter implements Filter {
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH");
 		response.setHeader("Access-Control-Max-Age", "3600");
-		response.setHeader("Access-Control-Expose-Headers", "Content-Type, Accept, X-Requested-With, Authorization ,Refresh-Token");
-		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With ,Authorization, Refresh-Token");
+		response.setHeader("Access-Control-Expose-Headers",
+			"Content-Type, Accept, X-Requested-With, Authorization ,Refresh-Token,Upgrade,Connection");
+		response.setHeader("Access-Control-Allow-Headers",
+			"Content-Type, Accept, X-Requested-With ,Authorization, Refresh-Token,Upgrade,Connection");
 
 		if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
 			response.setStatus(HttpServletResponse.SC_OK);
