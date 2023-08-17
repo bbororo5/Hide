@@ -35,6 +35,7 @@ jobs:
       run: |
         touch ./src/main/resources/application-secret.properties
         echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application-secret.properties
+        cat ./src/main/resources/application-secret.properties
       
 
     - name: Build Docker image
