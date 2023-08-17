@@ -36,8 +36,8 @@ public class SpotifyUtil {
                 return;
             }
 
-            String clientId = "0904e40581b74ecc9771dc2bf24754ce";
-            String clientSecret = "a1d5edf5e59943d49b5d0b5dd4a31c80";
+            String clientId = "${spotify.clientId}";
+            String clientSecret = "${spotify.clientSecret}";
             String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
             WebClient webClient = WebClient.builder()
