@@ -48,12 +48,16 @@ jobs:
 
     - name: Deploy to EC2 instance 1
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@your.ec2.ip.address.1 "docker pull philomuvie/hide_music:latest && docker run -d -p 8080:8080 --name hide_music_container philomuvie/hide_music:latest"
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 400 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@13.125.205.172 "docker pull philomuvie/hide_music:latest && docker run -d -p 8080:8080 --name hide_music_container philomuvie/hide_music:latest"
       env:
         PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
 
     - name: Deploy to EC2 instance 2
       run: |
-        ssh -o StrictHostKeyChecking=no ec2-user@your.ec2.ip.address.2 "docker pull philomuvie/hide_music:latest && docker run -d -p 8080:8080 --name hide_music_container philomuvie/hide_music:latest"
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 400 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@15.164.215.106 "docker pull philomuvie/hide_music:latest && docker run -d -p 8080:8080 --name hide_music_container philomuvie/hide_music:latest"
       env:
         PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
