@@ -120,7 +120,10 @@ public class TrackService {
     public List<Track> getRecentTracks(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-        List<String> trackIds = recentRepository.findTrackIdByUserOrderByCreationDateDesc(user);
+        List<Recent> recentList = recentRepository.findAllByUserOrderByCreationDateDesc(user);
+        List<String> trackIds = recentList.stream()
+            .map(Recent::getTrackId)
+            .toList();
         return spotifyUtil.getTracksInfo(trackIds);
     }
 
@@ -133,5 +136,15 @@ public class TrackService {
         }
         Recent recent = new Recent(trackId, user);
         recentRepository.save(recent);
+    }
+
+    public List<String> get7RecentTracks() {
+        Pageable topSeven = PageRequest.of(0, 7);
+        List<Recent> recent7tracts = recentRepository.findTop7ByOrderByCreationDateDesc(topSeven);
+        List<String> trackIds = recent7tracts.stream()
+            .map(Recent::getTrackId)
+            .toList();
+        List<Track> top7TrackList = spotifyUtil.getTracksInfo(trackIds);
+        return top7TrackList.stream().map(Track::getTitle).toList();
     }
 }
