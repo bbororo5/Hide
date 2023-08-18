@@ -59,5 +59,9 @@ public class TrackController {
         return  ResponseEntity.ok("최근 들은 목록에 트랙이 추가되었습니다.");
     }
 
+    @GetMapping("/search/recommend-keywords")
+    public ResponseEntity<List<String>> get7RecentTracks() {
+        return ResponseEntity.ok(trackService.get7RecentTracks());
+    }
 
 }
