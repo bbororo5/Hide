@@ -5,6 +5,8 @@ import com.example.backend.track.dto.Track;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -28,6 +31,10 @@ public class SpotifyUtil {
 
     private String accessToken;
     private final Object lock = new Object();
+    @Value("${spotify.clientId}")
+    private final String SPOTIFY_CLIENT_ID;
+    @Value("${spotify.clientSecret}")
+    private final String SPOTIFY_CLIENT_SECRET;
 
     public void requestAccessToken() {
         synchronized (lock) {
@@ -36,8 +43,8 @@ public class SpotifyUtil {
                 return;
             }
 
-            String clientId = "${spotify.clientId}";
-            String clientSecret = "${spotify.clientSecret}";
+            String clientId = SPOTIFY_CLIENT_ID;
+            String clientSecret = SPOTIFY_CLIENT_SECRET;
             String credentials = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
             WebClient webClient = WebClient.builder()
