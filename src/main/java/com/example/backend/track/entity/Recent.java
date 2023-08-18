@@ -17,7 +17,7 @@ public class Recent {
     @Column(name = "recent_id")
     private Long recentId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

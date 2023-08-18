@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +124,13 @@ public class TrackService {
         return spotifyUtil.getTracksInfo(trackIds);
     }
 
+    @Transactional
     public void createRecentTrack(String trackId, User user) {
+        List<Recent> recentTracks = recentRepository.findByUserOrderByCreationDateAsc(user);
+        if (recentTracks.size() >= 20) {
+            // 가장 오래된 곡 제거
+            recentRepository.delete(recentTracks.get(0));
+        }
         Recent recent = new Recent(trackId, user);
         recentRepository.save(recent);
     }

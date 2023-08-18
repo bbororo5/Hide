@@ -18,7 +18,9 @@ public class ChatRoomDto {
 
 	public ChatRoomDto(ChatRoom chatRoom, User oppositeUser) {
 		this.roomName = chatRoom.getRoomName();
-		this.oppositeUserImage = oppositeUser.getImage().getImageUrl();
+		if(oppositeUser.getImage()!=null){
+			this.oppositeUserImage = oppositeUser.getImage().getImageUrl();
+		}
 		this.modifiedAt = chatRoom.getModifiedAt();
 		this.oppositeNickname = oppositeUser.getNickname();
 		List<MessageDto> messages = chatRoom.getChatMessage().stream().map(MessageDto::new)
