@@ -6,7 +6,7 @@ ARG JAR_FILE=target/*.jar
 COPY ./build/libs/Back-End-0.0.1-SNAPSHOT.jar app.jar
 
 # 포트 설정
-EXPOSE 8080
+EXPOSE 80
 
 # 컨테이너 시작 시 실행될 명령 설정
 ENTRYPOINT ["java", "-jar", "/app.jar"]
