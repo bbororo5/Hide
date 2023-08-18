@@ -43,7 +43,7 @@ public class JwtUtil {
 	private final long REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000L; // 14일
 	private final long TEMPORAL_TOKEN_TIME = 5 * 60 * 1000L; // 120분
 
-	@Value("${jwt.secret.key}")
+	@Value("7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukLg==")
 	private String secretKey;
 
 	private Key key;
