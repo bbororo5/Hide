@@ -1,5 +1,6 @@
 package com.example.backend.track.service;
 
+import com.example.backend.track.dto.Top7Dto;
 import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.entity.Recent;
 import com.example.backend.track.entity.TrackCount;
@@ -138,13 +139,13 @@ public class TrackService {
         recentRepository.save(recent);
     }
 
-    public List<String> get7RecentTracks() {
+    public List<Top7Dto> get7RecentTracks() {
         Pageable topSeven = PageRequest.of(0, 7);
         List<Recent> recent7tracts = recentRepository.findTop7ByOrderByCreationDateDesc(topSeven);
         List<String> trackIds = recent7tracts.stream()
             .map(Recent::getTrackId)
             .toList();
         List<Track> top7TrackList = spotifyUtil.getTracksInfo(trackIds);
-        return top7TrackList.stream().map(Track::getTitle).toList();
+        return top7TrackList.stream().map(Top7Dto::new).toList();
     }
 }

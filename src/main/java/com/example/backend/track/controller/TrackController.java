@@ -1,5 +1,6 @@
 package com.example.backend.track.controller;
 
+import com.example.backend.track.dto.Top7Dto;
 import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
@@ -60,7 +61,7 @@ public class TrackController {
     }
 
     @GetMapping("/search/recommend-keywords")
-    public ResponseEntity<List<String>> get7RecentTracks() {
+    public ResponseEntity<List<Top7Dto>> get7RecentTracks() {
         return ResponseEntity.ok(trackService.get7RecentTracks());
     }
 
