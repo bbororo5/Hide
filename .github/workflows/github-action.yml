@@ -28,15 +28,14 @@ jobs:
         distribution: 'adopt'
         java-version: '17'
 
-    - name: Build with Gradle
-      run: ./gradlew build
-      
     - name: Set up application.properties
       run: |
         touch ./src/main/resources/application-secret.properties
         echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application-secret.properties
         cat ./src/main/resources/application-secret.properties
-      
+
+    - name: Build with Gradle
+      run: ./gradlew build
 
     - name: Build Docker image
       run: docker build -t philomuvie/hide_music:latest .
