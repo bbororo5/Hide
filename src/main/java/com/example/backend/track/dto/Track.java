@@ -6,7 +6,7 @@ import java.util.List;
 
 @Getter
 public class Track {
-    private String id;
+    private String trackId;
     private String title;
     private String album;
     private String image;
@@ -39,7 +39,7 @@ public class Track {
     @Builder
     public Track(String id, String title, String album, String image, List<Artist> artists, List<Genre> genre) {
         StringBuilder sb = new StringBuilder();
-        this.id = id;
+        this.trackId = id;
         this.title = title;
         this.album = album;
         this.image = image;

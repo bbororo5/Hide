@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface RecentRepository extends JpaRepository<Recent, Long> {
     List<String> findTrackIdByUserOrderByCreationDateDesc(User user);
+
+	List<Recent> findByUserOrderByCreationDateAsc(User user);
 }
 
 
