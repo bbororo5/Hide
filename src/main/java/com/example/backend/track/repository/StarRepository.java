@@ -13,5 +13,5 @@ public interface StarRepository extends JpaRepository<Star,Long> {
 	Optional<Star> findByUserAndTrackId(User user, String trackId);
 
 	@Query("SELECT AVG(s.star) FROM Star s WHERE s.trackId = :trackId")
-	Double findAverageStarByTrackId(@Param("trackId") String trackId);
+	Optional<Double> findAverageStarByTrackId(@Param("trackId") String trackId);
 }

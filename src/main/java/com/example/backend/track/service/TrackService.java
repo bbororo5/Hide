@@ -130,7 +130,7 @@ public class TrackService {
 
 	public TrackDetailDto getTrackDetail(String trackId) {
 		Track track = spotifyUtil.getTracksInfo(trackId);
-		Double averageStar = starRepository.findAverageStarByTrackId(trackId);
+		Double averageStar = starRepository.findAverageStarByTrackId(trackId).orElse(null);
 		TrackDetailDto trackDetailDto = new TrackDetailDto(track,averageStar);
 		return trackDetailDto;
 	}
