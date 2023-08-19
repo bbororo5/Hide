@@ -35,7 +35,7 @@ public class GoogleController {
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());
 		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl("https://hide-iota.vercel.app/");
+		redirectView.setUrl("https://hide-iota.vercel.app");
 		return redirectView;
 	}
 }
