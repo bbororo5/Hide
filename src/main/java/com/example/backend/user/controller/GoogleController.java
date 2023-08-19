@@ -1,13 +1,10 @@
 package com.example.backend.user.controller;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.example.backend.StatusResponseDto;
 import com.example.backend.user.dto.TokenDto;
@@ -25,9 +22,9 @@ public class GoogleController {
 
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/google")
-	public void getLoginUrl(HttpServletResponse response) throws IOException {
+	public ResponseEntity<StatusResponseDto> getLoginUrl() {
 		String url = googleService.getGoogleLoginForm();
-		response.sendRedirect(url);
+		return new ResponseEntity<>(new StatusResponseDto(url, true), HttpStatus.OK);
 	}
 
 	// 구글 로그인
@@ -37,6 +34,6 @@ public class GoogleController {
 		TokenDto tokenDto = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());
-		return new ResponseEntity<>(new StatusResponseDto("구글 로그인이 완료되었습니다.",true), HttpStatus.OK);
+		return new ResponseEntity<>(new StatusResponseDto("구글 로그인이 완료되었습니다.", true), HttpStatus.OK);
 	}
 }
