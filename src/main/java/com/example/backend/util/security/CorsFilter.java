@@ -30,7 +30,7 @@ public class CorsFilter implements Filter {
 		ServletException {
 		HttpServletRequest request = (HttpServletRequest)req;
 		HttpServletResponse response = (HttpServletResponse)res;
-		String[] allowedOrigins = {"http://localhost:3000", "https://front-end-omega-topaz-47.vercel.app",
+		String[] allowedOrigins = {"http://localhost:3000", "https://hide-iota.vercel.app",
 			"http://moview-bucket.s3-website.ap-northeast-2.amazonaws.com"};
 		String originHeader = request.getHeader("Origin");
 		if (Arrays.asList(allowedOrigins).contains(originHeader)) {
