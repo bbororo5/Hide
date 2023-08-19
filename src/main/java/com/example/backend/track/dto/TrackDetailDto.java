@@ -23,7 +23,9 @@ public class TrackDetailDto {
 		this.artists = track.getArtists();
 		this.artistsStringList = track.getArtistsStringList();
 		this.genre = track.getGenre();
-		this.averageStar= Math.round(averageStar * 10.0) / 10.0;
+		if(averageStar!=null){
+			this.averageStar= Math.round(averageStar * 10.0) / 10.0;
+		}
 	}
 
 }
