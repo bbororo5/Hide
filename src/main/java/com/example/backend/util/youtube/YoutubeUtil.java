@@ -2,6 +2,8 @@ package com.example.backend.util.youtube;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,7 +15,8 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class YoutubeUtil {
 
-    private final String apiKey = "AIzaSyCGPwkCWI-8i5-_VOq3qEETCcswDz1_QQQ";
+    @Value("${youtube.api.key}")
+    private final String apiKey ;
 
     private final RestTemplate restTemplate;
 
