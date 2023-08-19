@@ -40,7 +40,7 @@ public class UserController {
 	}
 
 	@GetMapping("/users/user-info/{user-id}")
-	public ResponseEntity<UserProfileDto> getUserInfo(@PathVariable(name = "user-id") Long userId){
+	public ResponseEntity<UserProfileDto> getUserInfo(@PathVariable(name = "user-id") Long userId) {
 		return userService.getUserInfo(userId);
 	}
 

@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 @Builder
 public class TrackDetailModal {
-    private String image;
-    private String album;
-    private String artist;
-    private String title;
-    private String yUrl;
+	private String image;
+	private String album;
+	private String artist;
+	private String title;
+	private String yUrl;
 }

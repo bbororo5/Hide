@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenRepository refreshTokenRepository;
 
-	public JwtAuthenticationFilter(JwtUtil jwtUtil , RefreshTokenRepository refreshTokenRepository) {
+	public JwtAuthenticationFilter(JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
 		this.jwtUtil = jwtUtil;
 		this.refreshTokenRepository = refreshTokenRepository;
 		setFilterProcessesUrl("/api/users/login");
@@ -57,17 +57,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(email).orElse(null);
 		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
-		if(CheckRefreshToken!=null){
+		if (CheckRefreshToken != null) {
 			refreshTokenRepository.delete(CheckRefreshToken);
 		}
-		RefreshToken newRefreshToken = new RefreshToken(jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), email);
+		RefreshToken newRefreshToken = new RefreshToken(
+			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), email);
 		refreshTokenRepository.save(newRefreshToken);
 
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, createAccessToken);
 		response.addHeader(JwtUtil.REFRESH_HEADER, createRefreshToken);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다. docker", true)));
+		response.getWriter()
+			.write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다. docker", true)));
 	}
 
 	@Override
