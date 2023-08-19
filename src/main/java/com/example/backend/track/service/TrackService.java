@@ -1,6 +1,7 @@
 package com.example.backend.track.service;
 
 import com.example.backend.track.dto.Top7Dto;
+import com.example.backend.track.dto.TrackDetailDto;
 import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.entity.Recent;
 import com.example.backend.track.entity.TrackCount;
@@ -118,8 +119,10 @@ public class TrackService {
                 .build();
     }
 
-    public Track getTrackDetail(String trackId) {
-        return spotifyUtil.getTracksInfo(trackId);
+    public TrackDetailDto getTrackDetail(String trackId) {
+        Track track =spotifyUtil.getTracksInfo(trackId);
+        TrackDetailDto trackDetailDto = new TrackDetailDto(track);
+        return trackDetailDto;
     }
 
     public List<Track> getRecentTracks(Long userId) {

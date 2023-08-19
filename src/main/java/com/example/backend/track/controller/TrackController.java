@@ -1,6 +1,7 @@
 package com.example.backend.track.controller;
 
 import com.example.backend.track.dto.Top7Dto;
+import com.example.backend.track.dto.TrackDetailDto;
 import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
@@ -44,7 +45,7 @@ public class TrackController {
     }
 
     @GetMapping("{track-id}")
-    public ResponseEntity<Track> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
+    public ResponseEntity<TrackDetailDto> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
         return ResponseEntity.ok(trackService.getTrackDetail(trackId));
     }
 
