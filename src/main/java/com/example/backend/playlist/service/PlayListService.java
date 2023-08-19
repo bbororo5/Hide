@@ -13,12 +13,12 @@ import com.example.backend.StatusResponseDto;
 import com.example.backend.playlist.dto.PlaylistDto;
 import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.playlist.repository.PlayListRepository;
+import com.example.backend.track.dto.Track;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
-import com.example.backend.track.dto.Track;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,7 +63,7 @@ public class PlayListService {
 
 		List<Track> trackList = spotifyUtil.getTracksInfo(trackIds);
 
-		for(int i = 0; i<playlistDtoList.size();i++){
+		for (int i = 0; i < playlistDtoList.size(); i++) {
 			playlistDtoList.get(i).setPlaylistDto(trackList.get(i));
 		}
 

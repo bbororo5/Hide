@@ -90,7 +90,7 @@ public class ChatService {
 			} else {
 				oppositeUser = chatRoom.getSender();
 			}
-			ChatRoomDto chatRoomDto = new ChatRoomDto(chatRoom,oppositeUser); // 필요한 경우 파라미터 추가
+			ChatRoomDto chatRoomDto = new ChatRoomDto(chatRoom, oppositeUser); // 필요한 경우 파라미터 추가
 			result.add(chatRoomDto);
 		}
 

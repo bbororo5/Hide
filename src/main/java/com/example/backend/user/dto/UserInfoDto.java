@@ -3,7 +3,6 @@ package com.example.backend.user.dto;
 import com.example.backend.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,8 +22,9 @@ public class UserInfoDto {
 		this.nickname = nickname;
 		this.email = email;
 	}
-	public UserInfoDto(User user){
-		this.id=user.getUserId();
-		this.nickname=user.getNickname();
+
+	public UserInfoDto(User user) {
+		this.id = user.getUserId();
+		this.nickname = user.getNickname();
 	}
 }
