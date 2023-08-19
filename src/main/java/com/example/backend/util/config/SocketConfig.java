@@ -21,6 +21,6 @@ public class SocketConfig implements WebSocketMessageBrokerConfigurer {
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws/chat")  //ws://도메인:8080/chat
 			.setAllowedOriginPatterns("**");
-			// .withSockJS();
+		// .withSockJS();
 	}
 }

@@ -13,10 +13,11 @@ public class UserProfileDto {
 	private String imageUrl;
 	private int following;
 	private int follower;
+
 	public UserProfileDto(User user) {
 		this.userId = user.getUserId();
 		this.nickname = user.getNickname();
-		if(user.getImage()!=null){
+		if (user.getImage() != null) {
 			this.imageUrl = user.getImage().getImageUrl();
 		}
 		this.following = user.getFollowerList().size();

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.backend.chat.entity.ChatRoom;
-import com.example.backend.playlist.entity.Comment;
 import com.example.backend.playlist.entity.Playlist;
+import com.example.backend.track.entity.Comment;
 import com.example.backend.track.entity.TrackCount;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -68,11 +68,12 @@ public class User {
 	private List<Playlist> playlists = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<Comment> comments =new ArrayList<>();
+	private List<Comment> comments = new ArrayList<>();
 
 	public void updateUserImage(Image image) {
 		this.image = image;
 	}
+
 	public void updateUserNickname(String nickname) {
 		this.nickname = nickname;
 	}

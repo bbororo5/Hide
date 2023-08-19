@@ -10,11 +10,12 @@ public class TrackDetailDto {
 	private String title;
 	private String album;
 	private String image;
+	private Double averageStar;
 	private List<Track.Artist> artists;
 	private String artistsStringList;
 	private List<Track.Genre> genre;
 
-	public TrackDetailDto(Track track) {
+	public TrackDetailDto(Track track,Double averageStar) {
 		this.trackId = track.getTrackId();
 		this.title = track.getTitle();
 		this.album = track.getAlbum();
@@ -22,6 +23,7 @@ public class TrackDetailDto {
 		this.artists = track.getArtists();
 		this.artistsStringList = track.getArtistsStringList();
 		this.genre = track.getGenre();
+		this.averageStar= Math.round(averageStar * 10.0) / 10.0;
 	}
 
 }

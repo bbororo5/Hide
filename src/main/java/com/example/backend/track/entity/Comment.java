@@ -1,47 +1,45 @@
 package com.example.backend.track.entity;
 
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import com.example.backend.track.dto.CommentRequestDto;
 import com.example.backend.user.entity.User;
+import com.example.backend.util.Timestamped;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "comment")
 @NoArgsConstructor
-public class Recent {
+public class Comment extends Timestamped {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "recent_id")
-	private Long recentId;
+	private Long id;
+
+	@Column(name = "content", nullable = false)
+	private String content;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
-
-	@CreatedDate
-	@Column(updatable = false)
-	private LocalDateTime creationDate;
-
-	@Column(name = "track_id")
 	private String trackId;
 
-	public Recent(String trackId, User user) {
-		this.trackId = trackId;
+	public Comment(String content, User user, String trackId) {
+		this.content = content;
 		this.user = user;
+		this.trackId = trackId;
 	}
 
+	public void updateComment(CommentRequestDto requestDto) {
+		this.content = requestDto.getContent();
+	}
 }

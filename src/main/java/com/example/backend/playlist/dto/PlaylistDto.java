@@ -22,7 +22,6 @@ public class PlaylistDto {
 	private String artistsStringList;
 	private LocalDateTime createdAt;
 
-
 	@Getter
 	public static class Artist {
 		private String artistName;
@@ -33,14 +32,16 @@ public class PlaylistDto {
 		}
 
 	}
+
 	public PlaylistDto(Playlist playlist) {
 		this.playlistId = playlist.getId();
 		this.trackId = playlist.getTrackId();
 		this.createdAt = playlist.getCreatedAt();
 	}
+
 	public void setPlaylistDto(Track track) {
 		this.title = track.getTitle();
-		this.album =track.getAlbum();
+		this.album = track.getAlbum();
 		this.image = track.getImage();
 		this.artists = track.getArtists();
 		this.artistsStringList = track.getArtistsStringList();
