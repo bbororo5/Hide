@@ -2,12 +2,11 @@ package com.example.backend.track.dto;
 
 import java.util.List;
 
-import lombok.Builder;
 import lombok.Getter;
 
+@Getter
 public class TrackDetailDto {
 	private String trackId;
-
 	private String title;
 	private String album;
 	private String image;
