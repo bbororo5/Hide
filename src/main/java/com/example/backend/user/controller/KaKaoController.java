@@ -36,7 +36,7 @@ public class KaKaoController {
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());
 		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl("https://front-end-omega-topaz-47.vercel.app");
+		redirectView.setUrl("https://hide-iota.vercel.app/");
 		return redirectView;
 	}
 }
