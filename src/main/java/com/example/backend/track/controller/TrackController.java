@@ -39,7 +39,12 @@ public class TrackController {
     }
 
     @GetMapping("{track-id}/modal")
-    public ResponseEntity<TrackDetailModal> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
+    public ResponseEntity<TrackDetailModal> getTrackDetailModal(@PathVariable(name = "track-id") String trackId) {
+        return ResponseEntity.ok(trackService.getTrackDetailModal(trackId));
+    }
+
+    @GetMapping("{track-id}")
+    public ResponseEntity<Track> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
         return ResponseEntity.ok(trackService.getTrackDetail(trackId));
     }
 

@@ -103,7 +103,7 @@ public class TrackService {
         return spotifyUtil.getRecommendTracks(trackIds);
     }
 
-    public TrackDetailModal getTrackDetail(String trackId) {
+    public TrackDetailModal getTrackDetailModal(String trackId) {
         Track track = spotifyUtil.getTracksInfo(trackId);
         String artistName = track.getArtists().get(0).getArtistName();
         String trackTitle = track.getTitle();
@@ -116,6 +116,10 @@ public class TrackService {
                 .title(trackTitle)
                 .yUrl("https://www.youtube.com/watch?v=" + videoId)
                 .build();
+    }
+
+    public Track getTrackDetail(String trackId) {
+        return spotifyUtil.getTracksInfo(trackId);
     }
 
     public List<Track> getRecentTracks(Long userId) {
