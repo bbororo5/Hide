@@ -152,8 +152,14 @@ public class TrackService {
 			// 가장 오래된 곡 제거
 			recentRepository.delete(recentTracks.get(0));
 		}
-		Recent recent = new Recent(trackId, user);
-		recentRepository.save(recent);
+		Recent newRecent = new Recent(trackId, user);
+		Recent recent = recentRepository.findByUserAndTrackId(user,trackId).orElse(null);
+		if(recent==null){
+			recentRepository.save(newRecent);
+		}else{
+			recentRepository.delete(recent);
+			recentRepository.save(newRecent);
+		}
 	}
 
 	public List<Top7Dto> get7RecentTracks() {
