@@ -68,7 +68,7 @@ public class TrackController {
 		return ResponseEntity.ok(spotifyUtil.getSearchResult(keyword));
 	}
 
-	@GetMapping("/{user-id}/recent")
+	@GetMapping("/users/{user-id}/recent")
 	public ResponseEntity<List<Track>> getRecentTracks(@PathVariable(name = "user-id") Long userId) {
 		return ResponseEntity.ok(trackService.getRecentTracks(userId));
 	}

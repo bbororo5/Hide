@@ -38,7 +38,6 @@ import com.example.backend.util.JwtUtil;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -167,8 +166,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails,
-		HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<StatusResponseDto> changePw(UserInfoDto userInfo, UserDetailsImpl userDetails) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		String newPassword = passwordEncoder.encode(userInfo.getPassword());

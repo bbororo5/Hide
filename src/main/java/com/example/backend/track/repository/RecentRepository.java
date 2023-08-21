@@ -12,7 +12,7 @@ import com.example.backend.user.entity.User;
 @Repository
 public interface RecentRepository extends JpaRepository<Recent, Long> {
 
-	List<Recent> findAllByUserOrderByCreationDateDesc(User user);
+	List<Recent> findAllByUserOrderByCreationDateDesc(User user,Pageable pageable);
 
 	List<Recent> findByUserOrderByCreationDateAsc(User user);
 
