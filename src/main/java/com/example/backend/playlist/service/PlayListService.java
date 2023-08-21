@@ -1,6 +1,7 @@
 package com.example.backend.playlist.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -51,7 +52,7 @@ public class PlayListService {
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 		List<Playlist> playlists = user.getPlaylists();
 		if(playlists.isEmpty()){
-			return null;
+			return Collections.emptyList();
 		}
 		playlists.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
 
