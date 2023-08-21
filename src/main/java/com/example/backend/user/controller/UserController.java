@@ -23,7 +23,6 @@ import com.example.backend.user.dto.UserProfileDto;
 import com.example.backend.user.service.UserService;
 import com.example.backend.util.security.UserDetailsImpl;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,10 +64,8 @@ public class UserController {
 
 	@PatchMapping("/users/reset-password")
 	public ResponseEntity<StatusResponseDto> changePw(@RequestBody UserInfoDto userInfo,
-		HttpServletRequest request,
-		HttpServletResponse response,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return userService.changePw(userInfo, userDetails, request, response);
+		return userService.changePw(userInfo, userDetails);
 	}
 
 	@PostMapping("/follow/users/{user-id}")
