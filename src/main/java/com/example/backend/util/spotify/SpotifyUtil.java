@@ -31,7 +31,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class SpotifyUtil {
-
+	private long tokenExpirationTime;
 	private String accessToken;
 	private final Object lock = new Object();
 	@Value("${spotify.clientId}")
@@ -68,6 +68,8 @@ public class SpotifyUtil {
 				ObjectMapper objectMapper = new ObjectMapper();
 				JsonNode jsonNode = objectMapper.readTree(response);
 				this.accessToken = jsonNode.get("access_token").asText();
+				int expiresIn = jsonNode.get("expires_in").asInt(); // 초 단위로 오는 만료 시간
+				this.tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000L);
 				System.out.println(accessToken);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -241,7 +243,7 @@ public class SpotifyUtil {
 	private boolean isValid(String token) {
 		// accessToken의 유효성 검사. 예를 들어, 만료 시간을 저장해둔다면 그것을 기반으로 판별 가능
 		// 이 예제에서는 단순히 null 또는 빈 문자열인지만 검사
-		return token != null && !token.isEmpty();
+		return token != null && !token.isEmpty() && System.currentTimeMillis() < tokenExpirationTime;
 	}
 
 }
