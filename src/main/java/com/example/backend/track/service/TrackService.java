@@ -2,7 +2,6 @@ package com.example.backend.track.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
@@ -117,7 +116,7 @@ public class TrackService {
 		Track track = spotifyUtil.getTracksInfo(trackId);
 		String artistName = track.getArtists().get(0).getArtistName();
 		String trackTitle = track.getTitle();
-		String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle);
+		String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle + " lyrics");
 
 		return TrackDetailModal.builder()
 			.image(track.getImage())
@@ -131,14 +130,15 @@ public class TrackService {
 	public TrackDetailDto getTrackDetail(String trackId) {
 		Track track = spotifyUtil.getTracksInfo(trackId);
 		Double averageStar = starRepository.findAverageStarByTrackId(trackId).orElse(null);
-		TrackDetailDto trackDetailDto = new TrackDetailDto(track,averageStar);
+		TrackDetailDto trackDetailDto = new TrackDetailDto(track, averageStar);
 		return trackDetailDto;
 	}
 
 	public List<Track> getRecentTracks(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-		List<Recent> recentList = recentRepository.findAllByUserOrderByCreationDateDesc(user);
+		Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "creationDate"));
+		List<Recent> recentList = recentRepository.findAllByUserOrderByCreationDateDesc(user,pageable);
 		List<String> trackIds = recentList.stream()
 			.map(Recent::getTrackId)
 			.toList();
@@ -169,13 +169,13 @@ public class TrackService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> setStarRating(String trackId, StarDto starDto,
 		UserDetailsImpl userDetails) {
-		Star star = starRepository.findByUserAndTrackId(userDetails.getUser(),trackId)
+		Star star = starRepository.findByUserAndTrackId(userDetails.getUser(), trackId)
 			.orElse(null);
-		if(star!=null){
+		if (star != null) {
 			star.updateStar(starDto);
 			starRepository.save(star);
-		}else{
-			Star newStar = new Star(trackId,starDto.getStar(),userDetails.getUser());
+		} else {
+			Star newStar = new Star(trackId, starDto.getStar(), userDetails.getUser());
 			starRepository.save(newStar);
 		}
 		return new ResponseEntity<>(new StatusResponseDto("별점 등록 완료.", true), HttpStatus.OK);
