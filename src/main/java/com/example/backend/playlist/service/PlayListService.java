@@ -50,6 +50,9 @@ public class PlayListService {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 		List<Playlist> playlists = user.getPlaylists();
+		if(playlists.isEmpty()){
+			return null;
+		}
 		playlists.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
 
 		List<PlaylistDto> playlistDtoList = new ArrayList<>();
