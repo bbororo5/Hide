@@ -13,9 +13,6 @@ on:
       - production
     types:
       - closed
-  push:
-    branches:
-      - production
 
 jobs:
   build:
