@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -219,7 +221,16 @@ public class UserService {
 	public ResponseEntity<UserProfileDto> getUserInfo(Long userId) {
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
-		return new ResponseEntity<>(new UserProfileDto(user), HttpStatus.OK);
+		boolean isFollowing = false;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if(authentication!=null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetailsImpl userDetails){
+			User follower = userDetails.getUser();
+			Follow follow = followRepository.findByFromUserAndToUser(follower,user).orElse(null);
+			if(follow!=null){
+				isFollowing=true;
+			}
+		}
+		return new ResponseEntity<>(new UserProfileDto(user,isFollowing), HttpStatus.OK);
 	}
 
 }
