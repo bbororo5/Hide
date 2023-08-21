@@ -13,8 +13,12 @@ public class UserProfileDto {
 	private String imageUrl;
 	private int following;
 	private int follower;
+	private boolean isFollowing;
+	public boolean getIsFollowing() {
+		return isFollowing;
+	}
 
-	public UserProfileDto(User user) {
+	public UserProfileDto(User user,boolean isFollowing) {
 		this.userId = user.getUserId();
 		this.nickname = user.getNickname();
 		if (user.getImage() != null) {
@@ -22,5 +26,6 @@ public class UserProfileDto {
 		}
 		this.following = user.getFollowerList().size();
 		this.follower = user.getFollowingList().size();
+		this.isFollowing = isFollowing;
 	}
 }
