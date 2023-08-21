@@ -2,6 +2,7 @@ package com.example.backend.util.security;
 
 import java.io.IOException;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -75,10 +76,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException, ServletException {
-
+		String errorMsg = "로그인이 실패했습니다.";
+		if (failed instanceof BadCredentialsException) {
+			errorMsg = "비밀번호가 틀렸습니다.";
+		}
 		response.setStatus(401);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 실패했습니다.")));
+		response.getWriter().write(new ObjectMapper().writeValueAsString(new StatusResponseDto(errorMsg)));
 	}
 }
