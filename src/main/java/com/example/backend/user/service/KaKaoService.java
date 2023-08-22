@@ -61,7 +61,7 @@ public class KaKaoService {
 		String createAccessToken = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getUserId(),
 			kakaoUser.getNickname(), kakaoUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(kakaoUser.getEmail());
-		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken);
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken,kakaoUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(kakaoUser.getEmail()).orElse(null);
 		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
 		if (CheckRefreshToken != null) {

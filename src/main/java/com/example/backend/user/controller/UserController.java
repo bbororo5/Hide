@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.util.StatusResponseDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
@@ -44,7 +45,7 @@ public class UserController {
 	}
 
 	@PatchMapping("/users/update-profile")
-	public ResponseEntity<StatusResponseDto> updateUser(
+	public ResponseEntity<UserResponseDto> updateUser(
 		@RequestPart(value = "image", required = false) MultipartFile imageFile,
 		@RequestPart(value = "nickname", required = false) String nickname,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {

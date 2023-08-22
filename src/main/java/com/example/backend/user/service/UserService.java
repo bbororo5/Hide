@@ -22,10 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.example.backend.util.StatusResponseDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserProfileDto;
+import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.RefreshToken;
@@ -37,6 +37,7 @@ import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 
@@ -90,7 +91,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public ResponseEntity<StatusResponseDto> updateUser(MultipartFile imageFile, String nickname,
+	public ResponseEntity<UserResponseDto> updateUser(MultipartFile imageFile, String nickname,
 		UserDetailsImpl userDetails) {
 		User user = userRepository.findById(userDetails.getUser().getUserId())
 			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
@@ -112,7 +113,8 @@ public class UserService {
 		if (nickname != null) {
 			user.updateUserNickname(nickname);
 		}
-		return new ResponseEntity<>(new StatusResponseDto("프로필 수정이 완료되었습니다.", true), HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(new UserResponseDto("프로필 수정이 완료되었습니다.", true, user.getImage().getImageUrl()),
+			HttpStatus.ACCEPTED);
 	}
 
 	@Transactional
@@ -223,14 +225,15 @@ public class UserService {
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		boolean isFollowing = false;
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if(authentication!=null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetailsImpl userDetails){
+		if (authentication != null && authentication.isAuthenticated()
+			&& authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
 			User follower = userDetails.getUser();
-			Follow follow = followRepository.findByFromUserAndToUser(follower,user).orElse(null);
-			if(follow!=null){
-				isFollowing=true;
+			Follow follow = followRepository.findByFromUserAndToUser(follower, user).orElse(null);
+			if (follow != null) {
+				isFollowing = true;
 			}
 		}
-		return new ResponseEntity<>(new UserProfileDto(user,isFollowing), HttpStatus.OK);
+		return new ResponseEntity<>(new UserProfileDto(user, isFollowing), HttpStatus.OK);
 	}
 
 }

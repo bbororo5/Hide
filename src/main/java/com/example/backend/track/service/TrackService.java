@@ -43,10 +43,11 @@ public class TrackService {
 	private final YoutubeUtil youtubeUtil;
 	private final RecentRepository recentRepository;
 	private final StarRepository starRepository;
+	private final JPAQueryFactory jpaQueryFactory;
 
-	public void increasePlayCount(String trackId) {
+	public void increasePlayCount(String trackId, User user) {
 		TrackCount trackCount = trackCountRepository.findByTrackId(trackId)
-			.orElse(new TrackCount(trackId, 0)); // 트랙이 없는 경우 새 TrackCount 생성
+			.orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성
 		handleTrackCountLimit();
 		trackCount.increasePlayCount();
 		trackCountRepository.save(trackCount);

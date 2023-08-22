@@ -7,12 +7,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.backend.util.StatusResponseDto;
 import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.util.JwtUtil;
+import com.example.backend.util.StatusResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -52,6 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String nickname = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getNickname();
 		Long userId = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getUserId();
 		UserRoleEnum role = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getRole();
+		String image =((UserDetailsImpl)authResult.getPrincipal()).getUser().getImage().getImageUrl();
 		String createAccessToken = jwtUtil.createAccessToken(email, userId, nickname, role);
 		String createRefreshToken = jwtUtil.createRefreshToken(email);
 
@@ -69,7 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter()
-			.write(new ObjectMapper().writeValueAsString(new StatusResponseDto("로그인이 완료되었습니다.", true)));
+			.write(new ObjectMapper().writeValueAsString(new UserResponseDto("로그인이 완료되었습니다.", true, image)));
 	}
 
 	@Override
