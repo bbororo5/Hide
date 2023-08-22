@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.StatusResponseDto;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.playlist.dto.PlaylistDto;
 import com.example.backend.playlist.service.PlayListService;
 import com.example.backend.util.security.UserDetailsImpl;
