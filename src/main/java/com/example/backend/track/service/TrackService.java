@@ -1,9 +1,27 @@
 package com.example.backend.track.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.example.backend.track.dto.*;
+import com.example.backend.track.entity.QStar;
+import com.example.backend.track.entity.Recent;
+import com.example.backend.track.entity.Star;
+import com.example.backend.track.entity.TrackCount;
+import com.example.backend.track.repository.RecentRepository;
+import com.example.backend.track.repository.StarRepository;
+import com.example.backend.track.repository.TrackCountRepository;
+import com.example.backend.user.entity.QImage;
+import com.example.backend.user.entity.QUser;
+import com.example.backend.user.entity.User;
+import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.execption.DataNotFoundException;
+import com.example.backend.util.execption.NotFoundTrackException;
+import com.example.backend.util.execption.UserNotFoundException;
+import com.example.backend.util.security.UserDetailsImpl;
+import com.example.backend.util.spotify.SpotifyUtil;
+import com.example.backend.util.youtube.YoutubeUtil;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,27 +30,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.util.StatusResponseDto;
-import com.example.backend.track.dto.StarDto;
-import com.example.backend.track.dto.Top7Dto;
-import com.example.backend.track.dto.Track;
-import com.example.backend.track.dto.TrackDetailDto;
-import com.example.backend.track.dto.TrackDetailModal;
-import com.example.backend.track.entity.Recent;
-import com.example.backend.track.entity.Star;
-import com.example.backend.track.entity.TrackCount;
-import com.example.backend.track.repository.RecentRepository;
-import com.example.backend.track.repository.StarRepository;
-import com.example.backend.track.repository.TrackCountRepository;
-import com.example.backend.user.entity.User;
-import com.example.backend.user.repository.UserRepository;
-import com.example.backend.util.execption.NotFoundTrackException;
-import com.example.backend.util.execption.UserNotFoundException;
-import com.example.backend.util.security.UserDetailsImpl;
-import com.example.backend.util.spotify.SpotifyUtil;
-import com.example.backend.util.youtube.YoutubeUtil;
-
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +43,7 @@ public class TrackService {
 	private final YoutubeUtil youtubeUtil;
 	private final RecentRepository recentRepository;
 	private final StarRepository starRepository;
+	private final JPAQueryFactory jpaQueryFactory;
 
 	public void increasePlayCount(String trackId, User user) {
 		TrackCount trackCount = trackCountRepository.findByTrackId(trackId)
@@ -197,5 +198,30 @@ public class TrackService {
 		} else {
 			return new ResponseEntity<>(new StatusResponseDto("별점이 없어서 삭제할 수 없습니다.", false), HttpStatus.BAD_REQUEST);
 		}
+	}
+
+	public ResponseEntity<List<StarListResponseDto>> getStarList(String trackId) {
+		QStar qStar = QStar.star1;
+		QUser qUser = QUser.user;
+		QImage qImage = QImage.image;
+
+		List<StarListResponseDto> result = jpaQueryFactory
+				.select(Projections.constructor(StarListResponseDto.class,
+						qUser.userId,
+						qUser.nickname,
+						qImage.imageUrl,
+						qStar.star
+				))
+				.from(qStar)
+				.leftJoin(qStar.user, qUser)
+				.leftJoin(qUser.image, qImage) // 여기서 leftJoin으로 변경하였습니다.
+				.where(qStar.trackId.eq(trackId))
+				.fetch();
+
+		if (result == null || result.isEmpty()) {
+			throw new DataNotFoundException("데이터가 비어있습니다. 트랙아이디: " + trackId);
+		}
+
+		return new ResponseEntity<>(result,HttpStatus.OK);
 	}
 }

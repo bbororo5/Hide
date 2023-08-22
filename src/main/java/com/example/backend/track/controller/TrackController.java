@@ -2,6 +2,7 @@ package com.example.backend.track.controller;
 
 import java.util.List;
 
+import com.example.backend.track.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,11 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.util.StatusResponseDto;
-import com.example.backend.track.dto.StarDto;
-import com.example.backend.track.dto.Top7Dto;
-import com.example.backend.track.dto.Track;
-import com.example.backend.track.dto.TrackDetailDto;
-import com.example.backend.track.dto.TrackDetailModal;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyUtil;
@@ -96,6 +92,12 @@ public class TrackController {
 	public ResponseEntity<StatusResponseDto> deleteStarRating(@PathVariable(name = "track-id") String trackId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		return trackService.deleteStarRating(trackId, userDetails);
+	}
+
+	@GetMapping("/{track-id}/starList")
+	public ResponseEntity<List<StarListResponseDto>> getStarList(@PathVariable(name = "track-id") String trackId) {
+
+		return trackService.getStarList(trackId);
 	}
 
 }

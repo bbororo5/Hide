@@ -82,4 +82,11 @@ public class GlobalExceptionHandler {
 		StatusResponseDto response = new StatusResponseDto("서버와 통신 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.", false);
 		return new ResponseEntity<>(response, HttpStatus.BAD_GATEWAY);
 	}
+
+	@ExceptionHandler(DataNotFoundException.class)
+	public ResponseEntity<StatusResponseDto> handleDataNotFoundException(DataNotFoundException e) {
+		log.error(e.getMessage(),e);
+		StatusResponseDto statusResponseDto = new StatusResponseDto(e.getMessage(), false);
+		return new ResponseEntity<>(statusResponseDto, HttpStatus.CONFLICT);
+	}
 }
