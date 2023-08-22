@@ -98,4 +98,10 @@ public class TrackController {
 		return trackService.deleteStarRating(trackId, userDetails);
 	}
 
+	@GetMapping("/{track-id}/starList}")
+	public ResponseEntity<?> getStarList(@PathVariable(name = "track-id") String trackId) {
+
+		return trackService.getStarList(trackId);
+	}
+
 }
