@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.StatusResponseDto;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.track.dto.StarDto;
 import com.example.backend.track.dto.Top7Dto;
 import com.example.backend.track.dto.Track;

@@ -2,13 +2,12 @@ package com.example.backend.util.security;
 
 import java.io.IOException;
 
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.backend.StatusResponseDto;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.UserRoleEnum;

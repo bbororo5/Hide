@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.example.backend.StatusResponseDto;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.user.dto.SignupRequestDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserProfileDto;
@@ -178,9 +178,9 @@ public class UserService {
 
 	@Transactional
 	public List<UserInfoDto> getToUsers(Long userId) {
-		User fromUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
-		List<Follow> followingList = followRepository.findAllByFromUser(fromUser);
+		// User fromUser = userRepository.findById(userId)
+		// 	.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
+		List<Follow> followingList = followRepository.findAllByFromUserIdWithUsers(userId);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
 		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
 		for (Follow follow : followingList) {
