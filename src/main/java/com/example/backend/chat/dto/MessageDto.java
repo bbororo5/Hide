@@ -16,6 +16,7 @@ public class MessageDto {
 	private Long senderId;
 	private String nickname;
 	private String message;
+	private String senderImageUrl;
 	private LocalDateTime createdAt;
 
 	public MessageDto(ChatMessage chatMessage) {
@@ -23,6 +24,7 @@ public class MessageDto {
 		this.nickname = chatMessage.getNickname();
 		this.message = chatMessage.getMessage();
 		this.createdAt = chatMessage.getCreatedAt();
+		this.senderImageUrl = chatMessage.getSenderImageUrl();
 	}
 
 }

@@ -52,7 +52,7 @@ public class GoogleService {
 		// 1. "인가 코드"로 "액세스 토큰" 요청
 		String accessToken = getGoogleToken(code);
 
-		// 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+		// 2. 토큰으로 구글 API 호출 : "액세스 토큰"으로 "구글 사용자 정보" 가져오기
 		UserInfoDto googleUserInfo = getUserInfo(accessToken);
 
 		// 3. 필요시에 회원가입
@@ -62,7 +62,7 @@ public class GoogleService {
 		String createAccessToken = jwtUtil.createAccessToken(googleUser.getEmail(), googleUser.getUserId(),
 			googleUser.getNickname(), googleUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(googleUser.getEmail());
-		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken);
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken,googleUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(googleUser.getEmail()).orElse(null);
 		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
 		if (CheckRefreshToken != null) {

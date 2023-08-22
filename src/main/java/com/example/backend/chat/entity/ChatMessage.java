@@ -36,6 +36,8 @@ public class ChatMessage {
 	private Long senderId;
 	@Column
 	private String nickname;
+	@Column
+	private String senderImageUrl;
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(updatable = false)
@@ -49,6 +51,7 @@ public class ChatMessage {
 		this.message = messageDto.getMessage();
 		this.senderId = messageDto.getSenderId();
 		this.nickname = messageDto.getNickname();
+		this.senderImageUrl =messageDto.getSenderImageUrl();
 	}
 
 	public void setChatRoom(ChatRoom chatRoom) {
