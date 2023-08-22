@@ -21,7 +21,7 @@ public class Star {
 	private Long id;
 	@Column(nullable = false)
 	private Double star;
-	@Column
+	@Column(name = "track_id")
 	private String trackId;
 	@ManyToOne
 	User user;

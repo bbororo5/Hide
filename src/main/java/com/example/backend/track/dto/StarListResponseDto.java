@@ -7,12 +7,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StarListResponseDto {
 
-    private String userId;
+    private Long userId;
     private String nickname;
     private String profileImageUrl;
-    private Long star;
+    private Double star;
 
-    StarListResponseDto(){
-
+    public StarListResponseDto(Long userId, String nickname, String profileImageUrl, Double star) {
+        this.userId = userId;
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
+        this.star = star;
     }
 }

@@ -198,4 +198,29 @@ public class TrackService {
 			return new ResponseEntity<>(new StatusResponseDto("별점이 없어서 삭제할 수 없습니다.", false), HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	public ResponseEntity<List<StarListResponseDto>> getStarList(String trackId) {
+		QStar qStar = QStar.star1;
+		QUser qUser = QUser.user;
+		QImage qImage = QImage.image;
+
+		List<StarListResponseDto> result = jpaQueryFactory
+				.select(Projections.constructor(StarListResponseDto.class,
+						qUser.userId,
+						qUser.nickname,
+						qImage.imageUrl,
+						qStar.star
+				))
+				.from(qStar)
+				.leftJoin(qStar.user, qUser)
+				.leftJoin(qUser.image, qImage) // 여기서 leftJoin으로 변경하였습니다.
+				.where(qStar.trackId.eq(trackId))
+				.fetch();
+
+		if (result == null || result.isEmpty()) {
+			throw new DataNotFoundException("데이터가 비어있습니다. 트랙아이디: " + trackId);
+		}
+
+		return new ResponseEntity<>(result,HttpStatus.OK);
+	}
 }
