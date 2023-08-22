@@ -9,4 +9,5 @@ import com.example.backend.user.entity.User;
 
 public interface PlayListRepository extends JpaRepository<Playlist, Long> {
 	Optional<Playlist> findByIdAndUser(Long id, User user);
+	Optional<Playlist> findByTrackIdAndUser(String trackId, User user);
 }

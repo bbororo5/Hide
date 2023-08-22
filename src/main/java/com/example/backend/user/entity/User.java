@@ -53,10 +53,10 @@ public class User {
 
 	@OneToMany(mappedBy = "toUser",fetch = FetchType.LAZY)
 	@Fetch(FetchMode.JOIN)
-	private List<Follow> followingList = new ArrayList<>();
+	private List<Follow> followerList = new ArrayList<>();
 	@OneToMany(mappedBy = "fromUser",fetch = FetchType.LAZY)
 	@Fetch(FetchMode.JOIN)
-	private List<Follow> followerList = new ArrayList<>();
+	private List<Follow> followingList = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_key")

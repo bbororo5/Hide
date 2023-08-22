@@ -8,6 +8,7 @@ import com.example.backend.track.entity.TrackCount;
 import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.track.repository.StarRepository;
 import com.example.backend.track.repository.TrackCountRepository;
+import com.example.backend.track.repository.TrackCountRepositoryImpl;
 import com.example.backend.user.entity.QImage;
 import com.example.backend.user.entity.QUser;
 import com.example.backend.user.entity.User;
@@ -31,13 +32,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TrackService {
 	private final TrackCountRepository trackCountRepository;
+	private final TrackCountRepositoryImpl trackCountRepositoryImpl;
 	private final UserRepository userRepository;
 	private final SpotifyUtil spotifyUtil;
 	private final YoutubeUtil youtubeUtil;
@@ -92,14 +97,20 @@ public class TrackService {
 	}
 
 	public List<Track> recommendTracks(UserDetailsImpl userDetails) {
-		List<String> trackIds = getTop2TracksByUser(userDetails.getUser().getUserId());
-
-		if (trackIds.isEmpty() || trackIds.size() < 2) {
+		User user = userDetails.getUser();
+		Set<String> trackIds = new HashSet<>();
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollowing(user));
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollower(user));
+		trackIds.addAll(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(user));
+		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
+		List<String> trackIdsList = new ArrayList<>(trackIds);
+		Collections.shuffle(trackIdsList);
+		if (trackIds.isEmpty()) {
 			return getRecommendTracksForNewUsers();
 		}
 
 		try {
-			return spotifyUtil.getRecommendTracks(trackIds);
+			return spotifyUtil.getTracksInfo(trackIdsList);
 		} catch (NotFoundTrackException e) {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
