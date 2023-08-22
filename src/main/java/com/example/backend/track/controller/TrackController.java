@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.StatusResponseDto;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.track.dto.StarDto;
 import com.example.backend.track.dto.Top7Dto;
 import com.example.backend.track.dto.Track;
