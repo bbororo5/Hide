@@ -117,7 +117,7 @@ public class TrackService {
 		Track track = spotifyUtil.getTracksInfo(trackId);
 		String artistName = track.getArtists().get(0).getArtistName();
 		String trackTitle = track.getTitle();
-		String videoId = youtubeUtil.getVideoId(artistName + "%20" + trackTitle+"%20lyrics");
+		String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle+" lyrics");
 
 		return TrackDetailModal.builder()
 			.image(track.getImage())
