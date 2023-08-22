@@ -58,7 +58,7 @@ public class User {
 	@Fetch(FetchMode.JOIN)
 	private List<Follow> followerList = new ArrayList<>();
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_key")
 	private Image image;
 
