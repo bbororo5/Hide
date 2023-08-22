@@ -1,5 +1,6 @@
 package com.example.backend.track.dto;
 
+import com.example.backend.track.entity.Comment;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

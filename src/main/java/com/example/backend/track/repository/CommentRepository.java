@@ -8,4 +8,6 @@ import com.example.backend.track.entity.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 	List<Comment> findAllByTrackId(String trackId);
+
+	List<Comment> findAllByTrackIdOrderByCreatedAtDesc(String trackId);
 }
