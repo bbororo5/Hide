@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.util.StatusResponseDto;
 import com.example.backend.track.dto.StarDto;
 import com.example.backend.track.dto.Top7Dto;
 import com.example.backend.track.dto.Track;
@@ -26,6 +25,7 @@ import com.example.backend.track.repository.StarRepository;
 import com.example.backend.track.repository.TrackCountRepository;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.StatusResponseDto;
 import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
@@ -44,9 +44,9 @@ public class TrackService {
 	private final RecentRepository recentRepository;
 	private final StarRepository starRepository;
 
-	public void increasePlayCount(String trackId, User user) {
+	public void increasePlayCount(String trackId) {
 		TrackCount trackCount = trackCountRepository.findByTrackId(trackId)
-			.orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성
+			.orElse(new TrackCount(trackId, 0)); // 트랙이 없는 경우 새 TrackCount 생성
 		handleTrackCountLimit();
 		trackCount.increasePlayCount();
 		trackCountRepository.save(trackCount);
@@ -138,7 +138,7 @@ public class TrackService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "creationDate"));
-		List<Recent> recentList = recentRepository.findAllByUserOrderByCreationDateDesc(user,pageable);
+		List<Recent> recentList = recentRepository.findAllByUserOrderByCreationDateDesc(user, pageable);
 		List<String> trackIds = recentList.stream()
 			.map(Recent::getTrackId)
 			.toList();
@@ -153,10 +153,10 @@ public class TrackService {
 			recentRepository.delete(recentTracks.get(0));
 		}
 		Recent newRecent = new Recent(trackId, user);
-		Recent recent = recentRepository.findByUserAndTrackId(user,trackId).orElse(null);
-		if(recent==null){
+		Recent recent = recentRepository.findByUserAndTrackId(user, trackId).orElse(null);
+		if (recent == null) {
 			recentRepository.save(newRecent);
-		}else{
+		} else {
 			recentRepository.delete(recent);
 			recentRepository.save(newRecent);
 		}
