@@ -37,7 +37,7 @@ public class CommentController {
 		@RequestBody CommentRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
 		MDC.put("userId", userDetails.getUser().getUserId().toString());
-		logger.info("코멘트 생성. track ID: {}", trackId);
+		logger.info("코멘트 생성");
 		ResponseEntity<StatusResponseDto> response = commentService.createComment(trackId, requestDto, userDetails);
 		MDC.clear();
 		return response;
@@ -46,7 +46,7 @@ public class CommentController {
 	//감상평 조회
 	@GetMapping("/{track-id}/comments")
 	public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable(name = "track-id") String trackId) {
-		logger.info("해당 트랙의 댓글 가져오기. track ID: {}", trackId);
+		logger.info("해당 트랙의 댓글 가져오기");
 		return ResponseEntity.ok(commentService.getComments(trackId));
 	}
 

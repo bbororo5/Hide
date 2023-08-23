@@ -1,5 +1,7 @@
 package com.example.backend.user.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class KaKaoController {
-
+	private static final Logger logger = LoggerFactory.getLogger(KaKaoController.class);
 	private final KaKaoService kaKaoService;
 
 	// 로그인 페이지 url 얻기

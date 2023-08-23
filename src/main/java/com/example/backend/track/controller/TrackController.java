@@ -5,7 +5,6 @@ import java.util.List;
 import com.example.backend.track.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.util.StatusResponseDto;
 import com.example.backend.track.service.TrackService;
 import com.example.backend.util.security.UserDetailsImpl;
-import com.example.backend.util.spotify.SpotifyUtil;
+import com.example.backend.util.spotify.SpotifyRequestManager;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -31,11 +30,11 @@ import lombok.RequiredArgsConstructor;
 public class TrackController {
 	private static final Logger logger = LoggerFactory.getLogger(TrackController.class);
 	private final TrackService trackService;
-	private final SpotifyUtil spotifyUtil;
+	private final SpotifyRequestManager spotifyUtil;
 
 	@GetMapping("/popular")
 	public ResponseEntity<List<Track>> getTopTracks() {
-		logger.info("모든 유저를 바탕으로 추출한 top 트랙 가져오기.");
+		logger.info("모든 유저를 바탕으로 추출한 top 트랙 가져오기");
 		return ResponseEntity.ok(trackService.getTopTracksByAllUser());
 	}
 
@@ -43,7 +42,7 @@ public class TrackController {
 	public ResponseEntity<String> increasePlayCount(@PathVariable(name = "track-id") String trackId,
 													@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-		logger.info("재생횟수 증가하기. track ID: {}", trackId);
+		logger.info("재생횟수 증가하기");
 		trackService.increasePlayCount(trackId, userDetails.getUser());
 		return ResponseEntity.ok().body("Play count가 1 올랐습니다.");
 	}
@@ -51,20 +50,20 @@ public class TrackController {
 
 	@GetMapping("/recommend")
 	public ResponseEntity<List<Track>> recommendTracks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		logger.info("추천 트랙 가져오기.");
+		logger.info("추천 트랙 가져오기");
 		List<Track> tracks = trackService.recommendTracks(userDetails);
 		return ResponseEntity.ok(tracks);
 	}
 
 	@GetMapping("{track-id}/modal")
 	public ResponseEntity<TrackDetailModal> getTrackDetailModal(@PathVariable(name = "track-id") String trackId) {
-		logger.info("모달용 트랙 세부정보 가져오기. track ID: {}", trackId);
+		logger.info("모달용 트랙 세부정보 가져오기");
 		return ResponseEntity.ok(trackService.getTrackDetailModal(trackId));
 	}
 
 	@GetMapping("{track-id}")
 	public ResponseEntity<TrackDetailDto> getTrackDetail(@PathVariable(name = "track-id") String trackId) {
-		logger.info("트랙 세부정보 가져오기. track ID: {}", trackId);
+		logger.info("트랙 세부정보 가져오기");
 		return ResponseEntity.ok(trackService.getTrackDetail(trackId));
 	}
 
@@ -76,14 +75,14 @@ public class TrackController {
 
 	@GetMapping("/users/{user-id}/recent")
 	public ResponseEntity<List<Track>> getRecentTracks(@PathVariable(name = "user-id") Long userId) {
-		logger.info("해당 유저의 최근 들은 트랙 가져오기. 접근하려는 user ID: {}", userId);
+		logger.info("해당 유저의 최근 들은 트랙 가져오기");
 		return ResponseEntity.ok(trackService.getRecentTracks(userId));
 	}
 
 	@PostMapping("/{track-id}/recent")
 	public ResponseEntity<String> postRecentTrack(@PathVariable(name = "track-id") String trackId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		logger.info("최근 들은 음악 목록에 트랙 post. track ID: {}", trackId);
+		logger.info("최근 들은 음악 목록에 트랙 게시");
 		trackService.createRecentTrack(trackId, userDetails.getUser());
 		return ResponseEntity.ok("최근 들은 목록에 트랙이 추가되었습니다.");
 	}
@@ -98,20 +97,20 @@ public class TrackController {
 	public ResponseEntity<StatusResponseDto> setStarRating(@PathVariable(name = "track-id") String trackId,
 		@Valid @RequestBody StarDto starDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		logger.info("별점 매기기. track ID: {}", trackId);
+		logger.info("별점 매기기");
 		return trackService.setStarRating(trackId, starDto, userDetails);
 	}
 
 	@DeleteMapping("/{track-id}/star")
 	public ResponseEntity<StatusResponseDto> deleteStarRating(@PathVariable(name = "track-id") String trackId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		logger.info("별점 삭제하기. track ID: {}", trackId);
+		logger.info("별점 삭제하기");
 		return trackService.deleteStarRating(trackId, userDetails);
 	}
 
 	@GetMapping("/{track-id}/starList")
 	public ResponseEntity<List<StarListResponseDto>> getStarList(@PathVariable(name = "track-id") String trackId) {
-		logger.info("트랙의 별점 리스트 가져오기. track ID: {}", trackId);
+		logger.info("트랙의 별점 리스트 가져오기");
 		return trackService.getStarList(trackId);
 	}
 }

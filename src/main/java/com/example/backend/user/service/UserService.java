@@ -144,11 +144,11 @@ public class UserService {
 		}
 	}
 
-	public ResponseEntity<StatusResponseDto> sendEmail(UserInfoDto email) {
-		if (userRepository.findByEmail(email.getEmail()).isEmpty()) {
+	public ResponseEntity<StatusResponseDto> sendEmail(UserInfoDto userInfoDto) {
+		if (userRepository.findByEmail(userInfoDto.getEmail()).isEmpty()) {
 			return new ResponseEntity<>(new StatusResponseDto("회원이 존재하지 않습니다."), HttpStatus.CONFLICT);
 		}
-		User user = userRepository.findByEmail(email.getEmail())
+		User user = userRepository.findByEmail(userInfoDto.getEmail())
 			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		String token = jwtUtil.createTemporalToken(user.getEmail(), user.getRole());
 
@@ -157,7 +157,7 @@ public class UserService {
 		String message = "제한시간은 5분입니다.\n비밀번호를 재설정 하시려면 링크를 클릭하세요\n\n " + resetLink;
 
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
-		mailMessage.setTo(email.getEmail());
+		mailMessage.setTo(userInfoDto.getEmail());
 		mailMessage.setSubject(subject);
 		mailMessage.setText(message);
 

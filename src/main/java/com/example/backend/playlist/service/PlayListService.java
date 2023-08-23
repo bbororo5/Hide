@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,35 +21,41 @@ import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
-import com.example.backend.util.spotify.SpotifyUtil;
+import com.example.backend.util.spotify.SpotifyRequestManager;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PlayListService {
-	private final SpotifyUtil spotifyUtil;
+	private static final Logger logger = LoggerFactory.getLogger(PlayListService.class);
+	private final SpotifyRequestManager spotifyUtil;
 	private final UserRepository userRepository;
 	private final PlayListRepository playListRepository;
 
 	@Transactional
 	public ResponseEntity<StatusResponseDto> addTrackToPlaylist(String trackId, UserDetailsImpl userDetails) {
+		logger.info("플레이리스트에 트랙 추가 시작");
 		User user = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 		Playlist playlist = new Playlist(trackId, user);
 		playListRepository.save(playlist);
+		logger.info("플레이리스트에 트랙 추가 완료");
 		return new ResponseEntity<>(new StatusResponseDto("플레이 리스트에 음악을 추가했습니다.", true), HttpStatus.OK);
 	}
 
 	@Transactional
-	public ResponseEntity<StatusResponseDto> deleteTrackFromPlaylist(Long id, UserDetailsImpl userDetails) {
-		Playlist playlist = playListRepository.findByIdAndUser(id, userDetails.getUser())
+	public ResponseEntity<StatusResponseDto> deleteTrackFromPlaylist(Long playListId, UserDetailsImpl userDetails) {
+		logger.info("플레이리스트에 트랙 삭제 시작. playList ID: {}", playListId);
+		Playlist playlist = playListRepository.findByIdAndUser(playListId, userDetails.getUser())
 			.orElseThrow(() -> new NoSuchElementException("플레이 리스트가 존재하지 않습니다."));
 		playListRepository.delete(playlist);
+		logger.info("플레이리스트에 트랙 삭제 완료. playList ID: {}", playListId);
 		return new ResponseEntity<>(new StatusResponseDto("플레이 리스트에서 삭제했습니다.", true), HttpStatus.OK);
 	}
 
 	public List<PlaylistDto> getPlaylist(Long userId) {
+		logger.info("플레이리스트 조회 시작");
 		User user = userRepository.findByUserId(userId)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 		List<Playlist> playlists = user.getPlaylists();
@@ -70,6 +78,7 @@ public class PlayListService {
 		for (int i = 0; i < playlistDtoList.size(); i++) {
 			playlistDtoList.get(i).setPlaylistDto(trackList.get(i));
 		}
+		logger.info("플레이리스트 조회 완료: {} 개의 트랙", playlists.size());
 
 		return playlistDtoList;
 	}

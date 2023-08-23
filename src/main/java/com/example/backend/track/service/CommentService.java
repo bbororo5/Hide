@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,12 +24,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-
+	private static final Logger logger = LoggerFactory.getLogger(CommentService.class);
 	private final CommentRepository commentRepository;
 
 	public ResponseEntity<StatusResponseDto> createComment(String trackId, CommentRequestDto requestDto,
 		UserDetailsImpl userDetails) {
-
+		logger.info("댓글 작성");
 		Comment comment = new Comment(requestDto.getContent(), userDetails.getUser(), trackId);
 		commentRepository.save(comment);
 
@@ -35,6 +37,7 @@ public class CommentService {
 	}
 
 	public List<CommentResponseDto> getComments(String trackId) {
+		logger.info("댓글 조회");
 		List<Comment> comments = commentRepository.findAllByTrackId(trackId);
 		comments.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
 		List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
@@ -47,7 +50,7 @@ public class CommentService {
 	@Transactional
 	public ResponseEntity<StatusResponseDto> updateComment(Long commentId, CommentRequestDto requestDto,
 		UserDetailsImpl userDetails) {
-
+		logger.info("댓글 수정");
 		Comment comment = commentRepository.findById(commentId)
 			.orElseThrow(() -> new NoSuchElementException("게시물을 찾을 수가 없습니다."));
 
@@ -60,7 +63,7 @@ public class CommentService {
 	}
 
 	public ResponseEntity<StatusResponseDto> deleteComment(Long commentId, UserDetailsImpl userDetails) {
-
+		logger.info("댓글 삭제");
 		Comment comment = commentRepository.findById(commentId)
 			.orElseThrow(() -> new NoSuchElementException("게시물을 찾을 수가 없습니다."));
 

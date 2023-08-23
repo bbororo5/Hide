@@ -4,6 +4,7 @@ import com.example.backend.util.security.UserDetailsImpl;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +12,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class MdcAspect {
 
-    @Around("execution(* com.example.backend.track.controller.*.*(..)) && args(.., userDetails)")
-    public Object handleMdc(ProceedingJoinPoint joinPoint, UserDetailsImpl userDetails) throws Throwable {
+    @Around("execution(* com.example.backend.*.controller.*.*(..))")
+    public Object handleMdc(ProceedingJoinPoint joinPoint) throws Throwable {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String[] parameterNames = signature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+
+        for (int i = 0; i < parameterNames.length; i++) {
+            if ("trackId".equals(parameterNames[i]) && args[i] instanceof String) {
+                String trackId = (String) args[i];
+                MDC.put("trackId", trackId);
+            }
+            if (args[i] instanceof UserDetailsImpl) {
+                UserDetailsImpl userDetails = (UserDetailsImpl) args[i];
+                MDC.put("userId", userDetails.getUser().getUserId().toString());
+            }
+        }
+
         try {
-            MDC.put("userId", userDetails.getUser().getUserId().toString());
-            return joinPoint.proceed();  // 원래 메소드의 실행
+            return joinPoint.proceed();
         } finally {
-            MDC.clear();  // 후처리 작업
+            MDC.clear();
         }
     }
 }
