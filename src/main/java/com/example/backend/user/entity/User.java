@@ -48,9 +48,6 @@ public class User {
 	@Column
 	private Long googleId;
 
-	@OneToMany(mappedBy = "user" ,fetch = FetchType.LAZY)
-	private List<TrackCount> trackCounts = new ArrayList<>();
-
 	@OneToMany(mappedBy = "toUser",fetch = FetchType.LAZY)
 	@Fetch(FetchMode.JOIN)
 	private List<Follow> followerList = new ArrayList<>();

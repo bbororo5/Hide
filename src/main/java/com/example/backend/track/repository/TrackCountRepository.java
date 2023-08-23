@@ -18,7 +18,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 
 public interface TrackCountRepository extends JpaRepository<TrackCount, String> , TrackCountRepositoryCustom {
 	Optional<TrackCount> findFirstByOrderByCreatedAtAsc();
-	List<TrackCount> findTop2ByUserOrderByPlayCountDesc(User user);
+	// List<TrackCount> findTop2ByUserOrderByPlayCountDesc(User user);
 	Optional<TrackCount> findByTrackId(String trackId);
 }
 

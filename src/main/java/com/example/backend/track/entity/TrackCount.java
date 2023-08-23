@@ -30,16 +30,11 @@ public class TrackCount {
 	@CreatedDate
 	private LocalDateTime createdAt;
 
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
-
 	@Column(name = "play_count")
 	private int playCount = 0;
 
-	public TrackCount(String trackId, User user, int playCount) {
+	public TrackCount(String trackId, int playCount) {
 		this.trackId = trackId;
-		this.user = user;
 		this.playCount = playCount;
 	}
 
