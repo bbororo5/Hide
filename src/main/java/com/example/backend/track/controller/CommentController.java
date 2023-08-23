@@ -2,6 +2,9 @@ package com.example.backend.track.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/tracks")
 @RequiredArgsConstructor
 public class CommentController {
+	private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
 	private final CommentService commentService;
 
 	//감상평 작성
@@ -32,12 +36,17 @@ public class CommentController {
 	public ResponseEntity<StatusResponseDto> createComment(@PathVariable(name = "track-id") String trackId,
 		@RequestBody CommentRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		return commentService.createComment(trackId, requestDto, userDetails);
+		MDC.put("userId", userDetails.getUser().getUserId().toString());
+		logger.info("코멘트 생성. track ID: {}", trackId);
+		ResponseEntity<StatusResponseDto> response = commentService.createComment(trackId, requestDto, userDetails);
+		MDC.clear();
+		return response;
 	}
 
 	//감상평 조회
 	@GetMapping("/{track-id}/comments")
 	public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable(name = "track-id") String trackId) {
+		logger.info("해당 트랙의 댓글 가져오기. track ID: {}", trackId);
 		return ResponseEntity.ok(commentService.getComments(trackId));
 	}
 
@@ -46,6 +55,7 @@ public class CommentController {
 	public ResponseEntity<StatusResponseDto> updateComment(@PathVariable(name = "comment-id") Long commentId,
 		@RequestBody CommentRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		logger.info("해당 코멘트 수정하기: comment ID: {}", commentId);
 		return commentService.updateComment(commentId, requestDto, userDetails);
 	}
 
@@ -53,6 +63,7 @@ public class CommentController {
 	@DeleteMapping("/comments/{comment-id}")
 	public ResponseEntity<StatusResponseDto> deleteComment(@PathVariable(name = "comment-id") Long commentId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		logger.info("해당 코멘트 삭제하기: comment ID: {}", commentId);
 		return commentService.deleteComment(commentId, userDetails);
 	}
 }
