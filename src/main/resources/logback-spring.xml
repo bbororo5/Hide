@@ -11,13 +11,13 @@
         <colorCoding>true</colorCoding>
     </appender>
 
-    <!-- Consol appender 설정 -->
+    <!-- 콘솔 appender 설정 -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <Pattern>%d %-5level %logger{35} - %msg%n</Pattern>
+            <Pattern>%d %-5level [%thread] %logger{35} - %msg %X{userId} %X{sessionId} %X{requestId} %ex%n</Pattern>
         </encoder>
     </appender>
-
+    <!-- 슬랙 appender 설정 -->
     <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="SLACK"/>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">

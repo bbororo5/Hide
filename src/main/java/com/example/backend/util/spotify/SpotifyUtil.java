@@ -70,7 +70,6 @@ public class SpotifyUtil {
 				this.accessToken = jsonNode.get("access_token").asText();
 				int expiresIn = jsonNode.get("expires_in").asInt(); // 초 단위로 오는 만료 시간
 				this.tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000L);
-				System.out.println(accessToken);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
