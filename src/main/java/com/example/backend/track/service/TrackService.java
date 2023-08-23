@@ -117,7 +117,11 @@ public class TrackService {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
 		List<Playlist> userPlayList = playListRepository.findByUser(user);
-		List<String> trackIdsFromUserPlayList = userPlayList.stream().map(Playlist::getTrackId).toList();
+		List<String> trackIdsFromUserPlayList = new ArrayList<>(
+			userPlayList.stream().map(Playlist::getTrackId).toList());
+		if(userPlayList.isEmpty()){
+			trackIdsFromUserPlayList.add("7iN1s7xHE4ifF5povM6A48");
+		}
 		try {
 			recommendedByUserPlayList = spotifyUtil.getRecommendTracks(trackIdsFromUserPlayList);
 		} catch (NotFoundTrackException e) {
