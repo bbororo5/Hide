@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 public abstract class AbstractSpotifyRequest {
     protected final SpotifyTokenManager spotifyTokenManager;
 
-    protected List<Track> fetchDataFromSpotifyAPI(String trackId, int attempt) {
+    protected List<Track> fetchDataFromSpotifyAPI(String parameter, int attempt) {
         if (attempt > 2) {
             throw new IllegalStateException("재시도 2회 후에도 트랙 정보 가져오기 실패");
         }
@@ -32,7 +32,7 @@ public abstract class AbstractSpotifyRequest {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        String url = generateSpotifyUrl(trackId);
+        String url = generateSpotifyUrl(parameter);
 
         ArrayList<Track> tracklist = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public abstract class AbstractSpotifyRequest {
         } catch (RestClientException e) {
             if (isTokenExpired(e)) {
                 spotifyTokenManager.getAccessToken();
-                return fetchDataFromSpotifyAPI(trackId, attempt + 1); // 재시도
+                return fetchDataFromSpotifyAPI(parameter, attempt + 1); // 재시도
             } else {
                 throw e;
             }

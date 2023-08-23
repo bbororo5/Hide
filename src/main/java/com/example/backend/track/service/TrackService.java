@@ -21,7 +21,6 @@ import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
-import com.example.backend.util.youtube.YoutubeUtil;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,6 @@ public class TrackService {
 	private final TrackCountRepositoryImpl trackCountRepositoryImpl;
 	private final UserRepository userRepository;
 	private final SpotifyRequestManager spotifyUtil;
-	private final YoutubeUtil youtubeUtil;
 	private final RecentRepository recentRepository;
 	private final PlayListRepository playListRepository;
 	private final StarRepository starRepository;
@@ -129,14 +127,13 @@ public class TrackService {
 		Track track = spotifyUtil.getTrackInfo(trackId);
 		String artistName = track.getArtists().get(0).getArtistName();
 		String trackTitle = track.getTitle();
-		String videoId = youtubeUtil.getVideoId(artistName + " " + trackTitle+" lyrics");
+
 
 		return TrackDetailModal.builder()
 			.image(track.getImage())
 			.album(track.getAlbum())
 			.artist(artistName)
 			.title(trackTitle)
-			.yUrl("https://www.youtube.com/watch?v=" + videoId)
 			.build();
 	}
 

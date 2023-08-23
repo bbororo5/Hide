@@ -12,8 +12,8 @@ public class SearchSpotifyRequest extends AbstractSpotifyRequest {
         super(spotifyTokenManager);
     }
 
-    public List<Track> fetchData(String trackIds) {
-        return super.fetchDataFromSpotifyAPI(trackIds, 0);
+    public List<Track> fetchData(String keyword) {
+        return super.fetchDataFromSpotifyAPI(keyword, 0);
     }
 
     @Override
