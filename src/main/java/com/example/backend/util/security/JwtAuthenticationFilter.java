@@ -12,6 +12,7 @@ import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.StatusResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,10 +24,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final JwtUtil jwtUtil;
+	private final ImageUtil imageUtil;
 	private final RefreshTokenRepository refreshTokenRepository;
 
-	public JwtAuthenticationFilter(JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+	public JwtAuthenticationFilter(JwtUtil jwtUtil, RefreshTokenRepository refreshTokenRepository,
+		ImageUtil imageUtil) {
 		this.jwtUtil = jwtUtil;
+		this.imageUtil = imageUtil;
 		this.refreshTokenRepository = refreshTokenRepository;
 		setFilterProcessesUrl("/api/users/login");
 	}
@@ -53,7 +57,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String nickname = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getNickname();
 		Long userId = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getUserId();
 		UserRoleEnum role = ((UserDetailsImpl)authResult.getPrincipal()).getUser().getRole();
-		String image =((UserDetailsImpl)authResult.getPrincipal()).getUser().getImage().getImageUrl();
+
 		String createAccessToken = jwtUtil.createAccessToken(email, userId, nickname, role);
 		String createRefreshToken = jwtUtil.createRefreshToken(email);
 
@@ -71,7 +75,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter()
-			.write(new ObjectMapper().writeValueAsString(new UserResponseDto("로그인이 완료되었습니다.", true, image)));
+			.write(new ObjectMapper().writeValueAsString(new UserResponseDto("로그인이 완료되었습니다.", true,
+				imageUtil.getImageUrlFromUser(((UserDetailsImpl)authResult.getPrincipal()).getUser()))));
 	}
 
 	@Override

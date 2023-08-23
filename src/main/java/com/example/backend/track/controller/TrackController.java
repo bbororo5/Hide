@@ -41,12 +41,10 @@ public class TrackController {
 	@PatchMapping("/play-count/{track-id}")
 	public ResponseEntity<String> increasePlayCount(@PathVariable(name = "track-id") String trackId,
 													@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
 		logger.info("재생횟수 증가하기");
-		trackService.increasePlayCount(trackId, userDetails.getUser());
+		trackService.increasePlayCount(trackId);
 		return ResponseEntity.ok().body("Play count가 1 올랐습니다.");
 	}
-
 
 	@GetMapping("/recommend")
 	public ResponseEntity<List<Track>> recommendTracks(@AuthenticationPrincipal UserDetailsImpl userDetails) {

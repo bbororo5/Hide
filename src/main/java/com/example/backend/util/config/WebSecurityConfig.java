@@ -17,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.backend.user.repository.RefreshTokenRepository;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.security.JwtAuthenticationFilter;
 import com.example.backend.util.security.JwtAuthorizationFilter;
@@ -33,6 +34,7 @@ public class WebSecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final ImageUtil imageUtil;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -46,7 +48,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, refreshTokenRepository);
+		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, refreshTokenRepository, imageUtil);
 		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
 		return filter;
 	}
@@ -75,6 +77,7 @@ public class WebSecurityConfig {
 					.requestMatchers(POST, "/api/users/**").permitAll() // 유저관련 요청 허가
 					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
 					.requestMatchers(GET, "/api/musics/**").permitAll()
+						.requestMatchers("/api/tracks/play-count/{track-id}").authenticated()
 					.anyRequest().permitAll()
 			);
 		return http.build();

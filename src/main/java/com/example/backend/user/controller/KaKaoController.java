@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.user.dto.TokenDto;
 import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.service.KaKaoService;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.StatusResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class KaKaoController {
 	private static final Logger logger = LoggerFactory.getLogger(KaKaoController.class);
 	private final KaKaoService kaKaoService;
+	private final ImageUtil imageUtil;
 
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/kakao")
@@ -40,6 +42,7 @@ public class KaKaoController {
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());
 		return new ResponseEntity<>(
-			new UserResponseDto("카카오 로그인이 완료되었습니다.", true, tokenDto.getUser().getImage().getImageUrl()), HttpStatus.OK);
+			new UserResponseDto("카카오 로그인이 완료되었습니다.", true, imageUtil.getImageUrlFromUser(tokenDto.getUser())),
+			HttpStatus.OK);
 	}
 }
