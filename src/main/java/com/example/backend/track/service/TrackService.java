@@ -119,7 +119,7 @@ public class TrackService {
 		List<Playlist> userPlayList = playListRepository.findByUser(user);
 		List<String> trackIdsFromUserPlayList = userPlayList.stream().map(Playlist::getTrackId).toList();
 		try {
-			recommendedByUserPlayList = spotifyUtil.getTracksInfo(trackIdsFromUserPlayList);
+			recommendedByUserPlayList = spotifyUtil.getRecommendTracks(trackIdsFromUserPlayList);
 		} catch (NotFoundTrackException e) {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
@@ -127,13 +127,13 @@ public class TrackService {
 		return recommendedTracks.stream().distinct().collect(Collectors.toList());
 	}
 
-	private List<Track> getRecommendTracksForNewUsers() {
-		List<String> trackIds = new ArrayList<>();
-		trackIds.add("7iN1s7xHE4ifF5povM6A48");
-		trackIds.add("58dSdjfEYNSxte1aNVxuNf");
-
-		return spotifyUtil.getRecommendTracks(trackIds);
-	}
+	// private List<Track> getRecommendTracksForNewUsers() {
+	// 	List<String> trackIds = new ArrayList<>();
+	// 	trackIds.add("7iN1s7xHE4ifF5povM6A48");
+	// 	trackIds.add("58dSdjfEYNSxte1aNVxuNf");
+	//
+	// 	return spotifyUtil.getRecommendTracks(trackIds);
+	// }
 
 	public TrackDetailModal getTrackDetailModal(String trackId) {
 		Track track = spotifyUtil.getTracksInfo(trackId);
