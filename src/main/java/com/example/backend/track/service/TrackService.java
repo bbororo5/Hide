@@ -1,5 +1,7 @@
 package com.example.backend.track.service;
 
+import com.example.backend.playlist.entity.Playlist;
+import com.example.backend.playlist.repository.PlayListRepository;
 import com.example.backend.track.dto.*;
 import com.example.backend.track.entity.QStar;
 import com.example.backend.track.entity.Recent;
@@ -8,6 +10,7 @@ import com.example.backend.track.entity.TrackCount;
 import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.track.repository.StarRepository;
 import com.example.backend.track.repository.TrackCountRepository;
+import com.example.backend.track.repository.TrackCountRepositoryImpl;
 import com.example.backend.user.entity.QImage;
 import com.example.backend.user.entity.QUser;
 import com.example.backend.user.entity.User;
@@ -31,23 +34,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TrackService {
 	private final TrackCountRepository trackCountRepository;
+	private final TrackCountRepositoryImpl trackCountRepositoryImpl;
 	private final UserRepository userRepository;
 	private final SpotifyUtil spotifyUtil;
 	private final YoutubeUtil youtubeUtil;
 	private final RecentRepository recentRepository;
+	private final PlayListRepository playListRepository;
 	private final StarRepository starRepository;
 	private final JPAQueryFactory jpaQueryFactory;
 
-	public void increasePlayCount(String trackId, User user) {
+	public void increasePlayCount(String trackId) {
 		TrackCount trackCount = trackCountRepository.findByTrackId(trackId)
-			.orElse(new TrackCount(trackId, user, 0)); // 트랙이 없는 경우 새 TrackCount 생성
+			.orElse(new TrackCount(trackId, 0)); // 트랙이 없는 경우 새 TrackCount 생성
 		handleTrackCountLimit();
 		trackCount.increasePlayCount();
 		trackCountRepository.save(trackCount);
@@ -75,34 +83,48 @@ public class TrackService {
 		return spotifyUtil.getTracksInfo(trackIds);
 	}
 
-	private List<String> getTop2TracksByUser(Long userId) {
-		User user = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException("유저 " + userId + "를 찾을 수 없습니다."));
-
-		List<TrackCount> trackCounts = trackCountRepository.findTop2ByUserOrderByPlayCountDesc(user);
-
-		List<String> trackIds = new ArrayList<>();
-		for (TrackCount trackCount : trackCounts) {
-			trackIds.add(trackCount.getTrackId());
-		}
-
-		// 초기 사용자 체크: trackCounts가 비어있거나 크기가 2보다 작을 경우 인기곡 로직 추가 필요
-
-		return trackIds;
-	}
+	// private List<String> getTop2TracksByUser(Long userId) {
+	// 	User user = userRepository.findById(userId)
+	// 		.orElseThrow(() -> new UserNotFoundException("유저 " + userId + "를 찾을 수 없습니다."));
+	//
+	// 	List<TrackCount> trackCounts = trackCountRepository.findTop2ByUserOrderByPlayCountDesc(user);
+	//
+	// 	List<String> trackIds = new ArrayList<>();
+	// 	for (TrackCount trackCount : trackCounts) {
+	// 		trackIds.add(trackCount.getTrackId());
+	// 	}
+	//
+	// 	// 초기 사용자 체크: trackCounts가 비어있거나 크기가 2보다 작을 경우 인기곡 로직 추가 필요
+	//
+	// 	return trackIds;
+	// }
 
 	public List<Track> recommendTracks(UserDetailsImpl userDetails) {
-		List<String> trackIds = getTop2TracksByUser(userDetails.getUser().getUserId());
+		User user = userDetails.getUser();
+		Set<String> trackIds = new HashSet<>();
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollowing(user));
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollower(user));
+		trackIds.addAll(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(user));
+		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
+		List<String> trackIdsList = new ArrayList<>(trackIds);
+		Collections.shuffle(trackIdsList);
 
-		if (trackIds.isEmpty() || trackIds.size() < 2) {
-			return getRecommendTracksForNewUsers();
-		}
-
+		List<Track> recommendedTracks;
+		List<Track> recommendedByUserPlayList;
 		try {
-			return spotifyUtil.getRecommendTracks(trackIds);
+			recommendedTracks = spotifyUtil.getTracksInfo(trackIdsList);
 		} catch (NotFoundTrackException e) {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
+		List<Playlist> userPlayList = playListRepository.findByUser(user);
+		List<String> trackIdsFromUserPlayList = userPlayList.stream().map(Playlist::getTrackId).toList();
+		try {
+			recommendedByUserPlayList = spotifyUtil.getTracksInfo(trackIdsFromUserPlayList);
+		} catch (NotFoundTrackException e) {
+			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
+		}
+		recommendedTracks.addAll(recommendedByUserPlayList);
+		return recommendedTracks.stream().distinct().collect(Collectors.toList());
 	}
 
 	private List<Track> getRecommendTracksForNewUsers() {

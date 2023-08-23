@@ -34,8 +34,14 @@ public class PlayListService {
 	public ResponseEntity<StatusResponseDto> addTrackToPlaylist(String trackId, UserDetailsImpl userDetails) {
 		User user = userRepository.findByEmail(userDetails.getUsername())
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
-		Playlist playlist = new Playlist(trackId, user);
-		playListRepository.save(playlist);
+		Playlist newPlaylist = new Playlist(trackId, user);
+		Playlist playlist = playListRepository.findByTrackIdAndUser(trackId,user).orElse(null);
+		if(playlist!=null){
+			playListRepository.delete(playlist);
+			playListRepository.save(newPlaylist);
+		}else{
+			playListRepository.save(newPlaylist);
+		}
 		return new ResponseEntity<>(new StatusResponseDto("플레이 리스트에 음악을 추가했습니다.", true), HttpStatus.OK);
 	}
 

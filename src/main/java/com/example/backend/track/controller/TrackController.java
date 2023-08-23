@@ -40,7 +40,7 @@ public class TrackController {
 	@PatchMapping("/play-count/{track-id}")
 	public ResponseEntity<String> increasePlayCount(@PathVariable(name = "track-id") String trackId,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		trackService.increasePlayCount(trackId, userDetails.getUser());
+		trackService.increasePlayCount(trackId);
 		return ResponseEntity.ok().body("Play count가 1 올랐습니다.");
 	}
 
