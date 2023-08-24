@@ -43,9 +43,7 @@ public class SpotifyTokenManager {
             }
 
             logger.info("다른 스레드에 갱신된 Access Token이 없음을 확인");
-            String clientId = SPOTIFY_CLIENT_ID;
-            String clientSecret = SPOTIFY_CLIENT_SECRET;
-            String credentials = new String(Base64.getEncoder().encode((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8)));
+            String credentials = new String(Base64.getEncoder().encode((SPOTIFY_CLIENT_ID + ":" + SPOTIFY_CLIENT_SECRET).getBytes(StandardCharsets.UTF_8)));
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Authorization", "Basic " + credentials);
@@ -61,7 +59,7 @@ public class SpotifyTokenManager {
                 ObjectMapper objectMapper = new ObjectMapper();
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 this.accessToken = jsonNode.get("access_token").asText();
-                int expiresIn = jsonNode.get("expires_in").asInt(); // 초 단위로 오는 만료 시간
+                int expiresIn = jsonNode.get("expires_in").asInt();
                 this.tokenExpirationTime = System.currentTimeMillis() + (expiresIn * 1000L);
 
                 logger.info("Access Token 성공적으로 받아옴. 만료 시간: {}", tokenExpirationTime);
