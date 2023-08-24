@@ -17,6 +17,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class SpotifyTokenManager {
     private static final Logger logger = LoggerFactory.getLogger(SpotifyTokenManager.class);
+    private static final long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000L;
     private long tokenExpirationTime;
     protected String accessToken;
     private final Object lock = new Object();
@@ -73,9 +74,9 @@ public class SpotifyTokenManager {
     }
 
     private boolean isValid(String token) {
-        // accessToken의 유효성 검사. 예를 들어, 만료 시간을 저장해둔다면 그것을 기반으로 판별 가능
-        // 이 예제에서는 단순히 null 또는 빈 문자열인지만 검사
-        return token != null && !token.isEmpty() && System.currentTimeMillis() < tokenExpirationTime;
+        return token != null &&
+                !token.isEmpty() &&
+                (tokenExpirationTime - System.currentTimeMillis()) > FIVE_MINUTES_IN_MILLIS;
     }
 }
 
