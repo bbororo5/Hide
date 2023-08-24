@@ -18,7 +18,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class KaKaoController {
@@ -29,6 +31,7 @@ public class KaKaoController {
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/kakao")
 	public ResponseEntity<StatusResponseDto> getLoginUrl() {
+		log.info("카카오 로그인 페이지 불러오기");
 		String url = kaKaoService.getKakaoLoginForm();
 		return new ResponseEntity<>(new StatusResponseDto(url, true), HttpStatus.OK);
 	}
@@ -38,6 +41,7 @@ public class KaKaoController {
 	public ResponseEntity<UserResponseDto> kakaoLogin(@RequestParam(value = "code") String code,
 		HttpServletResponse response) throws
 		JsonProcessingException {
+		log.info("카카오 로그인 요청");
 		TokenDto tokenDto = kaKaoService.kakaoLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());

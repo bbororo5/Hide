@@ -30,7 +30,7 @@ public class ChatController {
 
 	@MessageMapping("/user/{user-id}")
 	public void sendMessage(@DestinationVariable(value = "user-id") Long receiverId, MessageDto message) {
-		log.info("chat {} send by {} to room number{}", message.getMessage(), message.getSenderId(), receiverId);
+		log.info("채팅 {} 보낸사람 {} 받는사람 {}", message.getMessage(), message.getSenderId(), receiverId);
 		chatService.saveMessages(receiverId, message);
 		simpMessagingTemplate.convertAndSend("/sub/user/" + receiverId, message);
 	}
@@ -39,12 +39,14 @@ public class ChatController {
 	@GetMapping("/api/chat/{room-name}/chat-list")
 	public ChatResponse getAllMessages(@PathVariable(value = "room-name") String roomName,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		log.info("채팅방 별 채팅 목록 불러오기");
 		return chatService.getAllMessages(roomName, userDetails);
 	}
 
 	@ResponseBody
 	@GetMapping("/api/chat/{user-id}/room-list") //이러면 다른사람 채팅방 목록도 볼 수 있음 토큰에서 가져와야할듯
 	public List<ChatRoomDto> getAllRooms(@PathVariable(value = "user-id") Long userId) {
+		log.info("유저의 채팅방 목록 불러오기");
 		return chatService.getAllRooms(userId);
 	}
 }
