@@ -20,7 +20,7 @@
 
     <!-- 파일 appender 설정 -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/path/to/your/application/logfile.log</file>
+        <file>/var/log/myapp/application.log</file>
         <encoder>
             <pattern>%d %-5level [%thread] %logger{35} - %msg %X{userId} %X{sessionId} %X{requestId} %ex%n</pattern>
         </encoder>
