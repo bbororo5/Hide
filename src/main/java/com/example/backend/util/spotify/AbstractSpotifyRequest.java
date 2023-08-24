@@ -5,10 +5,7 @@ import com.example.backend.util.execption.CustomResponseErrorHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.*;
 
@@ -57,7 +54,6 @@ public abstract class AbstractSpotifyRequest {
 
             JsonNode responseBody = response.getBody();
             log.debug("받은 전체 응답: {}", responseBody);
-            log.info("HTTP 응답 상태: {}, 크기: {} bytes", response.getStatusCode(), response.getBody().toString().length());
 
             log.info("받은 응답으로부터 노드 분류");
             JsonNode tracksNode = extractTracksNode(responseBody);
