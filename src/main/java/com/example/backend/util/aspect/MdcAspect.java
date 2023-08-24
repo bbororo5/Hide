@@ -1,4 +1,4 @@
-package com.example.backend.util;
+package com.example.backend.util.aspect;
 
 import com.example.backend.util.security.UserDetailsImpl;
 import org.aspectj.lang.ProceedingJoinPoint;
