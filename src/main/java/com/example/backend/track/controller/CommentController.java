@@ -36,10 +36,8 @@ public class CommentController {
 	public ResponseEntity<StatusResponseDto> createComment(@PathVariable(name = "track-id") String trackId,
 		@RequestBody CommentRequestDto requestDto,
 		@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		MDC.put("userId", userDetails.getUser().getUserId().toString());
 		logger.info("코멘트 생성");
 		ResponseEntity<StatusResponseDto> response = commentService.createComment(trackId, requestDto, userDetails);
-		MDC.clear();
 		return response;
 	}
 
