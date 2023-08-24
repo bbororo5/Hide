@@ -1,6 +1,5 @@
 package com.example.backend.user.controller;
 
-import com.example.backend.track.controller.CommentController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class GoogleController {
@@ -30,7 +31,7 @@ public class GoogleController {
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/google")
 	public ResponseEntity<StatusResponseDto> getLoginUrl() {
-		logger.info("");
+		log.info("구글 로그인 페이지 불러오기");
 		String url = googleService.getGoogleLoginForm();
 		return new ResponseEntity<>(new StatusResponseDto(url, true), HttpStatus.OK);
 	}
@@ -39,6 +40,7 @@ public class GoogleController {
 	@GetMapping("/api/users/oauth2/google")
 	public ResponseEntity<UserResponseDto> googleLogin(@RequestParam String code, HttpServletResponse response) throws
 		JsonProcessingException {
+		log.info("구글 로그인 요청");
 		TokenDto tokenDto = googleService.googleLogin(code);
 		response.addHeader(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken());

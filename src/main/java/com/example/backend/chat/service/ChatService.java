@@ -21,7 +21,9 @@ import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -31,6 +33,7 @@ public class ChatService {
 
 	@Transactional
 	public void saveMessages(Long receiverId, MessageDto message) {
+		log.info("채팅 메세지 저장 시작");
 		User receiver = userRepository.findById(receiverId)
 			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
 		User sender = userRepository.findById(message.getSenderId())
@@ -52,9 +55,11 @@ public class ChatService {
 		chatRoom.addMessage(newChatMessage);
 
 		chatMessageRepository.save(newChatMessage);
+		log.info("채팅 메세지 저장 완료");
 	}
 
 	public ChatResponse getAllMessages(String roomName, UserDetailsImpl userDetails) {
+		log.info("채팅방 별 채팅 목록 불러오기 시작");
 		ChatRoom chatRoom = chatRoomRepository.findByRoomName(roomName)
 			.orElseThrow(() -> new NoSuchElementException("채팅방이 존재하지 않습니다."));
 		User sender = chatRoom.getSender();
@@ -67,10 +72,12 @@ public class ChatService {
 		} else {
 			chatResponse.setNickname(sender.getNickname());
 		}
+		log.info("채팅방 별 채팅 목록 불러오기 완료");
 		return chatResponse;
 	}
 
-	public List<ChatRoomDto> getAllRooms(Long userId) {  //이러면 다른사람 채팅방 목록도 볼 수 있음 토큰에서 가져와야할듯
+	public List<ChatRoomDto> getAllRooms(Long userId) {
+		log.info("유저의 채팅방 목록 불러오기 시작");
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다."));
 		List<ChatRoom> received = user.getReceivedChatRooms();
@@ -93,7 +100,7 @@ public class ChatService {
 			ChatRoomDto chatRoomDto = new ChatRoomDto(chatRoom, oppositeUser); // 필요한 경우 파라미터 추가
 			result.add(chatRoomDto);
 		}
-
+		log.info("유저의 채팅방 목록 불러오기 완료");
 		return result;
 	}
 }

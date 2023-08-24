@@ -49,16 +49,13 @@ public class GoogleService {
 	private final JwtUtil jwtUtil;
 
 	public TokenDto googleLogin(String code) throws JsonProcessingException {
-		// 1. "인가 코드"로 "액세스 토큰" 요청
+		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getGoogleToken(code);
-
-		// 2. 토큰으로 구글 API 호출 : "액세스 토큰"으로 "구글 사용자 정보" 가져오기
+		log.info("토큰으로 구글 API 호출 : \"액세스 토큰\"으로 \"구글 사용자 정보\" 가져오기");
 		UserInfoDto googleUserInfo = getUserInfo(accessToken);
-
-		// 3. 필요시에 회원가입
+		log.info("필요시에 회원가입");
 		User googleUser = signupWithGoogleEmail(googleUserInfo);
-
-		// 4. JWT 토큰 반환
+		log.info("JWT 토큰 반환 시작");
 		String createAccessToken = jwtUtil.createAccessToken(googleUser.getEmail(), googleUser.getUserId(),
 			googleUser.getNickname(), googleUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(googleUser.getEmail());
@@ -71,6 +68,7 @@ public class GoogleService {
 		RefreshToken newRefreshToken = new RefreshToken(
 			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), googleUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}
 
@@ -177,6 +175,7 @@ public class GoogleService {
 	}
 
 	public String getGoogleLoginForm() {
+		log.info("구글 로그인 페이지 불러오기 시작");
 		return "https://accounts.google.com/o/oauth2/v2/auth?client_id="
 			+ googleClientId
 			+ "&redirect_uri="

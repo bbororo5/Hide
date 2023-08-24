@@ -47,21 +47,17 @@ public class KaKaoService {
 	private final JwtUtil jwtUtil;
 
 	public TokenDto kakaoLogin(String code) throws JsonProcessingException {
-
-		// 1. "인가 코드"로 "액세스 토큰" 요청
+		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getKakaoToken(code);
-
-		// 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+		log.info("토큰으로 카카오 API 호출 : \"액세스 토큰\"으로 \"카카오 사용자 정보\" 가져오기");
 		UserInfoDto kakaoUserInfo = getUserInfo(accessToken);
-
-		// 3. 필요시에 회원가입 후 User 반환
+		log.info("필요시에 회원가입");
 		User kakaoUser = signupWithKaKaoEmail(kakaoUserInfo);
-
-		// 4. JWT 토큰 반환
+		log.info("JWT 토큰 반환 시작");
 		String createAccessToken = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getUserId(),
 			kakaoUser.getNickname(), kakaoUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(kakaoUser.getEmail());
-		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken,kakaoUser);
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken, kakaoUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(kakaoUser.getEmail()).orElse(null);
 		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
 		if (CheckRefreshToken != null) {
@@ -70,6 +66,7 @@ public class KaKaoService {
 		RefreshToken newRefreshToken = new RefreshToken(
 			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), kakaoUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}
 
