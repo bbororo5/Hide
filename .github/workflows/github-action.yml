@@ -66,6 +66,6 @@ jobs:
         docker stop hide_music_container || true && \
         docker rm hide_music_container || true && \
         docker pull philomuvie/hide_music:latest && \
-        docker run -d -p 8080:8080 -v /var/log/myapp:/var/log/myapp --name hide_music_container philomuvie/hide_music:latest
+        docker run -d -p 8080:8080 -v /var/log/myapp:/var/log/myapp --name hide_music_container philomuvie/hide_music:latest"
       env:
         PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
