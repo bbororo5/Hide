@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -47,6 +48,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 			Claims claims = jwtUtil.getUserInfoFromToken(token);
 			String email = claims.getSubject();
+			if(claims.getExpiration().getTime()-System.currentTimeMillis()<5*60*1000){
+				String nickname = (String) claims.get("nickname");
+				Long userId = Long.parseLong((String) claims.get("userId"));
+				UserRoleEnum role = UserRoleEnum.valueOf((String) claims.get(JwtUtil.AUTHORIZATION_KEY));
+				response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createAccessToken(email,userId,nickname,role));
+			}
 			log.info(email);
 			try {
 				setAuthentication(email);
