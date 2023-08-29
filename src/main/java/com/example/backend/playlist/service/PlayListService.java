@@ -60,6 +60,7 @@ public class PlayListService {
 		return new ResponseEntity<>(new StatusResponseDto("플레이 리스트에서 삭제했습니다.", true), HttpStatus.OK);
 	}
 
+	@Transactional(readOnly = true)
 	public List<PlaylistDto> getPlaylist(Long userId) {
 		logger.info("플레이리스트 조회 시작");
 		User user = userRepository.findByUserId(userId)

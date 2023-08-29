@@ -58,6 +58,7 @@ public class ChatService {
 		log.info("채팅 메세지 저장 완료");
 	}
 
+	@Transactional(readOnly = true)
 	public ChatResponse getAllMessages(String roomName, UserDetailsImpl userDetails) {
 		log.info("채팅방 별 채팅 목록 불러오기 시작");
 		ChatRoom chatRoom = chatRoomRepository.findByRoomName(roomName)
@@ -76,6 +77,7 @@ public class ChatService {
 		return chatResponse;
 	}
 
+	@Transactional(readOnly = true)
 	public List<ChatRoomDto> getAllRooms(Long userId) {
 		log.info("유저의 채팅방 목록 불러오기 시작");
 		User user = userRepository.findById(userId)
