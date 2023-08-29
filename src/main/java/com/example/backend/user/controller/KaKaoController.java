@@ -1,5 +1,7 @@
 package com.example.backend.user.controller;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,16 +26,16 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 public class KaKaoController {
-	private static final Logger logger = LoggerFactory.getLogger(KaKaoController.class);
+
 	private final KaKaoService kaKaoService;
 	private final ImageUtil imageUtil;
 
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/kakao")
-	public ResponseEntity<StatusResponseDto> getLoginUrl() {
+	public void getLoginUrl(HttpServletResponse response) throws IOException {
 		log.info("카카오 로그인 페이지 불러오기");
 		String url = kaKaoService.getKakaoLoginForm();
-		return new ResponseEntity<>(new StatusResponseDto(url, true), HttpStatus.OK);
+		response.sendRedirect(url);
 	}
 
 	//카카오 로그인
