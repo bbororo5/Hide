@@ -194,7 +194,7 @@ public class UserService {
 		return new ResponseEntity<>(new StatusResponseDto("비밀번호가 변경되었습니다.", true), HttpStatus.OK);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<UserInfoDto> getToUsers(Long userId) {
 		log.info("팔로잉 목록 조회 시작");
 		List<Follow> followingList = followRepository.findAllByFromUserIdWithUsers(userId);
@@ -207,7 +207,7 @@ public class UserService {
 		return userResponseDtoList;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<UserInfoDto> getFromUsers(Long userId) {
 		log.info("팔로워 목록 조회 시작");
 		User toUser = userRepository.findById(userId)
@@ -222,6 +222,7 @@ public class UserService {
 		return userResponseDtoList;
 	}
 
+	@Transactional(readOnly = true)
 	public ResponseEntity<StatusResponseDto> refreshAccessToken(String refreshToken, HttpServletResponse response) {
 		log.info("엑세스 토큰 갱신 시작");
 		String token = jwtUtil.substringToken(refreshToken);
@@ -240,6 +241,7 @@ public class UserService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public ResponseEntity<UserProfileDto> getUserInfo(Long userId) {
 		log.info("유저 정보 가져오기 시작");
 		User user = userRepository.findByUserId(userId)
