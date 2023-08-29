@@ -1,5 +1,7 @@
 package com.example.backend.user.controller;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -24,16 +26,16 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 public class GoogleController {
-	private static final Logger logger = LoggerFactory.getLogger(GoogleController.class);
+
 	private final GoogleService googleService;
 	private final ImageUtil imageUtil;
 
 	// 로그인 페이지 url 얻기
 	@GetMapping("/login/oauth2/google")
-	public ResponseEntity<StatusResponseDto> getLoginUrl() {
+	public void getLoginUrl(HttpServletResponse response) throws IOException {
 		log.info("구글 로그인 페이지 불러오기");
 		String url = googleService.getGoogleLoginForm();
-		return new ResponseEntity<>(new StatusResponseDto(url, true), HttpStatus.OK);
+		response.sendRedirect(url);
 	}
 
 	// 구글 로그인

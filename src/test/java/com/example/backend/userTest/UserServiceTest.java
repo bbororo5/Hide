@@ -3,40 +3,49 @@
 // import java.util.Optional;
 //
 // import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
+// import org.junit.jupiter.api.extension.ExtendWith;
+// import org.mockito.InjectMocks;
+// import org.mockito.Mock;
+// import org.mockito.junit.jupiter.MockitoExtension;
 // import org.springframework.http.HttpStatus;
 // import org.springframework.http.ResponseEntity;
 //
-// import com.example.backend.user.dto.SignupRequestDto;
+// import static org.mockito.ArgumentMatchers.*;
+// import static org.mockito.Mockito.when;
+// import static org.junit.jupiter.api.Assertions.assertEquals;
+//
+// import com.example.backend.user.dto.UserProfileDto;
+// import com.example.backend.user.entity.User;
+// import com.example.backend.user.entity.UserRoleEnum;
+// import com.example.backend.user.repository.FollowRepository;
 // import com.example.backend.user.repository.UserRepository;
 // import com.example.backend.user.service.UserService;
 //
-// @SpringBootTest
+// @ExtendWith(MockitoExtension.class)
 // class UserServiceTest {
 //
-// 	@Autowired
+// 	@Mock
+// 	private UserRepository userRepository;
+// 	@Mock
+// 	private FollowRepository followRepository;
+//
+// 	@InjectMocks
 // 	private UserService userService;
 //
-// 	@MockBean
-// 	private UserRepository userRepository;
-//
 // 	@Test
-// 	void testSignup() {
-// 		// given
-// 		SignupRequestDto signupRequestDto = new SignupRequestDto();
-// 		signupRequestDto.setEmail("test@example.com");
-// 		signupRequestDto.setPassword("password");
-// 		signupRequestDto.setNickname("nickname");
+// 	public void testGetUserInfo() {
+// 		// Given
+// 		User mockUser = new User("asdf2222@email.com", "password", "nickname", UserRoleEnum.USER);
+// 		Long mockUserId = mockUser.getUserId();
+// 		when(userRepository.findByEmail(mockUser.getEmail())).thenReturn(Optional.of(mockUser));
+// 		when(followRepository.findByFromUserAndToUser(any(), any())).thenReturn(Optional.empty());
 //
-// 		when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+// 		// When
+// 		ResponseEntity<UserProfileDto> responseEntity = userService.getUserInfo(mockUserId);
 //
-// 		// when
-// 		ResponseEntity<String> response = userService.signup(signupRequestDto);
-//
-// 		// then
-// 		assertEquals(HttpStatus.CREATED, response.getStatusCode());
-// 		assertEquals("회원가입 성공", response.getBody());
+// 		// Then
+// 		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+// 		assertEquals(mockUser.getUserId(), responseEntity.getBody().getUserId());
+// 		// 여기에 더 많은 검증 로직을 추가할 수 있어.
 // 	}
 // }

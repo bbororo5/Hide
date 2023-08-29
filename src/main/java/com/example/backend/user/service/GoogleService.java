@@ -9,6 +9,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -48,6 +49,7 @@ public class GoogleService {
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
 
+	@Transactional
 	public TokenDto googleLogin(String code) throws JsonProcessingException {
 		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getGoogleToken(code);

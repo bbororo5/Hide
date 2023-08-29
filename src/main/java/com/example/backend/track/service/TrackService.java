@@ -76,6 +76,7 @@ public class TrackService {
 		trackCountRepository.findFirstByOrderByCreatedAtAsc().ifPresent(trackCountRepository::delete);
 	}
 
+	@Transactional(readOnly = true)
 	public List<Track> getTopTracksByAllUser() {
 		logger.info("종합 플레이 카운트로 탑10 트랙 가져오기");
 		Pageable top10 = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "playCount"));
@@ -89,6 +90,7 @@ public class TrackService {
 	}
 
 
+	@Transactional(readOnly = true)
 	public List<Track> recommendTracks(UserDetailsImpl userDetails) {
 		logger.info("추천 트랙 받아오기");
 		User user = userDetails.getUser();
@@ -137,6 +139,7 @@ public class TrackService {
 			.build();
 	}
 
+	@Transactional(readOnly = true)
 	public TrackDetailDto getTrackDetail(String trackId) {
 		logger.info("트랙 세부사항 조회");
 		Track track = spotifyUtil.getTrackInfo(trackId);
@@ -145,6 +148,7 @@ public class TrackService {
 		return trackDetailDto;
 	}
 
+	@Transactional(readOnly = true)
 	public List<Track> getRecentTracks(Long userId) {
 		logger.info("해당 유저의 최근 들은 트랙 조회");
 		User user = userRepository.findById(userId)
@@ -175,6 +179,7 @@ public class TrackService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public List<Top7Dto> get7RecentTracks() {
 		logger.info("최근 들은 트랙 top7 조회");
 		Pageable topSeven = PageRequest.of(0, 7);
@@ -215,6 +220,7 @@ public class TrackService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public ResponseEntity<List<StarListResponseDto>> getStarList(String trackId) {
 		logger.info("평점 리스트 조회");
 		QStar qStar = QStar.star1;
