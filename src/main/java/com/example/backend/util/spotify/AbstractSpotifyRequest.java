@@ -27,7 +27,7 @@ public abstract class AbstractSpotifyRequest {
         }
 
         log.info("스포티파이 API로부터 ACCESS TOKEN 받기");
-        spotifyTokenManager.getAccessToken();
+        this.spotifyTokenManager.accessToken = spotifyTokenManager.getAccessToken();
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new CustomResponseErrorHandler());
