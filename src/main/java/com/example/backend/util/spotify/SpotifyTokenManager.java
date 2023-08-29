@@ -38,7 +38,7 @@ public class SpotifyTokenManager {
 
         synchronized (lock) {
             if (isValid(accessToken)) {
-                logger.info("다른 스레드에 갱신된 Access Token이 존재");
+                logger.info("유효한 Access Token이 기존재");
                 return;
             }
 
