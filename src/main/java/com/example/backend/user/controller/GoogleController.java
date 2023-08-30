@@ -39,15 +39,17 @@ public class GoogleController {
 		IOException {
 		log.info("구글 로그인 요청");
 		TokenDto tokenDto = googleService.googleLogin(code);
+		String accessToken = tokenDto.getAccessToken().substring(7);
+		String refreshToken = tokenDto.getRefreshToken().substring(7);
 		// 액세스 토큰을 쿠키로 설정
-		ResponseCookie accessTokenCookie = ResponseCookie.from(JwtUtil.AUTHORIZATION_HEADER, tokenDto.getAccessToken())
+		ResponseCookie accessTokenCookie = ResponseCookie.from(JwtUtil.AUTHORIZATION_HEADER, accessToken)
 			.secure(true)    // Secure 설정
 			.path("/")       // Path 설정
 			.sameSite("None") // SameSite 설정
 			.build();
 
 		// 리프레시 토큰도 쿠키로 설정
-		ResponseCookie refreshTokenCookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, tokenDto.getRefreshToken())
+		ResponseCookie refreshTokenCookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, refreshToken)
 			.secure(true)    // Secure 설정
 			.path("/")       // Path 설정
 			.sameSite("None") // SameSite 설정
