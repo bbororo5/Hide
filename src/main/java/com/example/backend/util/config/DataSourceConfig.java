@@ -63,8 +63,8 @@ public class DataSourceConfig {
 
 		return routingDataSource;
 	}
-	@Bean
-	public DataSource lazyConnectionDataSource() {
-		return new LazyConnectionDataSourceProxy(dataSource());
-	}
+	// @Bean
+	// public DataSource lazyConnectionDataSource() {
+	// 	return new LazyConnectionDataSourceProxy(dataSource());
+	// }
 }
