@@ -37,7 +37,7 @@ import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
-import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 

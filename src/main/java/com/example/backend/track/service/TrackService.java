@@ -15,7 +15,7 @@ import com.example.backend.user.entity.QImage;
 import com.example.backend.user.entity.QUser;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
-import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.execption.DataNotFoundException;
 import com.example.backend.util.execption.NotFoundTrackException;
 import com.example.backend.util.execption.UserNotFoundException;

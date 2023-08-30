@@ -6,7 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserResponseDto;
@@ -15,7 +14,7 @@ import com.example.backend.user.entity.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
-import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
