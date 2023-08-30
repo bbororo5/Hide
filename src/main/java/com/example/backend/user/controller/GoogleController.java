@@ -12,7 +12,6 @@ import com.example.backend.user.service.GoogleService;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
