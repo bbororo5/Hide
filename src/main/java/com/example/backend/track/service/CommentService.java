@@ -12,7 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.track.dto.CommentRequestDto;
 import com.example.backend.track.dto.CommentResponseDto;
 import com.example.backend.track.entity.Comment;

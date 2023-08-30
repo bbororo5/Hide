@@ -2,8 +2,6 @@ package com.example.backend.user.controller;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +13,6 @@ import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.service.KaKaoService;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
-import com.example.backend.util.StatusResponseDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.servlet.http.HttpServletResponse;

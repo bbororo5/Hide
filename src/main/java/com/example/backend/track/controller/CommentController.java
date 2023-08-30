@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.util.StatusResponseDto;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.track.dto.CommentRequestDto;
 import com.example.backend.track.dto.CommentResponseDto;
 import com.example.backend.track.service.CommentService;
