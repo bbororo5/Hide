@@ -12,39 +12,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class SpotifyTokenManager {
     private static final Logger logger = LoggerFactory.getLogger(SpotifyTokenManager.class);
-    private static final long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000L;
     private static final String REDIS_ACCESS_TOKEN_KEY = "spotify:access_token";
-    private static final String REDIS_EXPIRATION_TIME_KEY = "spotify:token_expiration_time";
-    private StringRedisTemplate redisTemplate;
-    private final Object lock = new Object();
+    private final StringRedisTemplate redisTemplate;
     @Value("${spotify.clientId}")
     private final String SPOTIFY_CLIENT_ID;
     @Value("${spotify.clientSecret}")
     private final String SPOTIFY_CLIENT_SECRET;
 
+
     public String getAccessToken() {
         logger.info("Redis에서 토큰 가져오기");
         String redisAccessToken = redisTemplate.opsForValue().get(REDIS_ACCESS_TOKEN_KEY);
-        String redisExpirationTime = redisTemplate.opsForValue().get(REDIS_EXPIRATION_TIME_KEY);
-
-        if (redisAccessToken == null || redisExpirationTime == null) {
-            logger.warn("액세스 토큰 또는 토큰의 만료기간이 null을 가지고 있습니다.");
-            requestAccessToken();
-            return redisTemplate.opsForValue().get(REDIS_ACCESS_TOKEN_KEY);
-        }
+        long redisExpirationTime = redisTemplate.getExpire(REDIS_ACCESS_TOKEN_KEY, TimeUnit.MILLISECONDS);
 
         logger.info("액세스 토큰 유효성 검사");
-        if (!isValid(redisAccessToken, Long.parseLong(redisExpirationTime))) {
-            logger.info("액세스 토큰이 유효하지 않습니다.");
+
+        if (!isValid(redisAccessToken, redisExpirationTime)) {
+            logger.info("액세스 토큰이 없거나 유효하지 않습니다. 새로 요청합니다.");
             requestAccessToken();
         }
 
@@ -56,9 +48,9 @@ public class SpotifyTokenManager {
 
         logger.info("토큰 유효성 재확인");
         String redisAccessToken = redisTemplate.opsForValue().get(REDIS_ACCESS_TOKEN_KEY);
-        String redisExpirationTime = redisTemplate.opsForValue().get(REDIS_EXPIRATION_TIME_KEY);
+        long redisExpirationTime = redisTemplate.getExpire(REDIS_ACCESS_TOKEN_KEY, TimeUnit.MILLISECONDS);
 
-        if (isValid(redisAccessToken, Long.parseLong(redisExpirationTime))) {
+        if (isValid(redisAccessToken, redisExpirationTime)) {
             return;
         }
         logger.info("다른 스레드에서 갱신된 Access Token이 없음을 확인");
@@ -83,12 +75,9 @@ public class SpotifyTokenManager {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             String newAccessToken = jsonNode.get("access_token").asText();
-            long newTokenExpirationTime = System.currentTimeMillis() + (jsonNode.get("expires_in").asInt() * 1000L);
-
-            logger.info("Access Token 성공적으로 받아옴. 만료 시간: {}", newTokenExpirationTime);
-
-            redisTemplate.opsForValue().set(REDIS_ACCESS_TOKEN_KEY, newAccessToken);
-            redisTemplate.opsForValue().set(REDIS_EXPIRATION_TIME_KEY, String.valueOf(newTokenExpirationTime));
+            long expirationTimeInSeconds = jsonNode.get("expires_in").asInt();
+            logger.info("Access Token 성공적으로 받아옴. 만료 시간: {}", expirationTimeInSeconds);
+            redisTemplate.opsForValue().set(REDIS_ACCESS_TOKEN_KEY, newAccessToken, expirationTimeInSeconds, TimeUnit.SECONDS);
 
             logger.info("Access Token과 만료 시간을 Redis에 저장함");
 
@@ -106,9 +95,12 @@ public class SpotifyTokenManager {
     }
 
     private boolean isValid(String token, long expirationTime) {
+        long currentTime = System.currentTimeMillis();
+        long bufferTime = 5 * 60 * 1000;
+
         return token != null &&
                 !token.isEmpty() &&
-                (expirationTime - System.currentTimeMillis()) > FIVE_MINUTES_IN_MILLIS;
+                (expirationTime - currentTime > bufferTime);
     }
 }
 
