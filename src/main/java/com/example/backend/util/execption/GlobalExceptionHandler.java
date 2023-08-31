@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-	// UserNotFoundException , NotFoundTrackException , NoSuchElementException , AccessDeniedException , JsonProcessingException , IllegalArgumentException , IllegalStateException
+
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<StatusResponseDto> handleUserNotFoundException(UserNotFoundException e) {
 		StatusResponseDto statusResponseDto = new StatusResponseDto(e.getMessage(), false);
