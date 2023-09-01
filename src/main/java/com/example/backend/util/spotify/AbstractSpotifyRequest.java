@@ -27,14 +27,14 @@ public abstract class AbstractSpotifyRequest {
         }
 
         log.info("스포티파이 API로부터 ACCESS TOKEN 받기");
-        String accessToken = spotifyTokenManager.getAccessToken();
+        this.spotifyTokenManager.accessToken = spotifyTokenManager.getAccessToken();
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new CustomResponseErrorHandler());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + spotifyTokenManager.accessToken);
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
