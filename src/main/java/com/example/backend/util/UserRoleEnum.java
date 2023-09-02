@@ -1,4 +1,4 @@
-package com.example.backend.user.entity;
+package com.example.backend.util;
 
 public enum UserRoleEnum {
 	USER(Authority.USER),  // 사용자 권한

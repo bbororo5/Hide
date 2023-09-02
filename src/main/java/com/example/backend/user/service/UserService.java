@@ -30,7 +30,7 @@ import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.user.repository.FollowRepository;
 import com.example.backend.user.repository.ImageRepository;
 import com.example.backend.user.repository.RefreshTokenRepository;

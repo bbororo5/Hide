@@ -10,7 +10,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.RefreshToken;
-import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;

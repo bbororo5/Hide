@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
