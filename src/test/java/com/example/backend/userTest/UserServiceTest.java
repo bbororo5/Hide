@@ -16,7 +16,7 @@
 //
 // import com.example.backend.user.dto.UserProfileDto;
 // import com.example.backend.user.entity.User;
-// import com.example.backend.user.entity.UserRoleEnum;
+// import com.example.backend.util.UserRoleEnum;
 // import com.example.backend.user.repository.FollowRepository;
 // import com.example.backend.user.repository.UserRepository;
 // import com.example.backend.user.service.UserService;
@@ -36,7 +36,7 @@
 // 	public void testGetUserInfo() {
 // 		// Given
 // 		User mockUser = new User("asdf2222@email.com", "password", "nickname", UserRoleEnum.USER);
-// 		Long mockUserId = mockUser.getUserId();
+// 		Long mockUserId = 1L;
 // 		when(userRepository.findByEmail(mockUser.getEmail())).thenReturn(Optional.of(mockUser));
 // 		when(followRepository.findByFromUserAndToUser(any(), any())).thenReturn(Optional.empty());
 //
@@ -45,7 +45,7 @@
 //
 // 		// Then
 // 		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-// 		assertEquals(mockUser.getUserId(), responseEntity.getBody().getUserId());
+// 		assertEquals(mockUser.getNickname(), responseEntity.getBody().getNickname());
 // 		// 여기에 더 많은 검증 로직을 추가할 수 있어.
 // 	}
 // }

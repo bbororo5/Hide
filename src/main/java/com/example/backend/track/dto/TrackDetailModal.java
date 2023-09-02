@@ -10,5 +10,4 @@ public class TrackDetailModal {
 	private String album;
 	private String artist;
 	private String title;
-	private String yUrl;
 }

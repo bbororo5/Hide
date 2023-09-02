@@ -9,7 +9,7 @@ import org.hibernate.annotations.FetchMode;
 import com.example.backend.chat.entity.ChatRoom;
 import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.track.entity.Comment;
-import com.example.backend.track.entity.TrackCount;
+import com.example.backend.util.UserRoleEnum;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;

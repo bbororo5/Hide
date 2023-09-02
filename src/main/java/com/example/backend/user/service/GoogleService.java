@@ -19,7 +19,7 @@ import com.example.backend.user.dto.TokenDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
