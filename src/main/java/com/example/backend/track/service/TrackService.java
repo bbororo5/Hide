@@ -100,6 +100,9 @@ public class TrackService {
 		trackIds.addAll(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(user));
 		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
 		List<String> trackIdsList = new ArrayList<>(trackIds);
+		if(trackIdsList.size()<2){
+
+		}
 		Collections.shuffle(trackIdsList);
 
 		List<Track> recommendedTracks;

@@ -39,17 +39,17 @@ public class DataSourceConfiguration {
 
 	@Bean
 	public DataSource routingDataSource(
-		@Qualifier(MASTER_SERVER) DataSource masterDataSource, // (1)
+		@Qualifier(MASTER_SERVER) DataSource masterDataSource,
 		@Qualifier(REPLICA_SERVER) DataSource replicaDataSource
 	) {
-		RoutingDataSource routingDataSource = new RoutingDataSource(); // (2)
+		RoutingDataSource routingDataSource = new RoutingDataSource();
 
-		HashMap<Object, Object> dataSourceMap = new HashMap<>(); // (3)
-		dataSourceMap.put("source", masterDataSource);
+		HashMap<Object, Object> dataSourceMap = new HashMap<>();
+		dataSourceMap.put("master", masterDataSource);
 		dataSourceMap.put("replica", replicaDataSource);
 
-		routingDataSource.setTargetDataSources(dataSourceMap); // (4)
-		routingDataSource.setDefaultTargetDataSource(masterDataSource); // (5)
+		routingDataSource.setTargetDataSources(dataSourceMap);
+		routingDataSource.setDefaultTargetDataSource(masterDataSource);
 
 		return routingDataSource;
 	}
