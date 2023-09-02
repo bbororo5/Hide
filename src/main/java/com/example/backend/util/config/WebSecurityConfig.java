@@ -71,13 +71,11 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(
 				request -> request
-					.requestMatchers("/").permitAll() // 메인 페이지
-					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(GET, "/api/users/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(POST, "/api/users/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(GET, "/api/musics/**").permitAll()
-						.requestMatchers("/api/tracks/play-count/{track-id}").authenticated()
+					.requestMatchers("/api/tracks/recommend").authenticated()
+					.requestMatchers(DELETE,"/api/users").authenticated()
+					.requestMatchers("/api/users/update-profile").authenticated()
+					.requestMatchers("/api/token/refresh").authenticated()
+					.requestMatchers("/api/tracks/play-count/{track-id}").authenticated()
 					.anyRequest().permitAll()
 			);
 		return http.build();
