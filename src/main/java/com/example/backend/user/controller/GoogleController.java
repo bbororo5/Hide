@@ -43,6 +43,7 @@ public class GoogleController {
 		// 액세스 토큰을 쿠키로 설정
 		ResponseCookie accessTokenCookie = ResponseCookie.from(JwtUtil.AUTHORIZATION_HEADER, accessToken)
 			.secure(true)    // Secure 설정
+			.httpOnly(true)
 			.path("/")       // Path 설정
 			.sameSite("None") // SameSite 설정
 			.build();
@@ -50,6 +51,7 @@ public class GoogleController {
 		// 리프레시 토큰도 쿠키로 설정
 		ResponseCookie refreshTokenCookie = ResponseCookie.from(JwtUtil.REFRESH_HEADER, refreshToken)
 			.secure(true)    // Secure 설정
+			.httpOnly(true)
 			.path("/")       // Path 설정
 			.sameSite("None") // SameSite 설정
 			.build();
