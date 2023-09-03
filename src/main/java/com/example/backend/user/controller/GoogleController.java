@@ -60,6 +60,6 @@ public class GoogleController {
 		response.addHeader("Set-Cookie", accessTokenCookie.toString());
 		response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
-		response.sendRedirect("https://hide-iota.vercel.app");
+		response.sendRedirect("http://localhost:3000");
 	}
 }
