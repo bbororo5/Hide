@@ -2,6 +2,7 @@
 //
 // import java.util.Optional;
 //
+// import org.junit.jupiter.api.DisplayName;
 // import org.junit.jupiter.api.Test;
 // import org.junit.jupiter.api.extension.ExtendWith;
 // import org.mockito.InjectMocks;
@@ -33,6 +34,7 @@
 // 	private UserService userService;
 //
 // 	@Test
+// 	@DisplayName("유저 정보 가져오기 테스트")
 // 	public void testGetUserInfo() {
 // 		// Given
 // 		User mockUser = new User("asdf2222@email.com", "password", "nickname", UserRoleEnum.USER);
