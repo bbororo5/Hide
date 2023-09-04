@@ -75,7 +75,6 @@ public class WebSecurityConfig {
 					.requestMatchers(DELETE,"/api/users").authenticated()
 					.requestMatchers("/api/users/update-profile").authenticated()
 					.requestMatchers("/api/token/refresh").authenticated()
-					.requestMatchers("/api/tracks/play-count/{track-id}").authenticated()
 					.anyRequest().permitAll()
 			);
 		return http.build();

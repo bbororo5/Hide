@@ -114,12 +114,16 @@ public class UserService {
 			String fileUUID = imageUtil.uploadToS3(imageFile, amazonS3, bucket);
 			Image profileImage = new Image(fileUUID, amazonS3.getUrl(bucket, fileUUID).toString());
 			user.updateUserImage(profileImage);
+			userRepository.save(user);
 		}
 		if (nickname != null) {
 			user.updateUserNickname(nickname);
 		}
 		log.info("유저 정보 수정 완료");
-		return new ResponseEntity<>(new UserResponseDto("프로필 수정이 완료되었습니다.", true, user.getImage().getImageUrl()),
+		String imageUrl = Optional.ofNullable(user.getImage())
+			.map(Image::getImageUrl)
+			.orElse(null);
+		return new ResponseEntity<>(new UserResponseDto("프로필 수정이 완료되었습니다.", true, imageUrl),
 			HttpStatus.ACCEPTED);
 	}
 
@@ -210,9 +214,7 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public List<UserInfoDto> getFromUsers(Long userId) {
 		log.info("팔로워 목록 조회 시작");
-		User toUser = userRepository.findById(userId)
-			.orElseThrow(() -> new UserNotFoundException("회원이 존재하지 않습니다."));
-		List<Follow> followingList = followRepository.findAllByToUser(toUser);
+		List<Follow> followingList = followRepository.findAllByToUserIdWithUsers(userId);
 		Collections.sort(followingList, Comparator.comparing(Follow::getCreatedAt).reversed());
 		List<UserInfoDto> userResponseDtoList = new ArrayList<>();
 		for (Follow follow : followingList) {
