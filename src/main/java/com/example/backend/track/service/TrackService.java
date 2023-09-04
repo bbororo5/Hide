@@ -111,12 +111,6 @@ public class TrackService {
 		} catch (TrackNotFoundException e) {
 			throw new TrackNotFoundException("트랙을 찾을 수 없습니다.");
 		}
-		List<Playlist> userPlayList = playListRepository.findByUser(user);
-		List<String> trackIdsFromUserPlayList = new ArrayList<>(
-			userPlayList.stream().map(Playlist::getTrackId).toList());
-		if(userPlayList.isEmpty()){
-			trackIdsFromUserPlayList.add("7iN1s7xHE4ifF5povM6A48");
-		}
 		return recommendedTracks.stream().distinct().collect(Collectors.toList());
 	}
 

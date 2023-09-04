@@ -49,10 +49,8 @@ public class User {
 	private Long googleId;
 
 	@OneToMany(mappedBy = "toUser",fetch = FetchType.LAZY)
-	@Fetch(FetchMode.JOIN)
 	private List<Follow> followerList = new ArrayList<>();
 	@OneToMany(mappedBy = "fromUser",fetch = FetchType.LAZY)
-	@Fetch(FetchMode.JOIN)
 	private List<Follow> followingList = new ArrayList<>();
 
 	@OneToOne(cascade = CascadeType.ALL)
