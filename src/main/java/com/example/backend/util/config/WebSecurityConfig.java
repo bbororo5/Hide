@@ -73,10 +73,6 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(
 				request -> request
-					.requestMatchers("/api/tracks/recommend").authenticated()
-					.requestMatchers(DELETE,"/api/users").authenticated()
-					.requestMatchers("/api/users/update-profile").authenticated()
-					.requestMatchers("/api/token/refresh").authenticated()
 					.anyRequest().permitAll()
 			);
 		return http.build();
