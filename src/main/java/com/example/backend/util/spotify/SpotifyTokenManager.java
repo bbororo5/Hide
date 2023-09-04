@@ -18,9 +18,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class SpotifyTokenManager {
     private static final Logger logger = LoggerFactory.getLogger(SpotifyTokenManager.class);
-    private static final long FIVE_MINUTES_IN_MILLIS = 5 * 60 * 1000L;
     private final RedisUtil redisUtil;
-    private final Object lock = new Object();
     @Value("${spotify.clientId}")
     private final String SPOTIFY_CLIENT_ID;
     @Value("${spotify.clientSecret}")
