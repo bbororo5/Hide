@@ -3,6 +3,7 @@ package com.example.backend.user.service;
 import java.net.URI;
 import java.util.UUID;
 
+import com.example.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
@@ -46,6 +47,7 @@ public class KaKaoService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 
 	@Transactional
 	public TokenDto kakaoLogin(String code) throws JsonProcessingException {
@@ -63,15 +65,21 @@ public class KaKaoService {
 		String createAccessToken = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getUserId(),
 			kakaoUser.getNickname(), kakaoUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(kakaoUser.getEmail());
+		String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken));
 		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken, kakaoUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(kakaoUser.getEmail()).orElse(null);
-		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
+
+		log.info("해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.");
 		if (CheckRefreshToken != null) {
 			refreshTokenRepository.delete(CheckRefreshToken);
 		}
 		RefreshToken newRefreshToken = new RefreshToken(
 			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), kakaoUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+
+		log.info("리프레시토큰 redis에 저장");
+		redisUtil.saveRefreshToken(kakaoUser.getEmail(), encryptedRefreshToken);
+
 		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}

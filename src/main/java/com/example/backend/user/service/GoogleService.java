@@ -1,8 +1,19 @@
 package com.example.backend.user.service;
 
-import java.net.URI;
-import java.util.UUID;
-
+import com.example.backend.user.dto.TokenDto;
+import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.entity.RefreshToken;
+import com.example.backend.user.entity.User;
+import com.example.backend.user.repository.RefreshTokenRepository;
+import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.JwtUtil;
+import com.example.backend.util.RedisUtil;
+import com.example.backend.util.UserRoleEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
@@ -15,20 +26,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.example.backend.user.dto.TokenDto;
-import com.example.backend.user.dto.UserInfoDto;
-import com.example.backend.user.entity.RefreshToken;
-import com.example.backend.user.entity.User;
-import com.example.backend.util.UserRoleEnum;
-import com.example.backend.user.repository.RefreshTokenRepository;
-import com.example.backend.user.repository.UserRepository;
-import com.example.backend.util.JwtUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.util.UUID;
 
 @Slf4j(topic = "google login")
 @Service
@@ -48,6 +47,7 @@ public class GoogleService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 
 	@Transactional
 	public TokenDto googleLogin(String code) throws JsonProcessingException {
@@ -61,15 +61,19 @@ public class GoogleService {
 		String createAccessToken = jwtUtil.createAccessToken(googleUser.getEmail(), googleUser.getUserId(),
 			googleUser.getNickname(), googleUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(googleUser.getEmail());
+		String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken));
 		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken,googleUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(googleUser.getEmail()).orElse(null);
-		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
+
+		log.info("해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장");
 		if (CheckRefreshToken != null) {
 			refreshTokenRepository.delete(CheckRefreshToken);
 		}
-		RefreshToken newRefreshToken = new RefreshToken(
-			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), googleUser.getEmail());
+		RefreshToken newRefreshToken = new RefreshToken(encryptedRefreshToken , googleUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+
+		log.info("리프레시토큰 redis에 저장");
+		redisUtil.saveRefreshToken(googleUser.getEmail(), encryptedRefreshToken);
 		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}
