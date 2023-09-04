@@ -19,8 +19,8 @@ public class RedisUtil {
         redisTemplate.opsForValue().set(ACCESS_TOKEN_KEY, accessToken, Duration.ofHours(1)); // 1시간 후 만료
     }
 
-    public String getAccessToken(String accessToken) {
-        String retrievedToken = (String) redisTemplate.opsForValue().get(accessToken);
+    public String getAccessToken(String accessTokenKey) {
+        String retrievedToken = (String) redisTemplate.opsForValue().get(accessTokenKey);
         if (retrievedToken == null) {
             throw new TokenNotFoundException("Redis로부터 토큰을 불러올 수 없습니다.");
         }
