@@ -49,12 +49,16 @@ public class KaKaoService {
 
 	@Transactional
 	public TokenDto kakaoLogin(String code) throws JsonProcessingException {
+
 		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getKakaoToken(code);
+
 		log.info("토큰으로 카카오 API 호출 : \"액세스 토큰\"으로 \"카카오 사용자 정보\" 가져오기");
 		UserInfoDto kakaoUserInfo = getUserInfo(accessToken);
+
 		log.info("필요시에 회원가입");
 		User kakaoUser = signupWithKaKaoEmail(kakaoUserInfo);
+
 		log.info("JWT 토큰 반환 시작");
 		String createAccessToken = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getUserId(),
 			kakaoUser.getNickname(), kakaoUser.getRole());
@@ -73,6 +77,7 @@ public class KaKaoService {
 	}
 
 	private String getKakaoToken(String code) throws JsonProcessingException {
+		log.info("카카오 액세스 토큰 HTTP 요청 생성");
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://kauth.kakao.com")
@@ -99,12 +104,14 @@ public class KaKaoService {
 			.body(body);
 
 		// HTTP 요청 보내기
+		log.info("카카오 액세스 토큰 HTTP 요청 시작");
 		ResponseEntity<String> response = restTemplate.exchange(
 			requestEntity,
 			String.class
 		);
 
 		// HTTP 응답 (JSON) -> 액세스 토큰 파싱
+		log.info("카카오 액세스 토큰 HTTP 응답 완료. 액세스 토큰 파싱 시작");
 		JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
 		return jsonNode.get("access_token").asText();
 	}

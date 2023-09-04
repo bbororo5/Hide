@@ -1,8 +1,13 @@
 package com.example.backend.track.service;
 
+import com.example.backend.playlist.entity.Playlist;
+import com.example.backend.playlist.repository.PlayListRepository;
 import com.example.backend.track.dto.Track;
 import com.example.backend.track.entity.TrackCount;
 import com.example.backend.track.repository.TrackCountRepository;
+import com.example.backend.track.repository.TrackCountRepositoryImpl;
+import com.example.backend.user.entity.User;
+import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,15 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TrackServiceTest {
@@ -36,6 +38,10 @@ class TrackServiceTest {
     private TrackCountRepository trackCountRepository;
     @Mock
     private SpotifyRequestManager spotifyRequestManager;
+    @Mock
+    private PlayListRepository playListRepository;
+    @Mock
+    private TrackCountRepositoryImpl trackCountRepositoryImpl;
 
     @Nested
     @DisplayName("increasePlayCount 메서드 테스트")
@@ -126,7 +132,29 @@ class TrackServiceTest {
     }
 
     @Test
+    @DisplayName("추천 트랙 가져오기 테스트")
     void testRecommendTracks() {
+        UserDetailsImpl userDetailsMock = mock(UserDetailsImpl.class);
+        User userMock = mock(User.class);
+        when(userDetailsMock.getUser()).thenReturn(userMock);
+
+//        when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(new HashSet<>(Arrays.asList("track1", "track2")));
+//        when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(new HashSet<>());
+//        when(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(userMock)).thenReturn(new HashSet<>());
+//        when(trackCountRepositoryImpl.findRecent5TracksFromUser(userMock)).thenReturn(new HashSet<>());
+
+        Track trackMock = mock(Track.class);
+        when(spotifyRequestManager.getTracksInfo(anyList())).thenReturn(Arrays.asList(trackMock));
+
+        Playlist playlistMock = mock(Playlist.class);
+        when(playlistMock.getTrackId()).thenReturn("playlistTrack1");
+        when(playListRepository.findByUser(userMock)).thenReturn(Arrays.asList(playlistMock));
+        when(spotifyRequestManager.getRecommendTracks(anyList())).thenReturn(Arrays.asList(trackMock));
+
+        List<Track> result = trackService.recommendTracks(userDetailsMock);
+
+        assertNotNull(result);
+        assertEquals(2, result.size()); // Just an example, adjust based on your logic
     }
 
     @Test

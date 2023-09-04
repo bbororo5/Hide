@@ -27,8 +27,14 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(statusResponseDto, HttpStatus.NOT_FOUND);
 	}
 
-	@ExceptionHandler(NotFoundTrackException.class)
-	public ResponseEntity<StatusResponseDto> handleNotFoundTrackException(NotFoundTrackException e) {
+	@ExceptionHandler(TokenNotFoundException.class)
+	public ResponseEntity<StatusResponseDto> handleNotFoundTokenException(TrackNotFoundException e) {
+		StatusResponseDto statusResponseDto = new StatusResponseDto(e.getMessage(), false);
+		return new ResponseEntity<>(statusResponseDto, HttpStatus.NOT_FOUND);
+	}
+
+	@ExceptionHandler(TrackNotFoundException.class)
+	public ResponseEntity<StatusResponseDto> handleNotFoundTrackException(TrackNotFoundException e) {
 		StatusResponseDto statusResponseDto = new StatusResponseDto(e.getMessage(), false);
 		return new ResponseEntity<>(statusResponseDto, HttpStatus.NOT_FOUND);
 	}

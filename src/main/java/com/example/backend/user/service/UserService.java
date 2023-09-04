@@ -224,6 +224,7 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public ResponseEntity<StatusResponseDto> refreshAccessToken(String refreshToken, HttpServletResponse response) {
+
 		log.info("엑세스 토큰 갱신 시작");
 		String token = jwtUtil.substringToken(refreshToken);
 		String email = jwtUtil.getUserInfoFromToken(token).getSubject();

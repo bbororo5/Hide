@@ -17,7 +17,7 @@ import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.execption.DataNotFoundException;
-import com.example.backend.util.execption.NotFoundTrackException;
+import com.example.backend.util.execption.TrackNotFoundException;
 import com.example.backend.util.execption.UserNotFoundException;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
@@ -109,8 +109,8 @@ public class TrackService {
 		List<Track> recommendedByUserPlayList;
 		try {
 			recommendedTracks = spotifyRequestManager.getTracksInfo(trackIdsList);
-		} catch (NotFoundTrackException e) {
-			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
+		} catch (TrackNotFoundException e) {
+			throw new TrackNotFoundException("트랙을 찾을 수 없습니다.");
 		}
 		List<Playlist> userPlayList = playListRepository.findByUser(user);
 		List<String> trackIdsFromUserPlayList = new ArrayList<>(
@@ -120,8 +120,8 @@ public class TrackService {
 		}
 		try {
 			recommendedByUserPlayList = spotifyRequestManager.getRecommendTracks(trackIdsFromUserPlayList);
-		} catch (NotFoundTrackException e) {
-			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
+		} catch (TrackNotFoundException e) {
+			throw new TrackNotFoundException("트랙을 찾을 수 없습니다.");
 		}
 		recommendedTracks.addAll(recommendedByUserPlayList);
 		return recommendedTracks.stream().distinct().collect(Collectors.toList());
