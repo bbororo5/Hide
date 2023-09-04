@@ -32,10 +32,6 @@ public class RedisUtil {
     }
 
     public String getRefreshToken(String email) {
-        String retrievedToken = (String) redisTemplate.opsForValue().get(email);
-        if (retrievedToken == null) {
-            throw new TokenNotFoundException("Redis로부터 토큰을 불러올 수 없습니다.");
-        }
-        return retrievedToken;
+        return (String) redisTemplate.opsForValue().get(email);
     }
 }
