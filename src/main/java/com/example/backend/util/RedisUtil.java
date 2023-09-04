@@ -27,8 +27,7 @@ public class RedisUtil {
         return retrievedToken;
     }
 
-    public void saveRefreshToken(String email, String refreshToken) {
-        String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(refreshToken));
+    public void saveRefreshToken(String email, String encryptedRefreshToken) {
         redisTemplate.opsForValue().set(email, encryptedRefreshToken, Duration.ofDays(14)); // 14일 후 만료
     }
 
