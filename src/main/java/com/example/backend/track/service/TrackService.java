@@ -48,7 +48,7 @@ public class TrackService {
 	private final TrackCountRepository trackCountRepository;
 	private final TrackCountRepositoryImpl trackCountRepositoryImpl;
 	private final UserRepository userRepository;
-	private final SpotifyRequestManager spotifyUtil;
+	private final SpotifyRequestManager spotifyRequestManager;
 	private final RecentRepository recentRepository;
 	private final PlayListRepository playListRepository;
 	private final StarRepository starRepository;
@@ -86,7 +86,7 @@ public class TrackService {
 			.map(TrackCount::getTrackId)
 			.collect(Collectors.toList());
 
-		return spotifyUtil.getTracksInfo(trackIds);
+		return spotifyRequestManager.getTracksInfo(trackIds);
 	}
 
 
@@ -108,7 +108,7 @@ public class TrackService {
 		List<Track> recommendedTracks;
 		List<Track> recommendedByUserPlayList;
 		try {
-			recommendedTracks = spotifyUtil.getTracksInfo(trackIdsList);
+			recommendedTracks = spotifyRequestManager.getTracksInfo(trackIdsList);
 		} catch (NotFoundTrackException e) {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
@@ -119,7 +119,7 @@ public class TrackService {
 			trackIdsFromUserPlayList.add("7iN1s7xHE4ifF5povM6A48");
 		}
 		try {
-			recommendedByUserPlayList = spotifyUtil.getRecommendTracks(trackIdsFromUserPlayList);
+			recommendedByUserPlayList = spotifyRequestManager.getRecommendTracks(trackIdsFromUserPlayList);
 		} catch (NotFoundTrackException e) {
 			throw new NotFoundTrackException("트랙을 찾을 수 없습니다.");
 		}
@@ -129,7 +129,7 @@ public class TrackService {
 
 	public TrackDetailModal getTrackDetailModal(String trackId) {
 		logger.info("모달용 트랙 세부사항 조회");
-		Track track = spotifyUtil.getTrackInfo(trackId);
+		Track track = spotifyRequestManager.getTrackInfo(trackId);
 		String artistName = track.getArtists().get(0).getArtistName();
 		String trackTitle = track.getTitle();
 
@@ -145,7 +145,7 @@ public class TrackService {
 	@Transactional(readOnly = true)
 	public TrackDetailDto getTrackDetail(String trackId) {
 		logger.info("트랙 세부사항 조회");
-		Track track = spotifyUtil.getTrackInfo(trackId);
+		Track track = spotifyRequestManager.getTrackInfo(trackId);
 		Double averageStar = starRepository.findAverageStarByTrackId(trackId).orElse(null);
 		TrackDetailDto trackDetailDto = new TrackDetailDto(track, averageStar);
 		return trackDetailDto;
@@ -161,7 +161,7 @@ public class TrackService {
 		List<String> trackIds = recentList.stream()
 			.map(Recent::getTrackId)
 			.toList();
-		return spotifyUtil.getTracksInfo(trackIds);
+		return spotifyRequestManager.getTracksInfo(trackIds);
 	}
 
 	@Transactional
@@ -190,7 +190,7 @@ public class TrackService {
 		List<String> trackIds = recent7tracts.stream()
 			.map(Recent::getTrackId)
 			.toList();
-		List<Track> top7TrackList = spotifyUtil.getTracksInfo(trackIds);
+		List<Track> top7TrackList = spotifyRequestManager.getTracksInfo(trackIds);
 		return top7TrackList.stream().map(Top7Dto::new).toList();
 	}
 

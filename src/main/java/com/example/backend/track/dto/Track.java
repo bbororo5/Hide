@@ -1,9 +1,9 @@
 package com.example.backend.track.dto;
 
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class Track {
