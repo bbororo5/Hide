@@ -27,16 +27,11 @@ public class RedisUtil {
         return retrievedToken;
     }
 
-    public void saveRefreshToken(String email, String refreshToken) {
-        String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(refreshToken));
+    public void saveRefreshToken(String email, String encryptedRefreshToken) {
         redisTemplate.opsForValue().set(email, encryptedRefreshToken, Duration.ofDays(14)); // 14일 후 만료
     }
 
     public String getRefreshToken(String email) {
-        String retrievedToken = (String) redisTemplate.opsForValue().get(email);
-        if (retrievedToken == null) {
-            throw new TokenNotFoundException("Redis로부터 토큰을 불러올 수 없습니다.");
-        }
-        return retrievedToken;
+        return (String) redisTemplate.opsForValue().get(email);
     }
 }

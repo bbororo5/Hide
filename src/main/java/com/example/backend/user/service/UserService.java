@@ -239,11 +239,13 @@ public class UserService {
 
 		String refreshTokenFromRedis = redisUtil.getRefreshToken(email);
 		if(encryptedToken.equals(refreshTokenFromRedis)){
+			log.info("redis에서 refresh토큰 검증");
 			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);
 		}
 		RefreshToken refreshTokenFromDB = refreshTokenRepository.findByKeyEmail(email)
 			.orElseThrow(() -> new NoSuchElementException("리프레시 토큰이 없습니다."));
+		log.info("DB에서 refresh토큰 검증");
 		if (encryptedToken.equals(refreshTokenFromDB.getRefreshToken())) {
 			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 			log.info("엑세스 토큰 갱신 완료");
