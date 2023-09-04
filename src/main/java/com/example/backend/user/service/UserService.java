@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.example.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +60,7 @@ public class UserService {
 	private final JavaMailSender javaMailSender;
 	private final AmazonS3 amazonS3;
 	private final String bucket;
+	private final RedisUtil redisUtil;
 
 	@Value("${admin.token}")
 	private String ADMIN_TOKEN;
@@ -227,13 +229,20 @@ public class UserService {
 
 		log.info("엑세스 토큰 갱신 시작");
 		String token = jwtUtil.substringToken(refreshToken);
+		String encryptedToken = jwtUtil.encryptRefreshToken(token);
 		String email = jwtUtil.getUserInfoFromToken(token).getSubject();
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다"));
 		String newAccessToken = jwtUtil.createAccessToken(email, user.getUserId(), user.getNickname(), user.getRole());
+
+		String refreshTokenFromRedis = redisUtil.getRefreshToken(email);
+		if(encryptedToken.equals(refreshTokenFromRedis)){
+			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
+			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);
+		}
 		RefreshToken refreshTokenFromDB = refreshTokenRepository.findByKeyEmail(email)
 			.orElseThrow(() -> new NoSuchElementException("리프레시 토큰이 없습니다."));
-		if (jwtUtil.encryptRefreshToken(token).equals(refreshTokenFromDB.getRefreshToken())) {
+		if (encryptedToken.equals(refreshTokenFromDB.getRefreshToken())) {
 			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 			log.info("엑세스 토큰 갱신 완료");
 			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);
