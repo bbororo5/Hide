@@ -101,12 +101,11 @@ public class TrackService {
 		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
 		List<String> trackIdsList = new ArrayList<>(trackIds);
 		if(trackIdsList.size()<2){
-
+			trackIdsList.add("7iN1s7xHE4ifF5povM6A48");
+			trackIdsList.add("5aHwYjiSGgJAxy10mBMlDT");
 		}
 		Collections.shuffle(trackIdsList);
-
 		List<Track> recommendedTracks;
-		List<Track> recommendedByUserPlayList;
 		try {
 			recommendedTracks = spotifyRequestManager.getTracksInfo(trackIdsList);
 		} catch (TrackNotFoundException e) {
@@ -118,12 +117,6 @@ public class TrackService {
 		if(userPlayList.isEmpty()){
 			trackIdsFromUserPlayList.add("7iN1s7xHE4ifF5povM6A48");
 		}
-		try {
-			recommendedByUserPlayList = spotifyRequestManager.getRecommendTracks(trackIdsFromUserPlayList);
-		} catch (TrackNotFoundException e) {
-			throw new TrackNotFoundException("트랙을 찾을 수 없습니다.");
-		}
-		recommendedTracks.addAll(recommendedByUserPlayList);
 		return recommendedTracks.stream().distinct().collect(Collectors.toList());
 	}
 
