@@ -53,7 +53,7 @@ public class User {
 	@OneToMany(mappedBy = "fromUser",fetch = FetchType.LAZY)
 	private List<Follow> followingList = new ArrayList<>();
 
-	@OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "image_key")
 	private Image image;
 
