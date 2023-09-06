@@ -39,6 +39,8 @@ public class TrackCountRepositoryImpl implements TrackCountRepositoryCustom {
 			.where(qFollow.toUser.eq(currentUser))
 			.limit(100)
 			.fetch();
+		if (subToUsers.isEmpty()) {subToUsers.add(-1L);}
+		if (subFromUsers.isEmpty()) {subFromUsers.add(-1L);}
 		return jpaQueryFactory.select(qPlaylist.trackId)
 			.from(qPlaylist)
 			.leftJoin(qPlaylist.user, qUser)
