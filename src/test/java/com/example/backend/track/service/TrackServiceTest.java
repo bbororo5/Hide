@@ -232,7 +232,6 @@ class TrackServiceTest {
         when(mockTrack.getImage()).thenReturn("testImage");
         when(mockTrack.getArtists()).thenReturn(Collections.emptyList());
         when(mockTrack.getArtistsStringList()).thenReturn("testArtistString");
-        when(mockTrack.getGenre()).thenReturn(Collections.emptyList());
 
         when(spotifyRequestManager.getTrackInfo(mockTrackId)).thenReturn(mockTrack);
         when(starRepository.findAverageStarByTrackId(mockTrackId)).thenReturn(Optional.of(mockAverageStar));
