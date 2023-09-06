@@ -39,13 +39,13 @@ public class SpotifyRequestManagerTest {
                 .build();
         List<Track.Artist> artistList = Arrays.asList(artist1, artist2);
 
-        Track.Genre genre1 = Track.Genre.builder()
-                .genre("genreName1")
-                .build();
-        Track.Genre genre2 = Track.Genre.builder()
-                .genre("genreName2")
-                .build();
-        List<Track.Genre> genreList = Arrays.asList(genre1, genre2);
+        // Track.Genre genre1 = Track.Genre.builder()
+        //         .genre("genreName1")
+        //         .build();
+        // Track.Genre genre2 = Track.Genre.builder()
+        //         .genre("genreName2")
+        //         .build();
+        // List<Track.Genre> genreList = Arrays.asList(genre1, genre2);
 
         Track track1 = Track.builder()
                 .id("1")
@@ -53,7 +53,7 @@ public class SpotifyRequestManagerTest {
                 .album("Album1")
                 .image("Image1")
                 .artists(artistList)
-                .genre(genreList)
+                // .genre(genreList)
                 .build();
 
         Track track2 = Track.builder()
@@ -62,7 +62,7 @@ public class SpotifyRequestManagerTest {
                 .album("Album2")
                 .image("Image2")
                 .artists(artistList)
-                .genre(genreList)
+                // .genre(genreList)
                 .build();
 
         Track track3 = Track.builder()
@@ -71,7 +71,7 @@ public class SpotifyRequestManagerTest {
                 .album("Album3")
                 .image("Image3")
                 .artists(artistList)
-                .genre(genreList)
+                // .genre(genreList)
                 .build();
 
         List<Track> mockTracks = Arrays.asList(track1, track2, track3);

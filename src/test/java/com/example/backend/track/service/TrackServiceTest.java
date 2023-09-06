@@ -2,6 +2,7 @@ package com.example.backend.track.service;
 
 import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.playlist.repository.PlayListRepository;
+import com.example.backend.track.dto.StarDto;
 import com.example.backend.track.dto.Track;
 import com.example.backend.track.entity.Star;
 import com.example.backend.track.entity.TrackCount;
@@ -43,15 +44,13 @@ class TrackServiceTest {
     private TrackCountRepository trackCountRepository;
     @Mock
     private SpotifyRequestManager spotifyRequestManager;
-
     @Mock
     private StarRepository starRepository;
-
     @Mock
     private UserDetailsImpl userDetails;
-
     @Mock
     private User user;
+
     @Mock
     private PlayListRepository playListRepository;
     @Mock
@@ -126,10 +125,10 @@ class TrackServiceTest {
                             Track.Artist.builder().artistName("Artist " + (i + 1)).build(),
                             Track.Artist.builder().artistName("Artist " + (i + 2)).build()
                     ))
-                    .genre(Arrays.asList(
-                            Track.Genre.builder().genre("Genre " + (i + 1)).build(),
-                            Track.Genre.builder().genre("Genre " + (i + 2)).build()
-                    ))
+                    // .genre(Arrays.asList(
+                    //         Track.Genre.builder().genre("Genre " + (i + 1)).build(),
+                    //         Track.Genre.builder().genre("Genre " + (i + 2)).build()
+                    // ))
                     .build();
 
             expectedTracks.add(track);
@@ -191,8 +190,40 @@ class TrackServiceTest {
     void get7RecentTracks() {
     }
 
-    @Test
-    void setStarRating() {
+    @Nested
+    class setStarRating {
+        @Test
+        public void testSetStarRating_NewStar() {
+            StarDto starDto = new StarDto();
+            starDto.setStar(5.0);
+            String trackId = "track_1";
+            ArgumentCaptor<Star> starCaptor = ArgumentCaptor.forClass(Star.class);
+            when(userDetails.getUser()).thenReturn(user);
+            when(starRepository.findByUserAndTrackId(user, trackId)).thenReturn(Optional.empty());
+
+            ResponseEntity<StatusResponseDto> response = trackService.setStarRating(trackId, starDto, userDetails);
+
+            verify(starRepository).save(starCaptor.capture());
+            assertEquals(5.0, starCaptor.getValue().getStar(), 0.001);
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+        }
+
+        @Test
+        public void testSetStarRating_UpdateStar() {
+            StarDto starDto = new StarDto();
+            starDto.setStar(4.0);
+            String trackId = "track_1";
+            Star existingStar = new Star(trackId, 5.0, user);
+
+            when(userDetails.getUser()).thenReturn(user);
+            when(starRepository.findByUserAndTrackId(user, trackId)).thenReturn(Optional.of(existingStar));
+
+            ResponseEntity<StatusResponseDto> response = trackService.setStarRating(trackId, starDto, userDetails);
+
+            assertEquals(4.0, existingStar.getStar(), 0.001);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+        }
     }
 
     @Test
