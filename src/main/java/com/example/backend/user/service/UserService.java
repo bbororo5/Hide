@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import com.example.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,15 +30,16 @@ import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.Image;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
-import com.example.backend.util.UserRoleEnum;
 import com.example.backend.user.repository.FollowRepository;
 import com.example.backend.user.repository.ImageRepository;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
-import com.example.backend.util.globalDto.StatusResponseDto;
+import com.example.backend.util.RedisUtil;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.util.execption.UserNotFoundException;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.security.UserDetailsImpl;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -171,7 +171,7 @@ public class UserService {
 		String token = jwtUtil.createTemporalToken(user.getEmail(), user.getRole());
 
 		String subject = "하이드(HIDE) 비밀번호 재설정 요청";
-		String resetLink = "http://localhost:3000/changepw?token=" + token;
+		String resetLink = "https://https://hide-iota.vercel.app/changepw?token=" + token;
 		String message = "제한시간은 5분입니다.\n비밀번호를 재설정 하시려면 링크를 클릭하세요\n\n " + resetLink;
 
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -238,7 +238,7 @@ public class UserService {
 		String newAccessToken = jwtUtil.createAccessToken(email, user.getUserId(), user.getNickname(), user.getRole());
 
 		String refreshTokenFromRedis = redisUtil.getRefreshToken(email);
-		if(encryptedToken.equals(refreshTokenFromRedis)){
+		if (encryptedToken.equals(refreshTokenFromRedis)) {
 			log.info("redis에서 refresh토큰 검증");
 			response.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 			return new ResponseEntity<>(new StatusResponseDto("새로운 엑세스 토큰이 발급되었습니다.", true), HttpStatus.OK);

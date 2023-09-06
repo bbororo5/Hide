@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,15 +19,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.dto.UserProfileDto;
+import com.example.backend.user.dto.UserResponseDto;
 import com.example.backend.user.entity.Follow;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.repository.FollowRepository;
+import com.example.backend.user.repository.ImageRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.user.service.UserService;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.UserRoleEnum;
+import com.example.backend.util.security.UserDetailsImpl;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -38,6 +45,42 @@ class UserServiceTest {
 
 	@InjectMocks
 	private UserService userService;
+
+	@Mock
+	private ImageRepository imageRepository;
+
+	@Mock
+	private AmazonS3 amazonS3;
+
+	@Mock
+	private ImageUtil imageUtil;
+
+	@Test
+	@DisplayName("유저 정보 업데이트 테스트")
+	@Disabled
+	public void updateUser_ImageAndNicknameNotNull() {
+		// Arrange
+		UserDetailsImpl userDetails = mock(UserDetailsImpl.class);
+		User mockUser = mock(User.class);
+		MultipartFile mockFile = mock(MultipartFile.class);
+		String nickname = "NewNickname";
+
+		when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
+		when(imageUtil.uploadToS3(any(), any(), any())).thenReturn("fileUUID");
+
+		// Act
+		ResponseEntity<UserResponseDto> response = userService.updateUser(mockFile, nickname, userDetails);
+
+		// Assert
+		assertNotNull(response);
+		assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+
+		// 닉네임이 업데이트되었는지 확인
+		verify(mockUser).updateUserNickname(nickname);
+
+		// 이미지가 업로드되었는지 확인
+		verify(mockUser).updateUserImage(any());
+	}
 
 	@Test
 	@DisplayName("유저 정보 가져오기 테스트")
@@ -56,6 +99,7 @@ class UserServiceTest {
 	}
 
 	@Test
+	@DisplayName("팔로잉 목록 테스트")
 	public void testGetToUsers() throws NoSuchFieldException, IllegalAccessException {
 		// Given
 		User fromUser = new User("email@test.com", "password", "nickname", UserRoleEnum.USER);
