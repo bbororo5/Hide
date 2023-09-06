@@ -1,14 +1,19 @@
 package com.example.backend.track.service;
 
-import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.playlist.repository.PlayListRepository;
 import com.example.backend.track.dto.Track;
+import com.example.backend.track.dto.TrackDetailDto;
+import com.example.backend.track.dto.TrackDetailModal;
+import com.example.backend.track.entity.Recent;
 import com.example.backend.track.entity.Star;
 import com.example.backend.track.entity.TrackCount;
+import com.example.backend.track.repository.RecentRepository;
 import com.example.backend.track.repository.StarRepository;
 import com.example.backend.track.repository.TrackCountRepository;
 import com.example.backend.track.repository.TrackCountRepositoryImpl;
 import com.example.backend.user.entity.User;
+import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.execption.TrackNotFoundException;
 import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
@@ -29,8 +34,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
@@ -41,6 +45,10 @@ class TrackServiceTest {
     private TrackService trackService;
     @Mock
     private TrackCountRepository trackCountRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private RecentRepository recentRepository;
     @Mock
     private SpotifyRequestManager spotifyRequestManager;
 
@@ -145,42 +153,129 @@ class TrackServiceTest {
         }
     }
 
-//    @Test
-//    @DisplayName("추천 트랙 가져오기 테스트")
-//    void testRecommendTracks() {
-//        UserDetailsImpl userDetailsMock = mock(UserDetailsImpl.class);
-//        User userMock = mock(User.class);
-//        when(userDetailsMock.getUser()).thenReturn(userMock);
-//
-////        when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(new HashSet<>(Arrays.asList("track1", "track2")));
-////        when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(new HashSet<>());
-////        when(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(userMock)).thenReturn(new HashSet<>());
-////        when(trackCountRepositoryImpl.findRecent5TracksFromUser(userMock)).thenReturn(new HashSet<>());
-//
-//        Track trackMock = mock(Track.class);
-//        when(spotifyRequestManager.getTracksInfo(anyList())).thenReturn(Arrays.asList(trackMock));
-//
-//        Playlist playlistMock = mock(Playlist.class);
-//        when(playlistMock.getTrackId()).thenReturn("playlistTrack1");
-//        when(playListRepository.findByUser(userMock)).thenReturn(Arrays.asList(playlistMock));
-//        when(spotifyRequestManager.getRecommendTracks(anyList())).thenReturn(Arrays.asList(trackMock));
-//
-//        List<Track> result = trackService.recommendTracks(userDetailsMock);
-//
-//        assertNotNull(result);
-//        assertEquals(2, result.size()); // Just an example, adjust based on your logic
-   // }
+    @Nested
+    @DisplayName("추천 트랙 가져오기 테스트")
+    class testRecommendTracks {
+        @Test
+        @DisplayName("정상 작동 테스트")
+        public void recommendTracks_returnsRecommendedTracks() {
+            UserDetailsImpl userDetailsMock = mock(UserDetailsImpl.class);
+            User userMock = mock(User.class);
+            when(userDetailsMock.getUser()).thenReturn(userMock);
+
+            List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
+            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findRecent5TracksFromUser(userMock)).thenReturn(mockTrackIds);
+
+            Track trackMock1 = mock(Track.class);
+            Track trackMock2 = mock(Track.class);
+            when(spotifyRequestManager.getTracksInfo(anyList())).thenReturn(Arrays.asList(trackMock1, trackMock2));
+
+            List<Track> result = trackService.recommendTracks(userDetailsMock);
+
+            assertEquals(2, result.size());
+            verify(spotifyRequestManager).getTracksInfo(anyList());
+        }
+
+        @Test
+        @DisplayName("TrackNotFound 예외 발생 테스트")
+        public void recommendTracks_throwsException_whenTrackNotFound() {
+            UserDetailsImpl userDetailsMock = mock(UserDetailsImpl.class);
+            User userMock = mock(User.class);
+            when(userDetailsMock.getUser()).thenReturn(userMock);
+
+            List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
+            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
+
+            when(spotifyRequestManager.getTracksInfo(anyList())).thenThrow(new TrackNotFoundException("트랙을 찾을 수 없습니다."));
+
+            assertThrows(TrackNotFoundException.class, () -> trackService.recommendTracks(userDetailsMock));
+        }
+    }
+
 
     @Test
+    @DisplayName("모달 상제 조회 테스트")
     void getTrackDetailModal() {
+
+        String mockTrackId = "testTrackId";
+        Track mockTrack = mock(Track.class);
+        Track.Artist mockArtist = mock(Track.Artist.class);
+
+        when(mockTrack.getArtists()).thenReturn(Arrays.asList(mockArtist));
+        when(mockTrack.getImage()).thenReturn("testImage");
+        when(mockTrack.getAlbum()).thenReturn("testAlbum");
+        when(mockArtist.getArtistName()).thenReturn("testArtistName");
+        when(mockTrack.getTitle()).thenReturn("testTitle");
+        when(spotifyRequestManager.getTrackInfo(mockTrackId)).thenReturn(mockTrack);
+
+        TrackDetailModal result = trackService.getTrackDetailModal(mockTrackId);
+
+        assertNotNull(result);
+        assertEquals("testImage", result.getImage());
+        assertEquals("testAlbum", result.getAlbum());
+        assertEquals("testArtistName", result.getArtist());
+        assertEquals("testTitle", result.getTitle());
     }
 
     @Test
+    @DisplayName("트랙 상세 정보 조회 테스트")
     void getTrackDetail() {
+        String mockTrackId = "testTrackId";
+        Track mockTrack = mock(Track.class);
+        Double mockAverageStar = 4.5;
+
+        when(mockTrack.getTrackId()).thenReturn(mockTrackId);
+        when(mockTrack.getTitle()).thenReturn("testTitle");
+        when(mockTrack.getAlbum()).thenReturn("testAlbum");
+        when(mockTrack.getImage()).thenReturn("testImage");
+        when(mockTrack.getArtists()).thenReturn(Collections.emptyList());
+        when(mockTrack.getArtistsStringList()).thenReturn("testArtistString");
+        when(mockTrack.getGenre()).thenReturn(Collections.emptyList());
+
+        when(spotifyRequestManager.getTrackInfo(mockTrackId)).thenReturn(mockTrack);
+        when(starRepository.findAverageStarByTrackId(mockTrackId)).thenReturn(Optional.of(mockAverageStar));
+
+        TrackDetailDto result = trackService.getTrackDetail(mockTrackId);
+
+        assertNotNull(result);
+        assertEquals(mockTrackId, result.getTrackId());
+        assertEquals("testTitle", result.getTitle());
+        assertEquals("testAlbum", result.getAlbum());
+        assertEquals("testImage", result.getImage());
+        assertEquals(mockAverageStar, result.getAverageStar(), 0.1);
+        assertEquals("testArtistString", result.getArtistsStringList());
     }
 
+
     @Test
+    @DisplayName("최근 트랙 조회 테스트")
     void getRecentTracks() {
+
+        Long mockUserId = 1L;
+        User mockUser = mock(User.class);
+        Recent mockRecent = mock(Recent.class);
+        Track mockTrack = mock(Track.class);
+
+        when(userRepository.findById(mockUserId)).thenReturn(Optional.of(mockUser));
+
+        List<Recent> mockRecentList = Arrays.asList(mockRecent, mockRecent);
+        when(mockRecent.getTrackId()).thenReturn("mockTrackId1", "mockTrackId2");  // 두 가지 다른 트랙 ID를 반환하도록 설정
+        Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "creationDate"));
+        when(recentRepository.findAllByUserOrderByCreationDateDesc(mockUser, pageable)).thenReturn(mockRecentList);
+
+        List<String> mockTrackIds = Arrays.asList("mockTrackId1", "mockTrackId2");
+        when(spotifyRequestManager.getTracksInfo(mockTrackIds)).thenReturn(Arrays.asList(mockTrack, mockTrack));
+
+        List<Track> resultTracks = trackService.getRecentTracks(mockUserId);
+
+        assertNotNull(resultTracks);
+        assertEquals(2, resultTracks.size());
+        verify(userRepository).findById(mockUserId);
+        verify(recentRepository).findAllByUserOrderByCreationDateDesc(mockUser, pageable);
+        verify(spotifyRequestManager).getTracksInfo(mockTrackIds);
     }
 
     @Test
