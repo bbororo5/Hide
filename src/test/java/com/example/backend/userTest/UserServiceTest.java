@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -46,40 +48,28 @@ class UserServiceTest {
 	@InjectMocks
 	private UserService userService;
 
-	@Mock
-	private ImageRepository imageRepository;
-
-	@Mock
-	private AmazonS3 amazonS3;
-
-	@Mock
-	private ImageUtil imageUtil;
 
 	@Test
-	@DisplayName("유저 정보 업데이트 테스트")
-	@Disabled
-	public void updateUser_ImageAndNicknameNotNull() {
-		// Arrange
+	@DisplayName("닉네임만 업데이트하는 경우")
+	public void updateUser_OnlyNickname() {
+		// Given
 		UserDetailsImpl userDetails = mock(UserDetailsImpl.class);
 		User mockUser = mock(User.class);
-		MultipartFile mockFile = mock(MultipartFile.class);
-		String nickname = "NewNickname";
+		String newNickname = "NewNickname";
 
 		when(userRepository.findById(anyLong())).thenReturn(Optional.of(mockUser));
-		when(imageUtil.uploadToS3(any(), any(), any())).thenReturn("fileUUID");
 
-		// Act
-		ResponseEntity<UserResponseDto> response = userService.updateUser(mockFile, nickname, userDetails);
+		when(userDetails.getUser()).thenReturn(mockUser);
+		when(mockUser.getUserId()).thenReturn(1L);
 
-		// Assert
+		// When
+		ResponseEntity<UserResponseDto> response = userService.updateUser(null, newNickname, userDetails);
+
+		// Then
 		assertNotNull(response);
 		assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-
-		// 닉네임이 업데이트되었는지 확인
-		verify(mockUser).updateUserNickname(nickname);
-
-		// 이미지가 업로드되었는지 확인
-		verify(mockUser).updateUserImage(any());
+		verify(mockUser).updateUserNickname(newNickname);
+		verify(mockUser, never()).updateUserImage(any());
 	}
 
 	@Test

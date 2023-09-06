@@ -3,10 +3,13 @@ package com.example.backend.track.service;
 import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.playlist.repository.PlayListRepository;
 import com.example.backend.track.dto.Track;
+import com.example.backend.track.entity.Star;
 import com.example.backend.track.entity.TrackCount;
+import com.example.backend.track.repository.StarRepository;
 import com.example.backend.track.repository.TrackCountRepository;
 import com.example.backend.track.repository.TrackCountRepositoryImpl;
 import com.example.backend.user.entity.User;
+import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +24,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
@@ -38,6 +43,15 @@ class TrackServiceTest {
     private TrackCountRepository trackCountRepository;
     @Mock
     private SpotifyRequestManager spotifyRequestManager;
+
+    @Mock
+    private StarRepository starRepository;
+
+    @Mock
+    private UserDetailsImpl userDetails;
+
+    @Mock
+    private User user;
     @Mock
     private PlayListRepository playListRepository;
     @Mock
@@ -183,6 +197,20 @@ class TrackServiceTest {
 
     @Test
     void deleteStarRating() {
+        // Mocking
+        String trackId = "track123";
+        Star mockStar = mock(Star.class);
+
+        when(userDetails.getUser()).thenReturn(user);
+        when(starRepository.findByUserAndTrackId(user, trackId)).thenReturn(Optional.of(mockStar));
+
+        // 테스트 실행
+        ResponseEntity<StatusResponseDto> result = trackService.deleteStarRating(trackId, userDetails);
+
+        // 검증
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+
+        verify(starRepository,times(1)).delete(mockStar);
     }
 
     @Test
