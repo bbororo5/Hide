@@ -3,13 +3,14 @@ package com.example.backend.util.spotify;
 import com.example.backend.track.dto.Track;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
 @Service
 public class SearchSpotifyRequest extends AbstractSpotifyRequest {
-    public SearchSpotifyRequest(SpotifyTokenManager spotifyTokenManager) {
-        super(spotifyTokenManager);
+    public SearchSpotifyRequest(SpotifyTokenManager spotifyTokenManager , RestTemplate restTemplate) {
+        super(spotifyTokenManager , restTemplate);
     }
 
     public List<Track> fetchData(String keyword) {
