@@ -62,7 +62,7 @@ jobs:
       run: |
         echo "$PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@15.164.215.106 "\
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@43.200.181.126 "\
         docker stop hide_music_container || true && \
         docker rm hide_music_container || true && \
         docker pull philomuvie/hide_music:latest && \

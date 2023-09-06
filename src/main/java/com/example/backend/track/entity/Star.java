@@ -31,8 +31,8 @@ public class Star {
 		this.trackId=trackId;
 		this.user=user;
 	}
-	public void updateStar(StarDto starDto){
-		this.star= starDto.getStar();
+	public void updateStar(Double star){
+		this.star= star;
 	}
 
 }

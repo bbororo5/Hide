@@ -1,6 +1,5 @@
 package com.example.backend.track.service;
 
-import com.example.backend.playlist.entity.Playlist;
 import com.example.backend.playlist.repository.PlayListRepository;
 import com.example.backend.track.dto.*;
 import com.example.backend.track.entity.QStar;
@@ -95,8 +94,7 @@ public class TrackService {
 		logger.info("추천 트랙 받아오기");
 		User user = userDetails.getUser();
 		Set<String> trackIds = new HashSet<>();
-		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollowing(user));
-		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollower(user));
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollow(user));
 		trackIds.addAll(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(user));
 		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
 		List<String> trackIdsList = new ArrayList<>(trackIds);
@@ -188,7 +186,7 @@ public class TrackService {
 		Star star = starRepository.findByUserAndTrackId(userDetails.getUser(), trackId)
 			.orElse(null);
 		if (star != null) {
-			star.updateStar(starDto);
+			star.updateStar(starDto.getStar());
 			starRepository.save(star);
 		} else {
 			Star newStar = new Star(trackId, starDto.getStar(), userDetails.getUser());
