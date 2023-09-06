@@ -18,8 +18,9 @@ import java.util.NoSuchElementException;
 @Slf4j
 public abstract class AbstractSpotifyRequest {
     protected final SpotifyTokenManager spotifyTokenManager;
+    private final RestTemplate restTemplate;
 
-    protected List<Track> fetchDataFromSpotifyAPI(String parameter, int attempt) {
+    protected List<Track> fetchDataFromSpotifyAPI(String trackIds, int attempt) {
         log.info("스포티파이 API에 데이터 요청 시작");
         if (attempt > 2) {
             log.error("재시도 2회 이후에도 스포티파이 API로 부터 계속된 데이터 요청 실패");
@@ -30,7 +31,6 @@ public abstract class AbstractSpotifyRequest {
 
         String accessToken = spotifyTokenManager.getAccessToken();
 
-        RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new CustomResponseErrorHandler());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
@@ -40,7 +40,7 @@ public abstract class AbstractSpotifyRequest {
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
         log.info("url 설정");
-        String url = generateSpotifyUrl(parameter);
+        String url = generateSpotifyUrl(trackIds);
 
         ArrayList<Track> tracklist = new ArrayList<>();
 
@@ -74,7 +74,7 @@ public abstract class AbstractSpotifyRequest {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED && isTokenExpired(e)) {
                 log.warn("Spotify Access Token이 만료됨. 새 토큰을 요청하고 API를 다시 호출합니다.", e);
                 spotifyTokenManager.getAccessToken();
-                return fetchDataFromSpotifyAPI(parameter, attempt + 1); // 재시도
+                return fetchDataFromSpotifyAPI(trackIds, attempt + 1); // 재시도
             } else {
                 log.error("HTTP 클라이언트 오류 발생: 상태 코드 {}", e.getStatusCode(), e);
             }
@@ -136,17 +136,17 @@ public abstract class AbstractSpotifyRequest {
             artists.add(artist);
         }
 
-        List<Track.Genre> genreList = new ArrayList<>();
-        JsonNode genreNodes = trackNode
-                .path("album");
-        for (JsonNode genreNode : genreNodes) {
-            String genre = genreNode.path("genre").asText();
-            log.debug("장르: {}", genre);
-            Track.Genre genreElement = Track.Genre.builder()
-                    .genre(genre)
-                    .build();
-            genreList.add(genreElement);
-        }
+        // List<Track.Genre> genreList = new ArrayList<>();
+        // JsonNode genreNodes = trackNode
+        //         .path("album");
+        // for (JsonNode genreNode : genreNodes) {
+        //     String genre = genreNode.path("genre").asText();
+        //     log.debug("장르: {}", genre);
+        //     Track.Genre genreElement = Track.Genre.builder()
+        //             .genre(genre)
+        //             .build();
+        //     genreList.add(genreElement);
+        // }
 
         Track track = Track.builder()
                 .id(trackId)
@@ -154,14 +154,14 @@ public abstract class AbstractSpotifyRequest {
                 .album(albumName)
                 .image(image)
                 .artists(artists)
-                .genre(genreList)
+                // .genre(genreList)
                 .build();
 
         log.info("트랙 노드 파싱 완료: {}", track);
 
         return track;
     }
-    protected abstract String generateSpotifyUrl(String parameter);
+    protected abstract String generateSpotifyUrl(String trackIds);
 
     protected abstract JsonNode extractTracksNode(JsonNode responseBody);
 }

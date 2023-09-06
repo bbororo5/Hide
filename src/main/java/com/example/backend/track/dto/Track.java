@@ -13,7 +13,7 @@ public class Track {
 	private String image;
 	private List<Artist> artists;
 	private String artistsStringList;
-	private List<Genre> genre;
+	// private List<Genre> genre;
 
 	@Getter
 	public static class Artist {
@@ -26,19 +26,21 @@ public class Track {
 
 	}
 
-	@Getter
-	public static class Genre {
-		private String genre;
-
-		@Builder
-		public Genre(String genre) {
-			this.genre = genre;
-		}
-
-	}
+	// @Getter
+	// public static class Genre {
+	// 	private String genre;
+	//
+	// 	@Builder
+	// 	public Genre(String genre) {
+	// 		this.genre = genre;
+	// 	}
+	//
+	// }
 
 	@Builder
-	public Track(String id, String title, String album, String image, List<Artist> artists, List<Genre> genre) {
+	public Track(String id, String title, String album, String image, List<Artist> artists
+		// , List<Genre> genre
+	) {
 		StringBuilder sb = new StringBuilder();
 		this.trackId = id;
 		this.title = title;
@@ -52,6 +54,6 @@ public class Track {
 			sb.setLength(sb.length() - 2); // 마지막 쉼표 제거
 		}
 		this.artistsStringList = sb.toString();
-		this.genre = genre;
+		// this.genre = genre;
 	}
 }
