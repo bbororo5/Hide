@@ -10,6 +10,8 @@ import com.example.backend.track.entity.QStar;
 import com.example.backend.user.entity.QFollow;
 import com.example.backend.user.entity.QUser;
 import com.example.backend.user.entity.User;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 public class TrackCountRepositoryImpl implements TrackCountRepositoryCustom {
@@ -26,35 +28,33 @@ public class TrackCountRepositoryImpl implements TrackCountRepositoryCustom {
 	QStar qStar = QStar.star1;
 	QRecent qRecent = QRecent.recent;
 
-	@Override
-	public List<String> findTrackIdsFromFollowing(User currentUser) {
-		return jpaQueryFactory.select(qPlaylist.trackId)
+	public List<String> findTrackIdsFromFollow(User currentUser) {
+		List<Long> subToUsers = jpaQueryFactory.select(qFollow.toUser.userId)
 			.from(qFollow)
-			.leftJoin(qFollow.toUser, qUser)
-			.leftJoin(qUser.playlists, qPlaylist)
-			.where(qFollow.fromUser.eq(currentUser),qPlaylist.trackId.isNotNull())
-			.orderBy(qPlaylist.id.desc())
-			.limit(10)
+			.where(qFollow.fromUser.eq(currentUser))
+			.limit(100)
+			.fetch();
+		List<Long> subFromUsers = jpaQueryFactory.select(qFollow.fromUser.userId)
+			.from(qFollow)
+			.where(qFollow.toUser.eq(currentUser))
+			.limit(100)
+			.fetch();
+		return jpaQueryFactory.select(qPlaylist.trackId)
+			.from(qPlaylist)
+			.leftJoin(qPlaylist.user, qUser)
+			.where(qUser.userId.in(subToUsers).or(qUser.userId.in(subFromUsers)), qPlaylist.trackId.isNotNull())
+			.orderBy(NumberExpression.random().asc())
+			.limit(20)
 			.fetch();
 	}
 
-	@Override
-	public List<String> findTrackIdsFromFollower(User currentUser) {
-		return jpaQueryFactory.select(qPlaylist.trackId)
-			.from(qFollow)
-			.leftJoin(qFollow.fromUser, qUser)
-			.leftJoin(qUser.playlists, qPlaylist)
-			.where(qFollow.toUser.eq(currentUser),qPlaylist.trackId.isNotNull())
-			.orderBy(qPlaylist.id.desc())
-			.limit(10)
-			.fetch();
-	}
 
 	@Override
 	public List<String> findHighRatedAndRelatedTracks(User currentUser) {
 		List<String> highRatedTrackIds = jpaQueryFactory.select(qStar.trackId)
 			.from(qStar)
 			.where(qStar.user.eq(currentUser), qStar.star.goe(4.0))
+			.limit(100)
 			.fetch();
 		return jpaQueryFactory.select(qPlaylist.trackId)
 			.from(qStar)
