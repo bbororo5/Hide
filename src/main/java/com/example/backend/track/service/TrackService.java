@@ -94,7 +94,8 @@ public class TrackService {
 		logger.info("추천 트랙 받아오기");
 		User user = userDetails.getUser();
 		Set<String> trackIds = new HashSet<>();
-		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollow(user));
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollowing(user));
+		trackIds.addAll(trackCountRepositoryImpl.findTrackIdsFromFollower(user));
 		trackIds.addAll(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(user));
 		trackIds.addAll(trackCountRepositoryImpl.findRecent5TracksFromUser(user));
 		List<String> trackIdsList = new ArrayList<>(trackIds);
