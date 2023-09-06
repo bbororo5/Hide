@@ -1,10 +1,7 @@
 package com.example.backend.track.service;
 
 import com.example.backend.playlist.repository.PlayListRepository;
-import com.example.backend.track.dto.StarDto;
-import com.example.backend.track.dto.Track;
-import com.example.backend.track.dto.TrackDetailDto;
-import com.example.backend.track.dto.TrackDetailModal;
+import com.example.backend.track.dto.*;
 import com.example.backend.track.entity.Recent;
 import com.example.backend.track.entity.Star;
 import com.example.backend.track.entity.TrackCount;
@@ -18,6 +15,8 @@ import com.example.backend.util.execption.TrackNotFoundException;
 import com.example.backend.util.globalDto.StatusResponseDto;
 import com.example.backend.util.security.UserDetailsImpl;
 import com.example.backend.util.spotify.SpotifyRequestManager;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -58,18 +57,21 @@ class TrackServiceTest {
     private UserDetailsImpl userDetails;
     @Mock
     private User user;
-
+    @Mock
+    private JPAQueryFactory jpaQueryFactory;
     @Mock
     private PlayListRepository playListRepository;
     @Mock
     private TrackCountRepositoryImpl trackCountRepositoryImpl;
+    @Mock
+    private JPAQuery<StarListResponseDto> jpaQueryMock;
 
     @Nested
     @DisplayName("increasePlayCount 메서드 테스트")
     class IncreasePlayCountTests {
         @Test
         @DisplayName("새로운 트랙의 플레이 카운트 증가 테스트")
-        public void testIncreasePlayCount_NewTrack() {
+        public void IncreasePlayCount_whenNewTrack() {
             String trackId = "newTrack";
             when(trackCountRepository.findByTrackId(trackId)).thenReturn(Optional.empty());
             when(trackCountRepository.count()).thenReturn(0L);
@@ -84,7 +86,7 @@ class TrackServiceTest {
 
         @Test
         @DisplayName("기존 트랙의 플레이 카운트 증가 테스트")
-        public void testIncreasePlayCount_ExistingTrack() {
+        public void IncreasePlayCount_whenExistingTrack() {
             String trackId = "existingTrack";
             TrackCount existingTrackCount = new TrackCount(trackId, 5);
             when(trackCountRepository.findByTrackId(trackId)).thenReturn(Optional.of(existingTrackCount));
@@ -97,7 +99,7 @@ class TrackServiceTest {
 
         @Test
         @DisplayName("트랙 카운트 레코드 500 제한 테스트")
-        public void testHandleTrackCountLimit_RemoveOldest() {
+        public void IncreasePlayCountTests_whenOverLimit500() {
             when(trackCountRepository.count()).thenReturn(500L);
             TrackCount oldestTrackCount = new TrackCount("oldest", 1);
             when(trackCountRepository.findFirstByOrderByCreatedAtAsc()).thenReturn(Optional.of(oldestTrackCount));
@@ -163,8 +165,7 @@ class TrackServiceTest {
             when(userDetailsMock.getUser()).thenReturn(userMock);
 
             List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
-            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
-            when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollow(userMock)).thenReturn(mockTrackIds);
             when(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(userMock)).thenReturn(mockTrackIds);
             when(trackCountRepositoryImpl.findRecent5TracksFromUser(userMock)).thenReturn(mockTrackIds);
 
@@ -180,13 +181,13 @@ class TrackServiceTest {
 
         @Test
         @DisplayName("TrackNotFound 예외 발생 테스트")
-        public void recommendTracks_throwsException_whenTrackNotFound() {
+        public void recommendTracks_whenTrackNotFoundException() {
             UserDetailsImpl userDetailsMock = mock(UserDetailsImpl.class);
             User userMock = mock(User.class);
             when(userDetailsMock.getUser()).thenReturn(userMock);
 
             List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
-            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollow(userMock)).thenReturn(mockTrackIds);
 
             when(spotifyRequestManager.getTracksInfo(anyList())).thenThrow(new TrackNotFoundException("트랙을 찾을 수 없습니다."));
 
@@ -198,7 +199,6 @@ class TrackServiceTest {
     @Test
     @DisplayName("모달 상제 조회 테스트")
     void getTrackDetailModal() {
-
         String mockTrackId = "testTrackId";
         Track mockTrack = mock(Track.class);
         Track.Artist mockArtist = mock(Track.Artist.class);
@@ -232,7 +232,6 @@ class TrackServiceTest {
         when(mockTrack.getImage()).thenReturn("testImage");
         when(mockTrack.getArtists()).thenReturn(Collections.emptyList());
         when(mockTrack.getArtistsStringList()).thenReturn("testArtistString");
-        when(mockTrack.getGenre()).thenReturn(Collections.emptyList());
 
         when(spotifyRequestManager.getTrackInfo(mockTrackId)).thenReturn(mockTrack);
         when(starRepository.findAverageStarByTrackId(mockTrackId)).thenReturn(Optional.of(mockAverageStar));
@@ -252,7 +251,6 @@ class TrackServiceTest {
     @Test
     @DisplayName("최근 트랙 조회 테스트")
     void getRecentTracks() {
-
         Long mockUserId = 1L;
         User mockUser = mock(User.class);
         Recent mockRecent = mock(Recent.class);
@@ -277,18 +275,60 @@ class TrackServiceTest {
         verify(spotifyRequestManager).getTracksInfo(mockTrackIds);
     }
 
-    @Test
-    void createRecentTrack() {
+    @Nested
+    @DisplayName("최근 트랙 생성 테스트")
+    class createRecentTrack {
+        @Test
+        @DisplayName("총 레코드 수 20 미만일 때 트랙 생성 테스트")
+        void createRecentTrack_whenUnderLimit() {
+            User user = mock(User.class);
+            when(recentRepository.findByUserOrderByCreationDateAsc(user)).thenReturn(new ArrayList<>());
+
+            trackService.createRecentTrack("someTrackId", user);
+
+            verify(recentRepository).save(any());
+        }
+
+        @Test
+        @DisplayName("총 레코드 수 20 초과일 때 트랙 생성 테스트")
+        void createRecentTrack_whenOverLimit() {
+            User user = mock(User.class);
+            Recent oldestRecent = mock(Recent.class);
+
+            // 오래된 트랙부터 순서대로 리스트 생성
+            List<Recent> recentTracks = new ArrayList<>(Arrays.asList(oldestRecent));
+            recentTracks.addAll(Collections.nCopies(20, mock(Recent.class)));
+
+            when(recentRepository.findByUserOrderByCreationDateAsc(user)).thenReturn(recentTracks);
+            when(recentRepository.findByUserAndTrackId(user, "someTrackId")).thenReturn(Optional.empty());
+
+            trackService.createRecentTrack("someTrackId", user);
+
+            verify(recentRepository).delete(oldestRecent);
+            verify(recentRepository).save(any(Recent.class));
+        }
     }
 
     @Test
+    @DisplayName("최근 트랙 7개 가져오기 테스트")
     void get7RecentTracks() {
+        Recent mockRecent = mock(Recent.class);
+        Track mockTrack = mock(Track.class);
+        List<Recent> mockRecentList = new ArrayList<>(Collections.nCopies(7, mockRecent));
+        when(recentRepository.findTop7ByOrderByCreationDateDesc(any())).thenReturn(mockRecentList);
+        when(spotifyRequestManager.getTracksInfo(anyList())).thenReturn(Collections.nCopies(7, mockTrack));
+
+        List<Top7Dto> result = trackService.get7RecentTracks();
+
+        assertEquals(7, result.size());
     }
 
     @Nested
+    @DisplayName("별점 설정 테스트")
     class setStarRating {
         @Test
-        public void testSetStarRating_NewStar() {
+        @DisplayName("첫 별점")
+        public void setStarRating_NewStar() {
             StarDto starDto = new StarDto();
             starDto.setStar(5.0);
             String trackId = "track_1";
@@ -304,7 +344,8 @@ class TrackServiceTest {
         }
 
         @Test
-        public void testSetStarRating_UpdateStar() {
+        @DisplayName("기존 별점")
+        public void setStarRating_UpdateStar() {
             StarDto starDto = new StarDto();
             starDto.setStar(4.0);
             String trackId = "track_1";
@@ -323,23 +364,16 @@ class TrackServiceTest {
 
     @Test
     void deleteStarRating() {
-        // Mocking
         String trackId = "track123";
         Star mockStar = mock(Star.class);
 
         when(userDetails.getUser()).thenReturn(user);
         when(starRepository.findByUserAndTrackId(user, trackId)).thenReturn(Optional.of(mockStar));
 
-        // 테스트 실행
         ResponseEntity<StatusResponseDto> result = trackService.deleteStarRating(trackId, userDetails);
 
-        // 검증
         assertEquals(HttpStatus.OK, result.getStatusCode());
 
-        verify(starRepository,times(1)).delete(mockStar);
-    }
-
-    @Test
-    void getStarList() {
+        verify(starRepository, times(1)).delete(mockStar);
     }
 }
