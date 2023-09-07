@@ -3,12 +3,14 @@ package com.example.backend.user.service;
 import java.net.URI;
 import java.util.UUID;
 
+import com.example.backend.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +20,7 @@ import com.example.backend.user.dto.TokenDto;
 import com.example.backend.user.dto.UserInfoDto;
 import com.example.backend.user.entity.RefreshToken;
 import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserRoleEnum;
+import com.example.backend.util.UserRoleEnum;
 import com.example.backend.user.repository.RefreshTokenRepository;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.util.JwtUtil;
@@ -45,35 +47,45 @@ public class KaKaoService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 
+	@Transactional
 	public TokenDto kakaoLogin(String code) throws JsonProcessingException {
 
-		// 1. "인가 코드"로 "액세스 토큰" 요청
+		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getKakaoToken(code);
 
-		// 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+		log.info("토큰으로 카카오 API 호출 : \"액세스 토큰\"으로 \"카카오 사용자 정보\" 가져오기");
 		UserInfoDto kakaoUserInfo = getUserInfo(accessToken);
 
-		// 3. 필요시에 회원가입 후 User 반환
+		log.info("필요시에 회원가입");
 		User kakaoUser = signupWithKaKaoEmail(kakaoUserInfo);
 
-		// 4. JWT 토큰 반환
+		log.info("JWT 토큰 반환 시작");
 		String createAccessToken = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getUserId(),
 			kakaoUser.getNickname(), kakaoUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(kakaoUser.getEmail());
-		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken);
+		String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken));
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken, kakaoUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(kakaoUser.getEmail()).orElse(null);
-		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
+
+		log.info("해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.");
 		if (CheckRefreshToken != null) {
 			refreshTokenRepository.delete(CheckRefreshToken);
 		}
 		RefreshToken newRefreshToken = new RefreshToken(
 			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), kakaoUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+
+		log.info("리프레시토큰 redis에 저장");
+		redisUtil.saveRefreshToken(kakaoUser.getEmail(), encryptedRefreshToken);
+
+		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}
 
 	private String getKakaoToken(String code) throws JsonProcessingException {
+		log.info("카카오 액세스 토큰 HTTP 요청 생성");
 		// 요청 URL 만들기
 		URI uri = UriComponentsBuilder
 			.fromUriString("https://kauth.kakao.com")
@@ -100,12 +112,14 @@ public class KaKaoService {
 			.body(body);
 
 		// HTTP 요청 보내기
+		log.info("카카오 액세스 토큰 HTTP 요청 시작");
 		ResponseEntity<String> response = restTemplate.exchange(
 			requestEntity,
 			String.class
 		);
 
 		// HTTP 응답 (JSON) -> 액세스 토큰 파싱
+		log.info("카카오 액세스 토큰 HTTP 응답 완료. 액세스 토큰 파싱 시작");
 		JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
 		return jsonNode.get("access_token").asText();
 	}

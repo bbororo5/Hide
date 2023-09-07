@@ -3,9 +3,7 @@ package com.example.backend.util.config;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.*;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.example.backend.util.RedisUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,12 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.CorsUtils;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.backend.user.repository.RefreshTokenRepository;
+import com.example.backend.util.ImageUtil;
 import com.example.backend.util.JwtUtil;
 import com.example.backend.util.security.JwtAuthenticationFilter;
 import com.example.backend.util.security.JwtAuthorizationFilter;
@@ -40,6 +35,8 @@ public class WebSecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final RefreshTokenRepository refreshTokenRepository;
+	private final ImageUtil imageUtil;
+	private final RedisUtil redisUtil;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -53,7 +50,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, refreshTokenRepository);
+		JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, refreshTokenRepository, imageUtil ,redisUtil);
 		filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
 		return filter;
 	}
@@ -76,12 +73,6 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(
 				request -> request
-					.requestMatchers("/").permitAll() // 메인 페이지
-					.requestMatchers("/api/user/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(GET, "/api/users/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(POST, "/api/users/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers("/login/**").permitAll() // 유저관련 요청 허가
-					.requestMatchers(GET, "/api/musics/**").permitAll()
 					.anyRequest().permitAll()
 			);
 		return http.build();

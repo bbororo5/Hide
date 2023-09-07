@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.backend.user.entity.Image;
+import com.example.backend.user.entity.User;
 
 @Component
 public class ImageUtil {
@@ -69,5 +71,13 @@ public class ImageUtil {
 				throw new IllegalArgumentException("Unsupported file type: " + extension);
 		}
 		return mimeType;
+	}
+
+	public String getImageUrlFromUser(User user) {
+		if(user.getImage()!=null){
+			return user.getImage().getImageUrl();
+		}else{
+			return null;
+		}
 	}
 }

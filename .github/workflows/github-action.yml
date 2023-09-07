@@ -1,0 +1,71 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: CI/CD Workflow
+
+on:
+  pull_request:
+    branches:
+      - production
+    types:
+      - closed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '17'
+
+    - name: Set up application.properties
+      run: |
+        touch ./src/main/resources/application-secret.properties
+        echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application-secret.properties
+        cat ./src/main/resources/application-secret.properties
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Build Docker image
+      run: docker build -t philomuvie/hide_music:latest .
+
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: docker push philomuvie/hide_music:latest
+
+    - name: Deploy to EC2 instance 1
+      run: |
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@13.125.205.172 "\
+        docker stop hide_music_container || true && \
+        docker rm hide_music_container || true && \
+        docker pull philomuvie/hide_music:latest && \
+        docker run -d -p 8080:8080 -v /var/log/myapp:/var/log/myapp --name hide_music_container philomuvie/hide_music:latest"
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    - name: Deploy to EC2 instance 2
+      run: |
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@43.200.181.126 "\
+        docker stop hide_music_container || true && \
+        docker rm hide_music_container || true && \
+        docker pull philomuvie/hide_music:latest && \
+        docker run -d -p 8080:8080 -v /var/log/myapp:/var/log/myapp --name hide_music_container philomuvie/hide_music:latest"
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}

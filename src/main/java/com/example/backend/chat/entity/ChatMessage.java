@@ -5,9 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.example.backend.Timestamped;
 import com.example.backend.chat.dto.MessageDto;
-import com.example.backend.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
@@ -20,16 +18,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class ChatMessage{
+public class ChatMessage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long msgId;
@@ -40,6 +36,8 @@ public class ChatMessage{
 	private Long senderId;
 	@Column
 	private String nickname;
+	@Column
+	private String senderImageUrl;
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(updatable = false)
@@ -49,11 +47,13 @@ public class ChatMessage{
 	@JsonBackReference // 이 쪽 관계는 JSON에서 제외
 	ChatRoom chatRoom;
 
-	public ChatMessage(MessageDto messageDto){
+	public ChatMessage(MessageDto messageDto) {
 		this.message = messageDto.getMessage();
 		this.senderId = messageDto.getSenderId();
 		this.nickname = messageDto.getNickname();
+		this.senderImageUrl =messageDto.getSenderImageUrl();
 	}
+
 	public void setChatRoom(ChatRoom chatRoom) {
 		this.chatRoom = chatRoom;
 	}

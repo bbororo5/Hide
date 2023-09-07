@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <springProperty name="SLACK_WEBHOOK_URI" source="logging.slack.webhook-uri"/>
+    <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+        <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %msg %n</pattern>
+        </layout>
+        <username>Hide-Server-log</username>
+        <iconEmoji>:윙크하며_혀를_내민_표정:</iconEmoji>
+        <colorCoding>true</colorCoding>
+    </appender>
+    <!-- 콘솔 appender 설정 -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d %-5level [%thread] %logger{35} - %msg %X{userId} %X{trackId} %ex%n</Pattern>
+        </encoder>
+    </appender>
+    <!-- 파일 appender 설정 -->
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/var/log/myapp/application.log</file>
+        <encoder>
+            <pattern>%d %-5level [%thread] %logger{35} - %msg %X{userId} %X{trackId} %ex%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 슬랙 appender 설정 -->
+    <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="SLACK"/>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="Console" />
+        <appender-ref ref="ASYNC_SLACK"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

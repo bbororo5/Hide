@@ -1,33 +1,33 @@
 package com.example.backend.user.service;
 
-import java.net.URI;
-import java.util.UUID;
-
+import com.example.backend.user.dto.TokenDto;
+import com.example.backend.user.dto.UserInfoDto;
+import com.example.backend.user.entity.RefreshToken;
+import com.example.backend.user.entity.User;
+import com.example.backend.user.repository.RefreshTokenRepository;
+import com.example.backend.user.repository.UserRepository;
+import com.example.backend.util.JwtUtil;
+import com.example.backend.util.RedisUtil;
+import com.example.backend.util.UserRoleEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.example.backend.user.dto.TokenDto;
-import com.example.backend.user.dto.UserInfoDto;
-import com.example.backend.user.entity.RefreshToken;
-import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserRoleEnum;
-import com.example.backend.user.repository.RefreshTokenRepository;
-import com.example.backend.user.repository.UserRepository;
-import com.example.backend.util.JwtUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.net.URI;
+import java.util.UUID;
 
 @Slf4j(topic = "google login")
 @Service
@@ -47,30 +47,34 @@ public class GoogleService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final RestTemplate restTemplate;
 	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 
+	@Transactional
 	public TokenDto googleLogin(String code) throws JsonProcessingException {
-		// 1. "인가 코드"로 "액세스 토큰" 요청
+		log.info("\"인가 코드\"로 \"액세스 토큰\" 요청");
 		String accessToken = getGoogleToken(code);
-
-		// 2. 토큰으로 카카오 API 호출 : "액세스 토큰"으로 "카카오 사용자 정보" 가져오기
+		log.info("토큰으로 구글 API 호출 : \"액세스 토큰\"으로 \"구글 사용자 정보\" 가져오기");
 		UserInfoDto googleUserInfo = getUserInfo(accessToken);
-
-		// 3. 필요시에 회원가입
+		log.info("필요시에 회원가입");
 		User googleUser = signupWithGoogleEmail(googleUserInfo);
-
-		// 4. JWT 토큰 반환
+		log.info("JWT 토큰 반환 시작");
 		String createAccessToken = jwtUtil.createAccessToken(googleUser.getEmail(), googleUser.getUserId(),
 			googleUser.getNickname(), googleUser.getRole());
 		String createRefreshToken = jwtUtil.createRefreshToken(googleUser.getEmail());
-		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken);
+		String encryptedRefreshToken = jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken));
+		TokenDto tokenDto = new TokenDto(createAccessToken, createRefreshToken,googleUser);
 		RefreshToken CheckRefreshToken = refreshTokenRepository.findByKeyEmail(googleUser.getEmail()).orElse(null);
-		//해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장.
+
+		log.info("해당 email에 대한 refresh 토큰이 있으면 삭제 후 저장");
 		if (CheckRefreshToken != null) {
 			refreshTokenRepository.delete(CheckRefreshToken);
 		}
-		RefreshToken newRefreshToken = new RefreshToken(
-			jwtUtil.encryptRefreshToken(jwtUtil.substringToken(createRefreshToken)), googleUser.getEmail());
+		RefreshToken newRefreshToken = new RefreshToken(encryptedRefreshToken , googleUser.getEmail());
 		refreshTokenRepository.save(newRefreshToken);
+
+		log.info("리프레시토큰 redis에 저장");
+		redisUtil.saveRefreshToken(googleUser.getEmail(), encryptedRefreshToken);
+		log.info("JWT 토큰 반환 종료");
 		return tokenDto;
 	}
 
@@ -177,6 +181,7 @@ public class GoogleService {
 	}
 
 	public String getGoogleLoginForm() {
+		log.info("구글 로그인 페이지 불러오기 시작");
 		return "https://accounts.google.com/o/oauth2/v2/auth?client_id="
 			+ googleClientId
 			+ "&redirect_uri="
