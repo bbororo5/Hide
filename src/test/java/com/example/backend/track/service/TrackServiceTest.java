@@ -165,7 +165,8 @@ class TrackServiceTest {
             when(userDetailsMock.getUser()).thenReturn(userMock);
 
             List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
-            when(trackCountRepositoryImpl.findTrackIdsFromFollow(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(mockTrackIds);
             when(trackCountRepositoryImpl.findHighRatedAndRelatedTracks(userMock)).thenReturn(mockTrackIds);
             when(trackCountRepositoryImpl.findRecent5TracksFromUser(userMock)).thenReturn(mockTrackIds);
 
@@ -187,8 +188,8 @@ class TrackServiceTest {
             when(userDetailsMock.getUser()).thenReturn(userMock);
 
             List<String> mockTrackIds = Arrays.asList("mockId1", "mockId2");
-            when(trackCountRepositoryImpl.findTrackIdsFromFollow(userMock)).thenReturn(mockTrackIds);
-
+            when(trackCountRepositoryImpl.findTrackIdsFromFollowing(userMock)).thenReturn(mockTrackIds);
+            when(trackCountRepositoryImpl.findTrackIdsFromFollower(userMock)).thenReturn(mockTrackIds);
             when(spotifyRequestManager.getTracksInfo(anyList())).thenThrow(new TrackNotFoundException("트랙을 찾을 수 없습니다."));
 
             assertThrows(TrackNotFoundException.class, () -> trackService.recommendTracks(userDetailsMock));
@@ -363,6 +364,7 @@ class TrackServiceTest {
     }
 
     @Test
+    @DisplayName("별점 삭제 테스트")
     void deleteStarRating() {
         String trackId = "track123";
         Star mockStar = mock(Star.class);
