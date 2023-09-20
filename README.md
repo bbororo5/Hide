@@ -43,7 +43,7 @@
 
 ## 리버스 프록시 & 로드밸런싱
 
-<img src="https://img.shields.io/badge/nginx-009639?style=flat-square&logo=nginx&logoColor=white"/> : Apache와 같은 다른 웹 서버에 비해 Nginx는 비동기 이벤트 기반 구조를 활용해 높은 동시 접속 처리 능력을 보유하고 있습니다. 이 특성은 높은 트래픽 환경에서도 우수한 성능을 유지하며, 적은 자원을 효율적으로 활용할 수 있게 해줍니다. 또한, Nginx의 리버스 프록시 및 로드밸런싱 기능은 웹 애플리케이션의 확장성과 안정성을 높이는 데 크게 기여합니다. 이러한 이유들로, Nginx를 웹 서버로서 선택하게 되었습니다.
+<img src="https://img.shields.io/badge/ngix-009639?style=flat-square&logo=nginx&logoColor=white"/> : Apache와 같은 다른 웹 서버에 비해 Nginx는 비동기 이벤트 기반 구조를 활용해 높은 동시 접속 처리 능력을 보유하고 있습니다. 이 특성은 높은 트래픽 환경에서도 우수한 성능을 유지하며, 적은 자원을 효율적으로 활용할 수 있게 해줍니다. 또한, Nginx의 리버스 프록시 및 로드밸런싱 기능은 웹 애플리케이션의 확장성과 안정성을 높이는 데 크게 기여합니다. 이러한 이유들로, Nginx를 웹 서버로서 선택하게 되었습니다.
 
 ## 테스트
 
