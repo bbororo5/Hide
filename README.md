@@ -35,7 +35,7 @@
 
 ## CI/CD
 
-<img src="https://img.shields.io/badge/GitHubActions2088FF?style=flat-square&logo=GitHub_Actions&logoColor=white"/>Github Actions : 프로젝트의 지속적인 통합 및 배포를 위해 Github Action을 도입했습니다. 전통적인 CI/CD 도구인 Jenkins에 비해 GitHub Action은 프로젝트 설정이 간편하며, GitHub 저장소와의 통합이 원활하여 선택하였습니다. 또한, 별도의 서버 구축 및 관리가 필요 없기 때문에 초기 구축 비용과 유지 관리 비용을 절감할 수 있었습니다. 각 개발 단계에서 자동화된 테스트와 빌드를 통해 코드의 안정성을 지속적으로 확보하였습니다.
+<img src="https://img.shields.io/badge/GitHubActions-2088FF?style=flat-square&logo=GitHub_Actions&logoColor=white"/> : 프로젝트의 지속적인 통합 및 배포를 위해 Github Action을 도입했습니다. 전통적인 CI/CD 도구인 Jenkins에 비해 GitHub Action은 프로젝트 설정이 간편하며, GitHub 저장소와의 통합이 원활하여 선택하였습니다. 또한, 별도의 서버 구축 및 관리가 필요 없기 때문에 초기 구축 비용과 유지 관리 비용을 절감할 수 있었습니다. 각 개발 단계에서 자동화된 테스트와 빌드를 통해 코드의 안정성을 지속적으로 확보하였습니다.
 
 <img src="https://img.shields.io/badge/이름-색상코드?style=flat-square&logo=로고명&logoColor=로고색"/>Gradle : 프로젝트의 의존성 관리뿐만 아니라, 테스트 자동화의 핵심 도구로 Gradle을 활용하였습니다. Gradle을 통해 꼼꼼하게 작성된 테스트 코드를 지속적으로 검증하며, 이를 통해 코드 품질의 일관성을 유지하고, 버그 발생 리스크를 최소화하였습니다. 테스트 코드 작성은 소프트웨어 개발에서 결함을 조기에 발견하고, 요구 사항의 정확한 구현을 보장하는 중요한 과정입니다. 이러한 테스트 코드의 중요성을 깊이 인지하고 있으며, Gradle의 테스트 자동화 기능을 통해 프로젝트에 적극적으로 반영하였습니다.
 
