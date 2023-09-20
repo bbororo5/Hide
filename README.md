@@ -37,9 +37,9 @@
 
 <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white"/> : 프로젝트의 지속적인 통합 및 배포를 위해 Github Action을 도입했습니다. 전통적인 CI/CD 도구인 Jenkins에 비해 GitHub Action은 프로젝트 설정이 간편하며, GitHub 저장소와의 통합이 원활하여 선택하였습니다. 또한, 별도의 서버 구축 및 관리가 필요 없기 때문에 초기 구축 비용과 유지 관리 비용을 절감할 수 있었습니다. 각 개발 단계에서 자동화된 테스트와 빌드를 통해 코드의 안정성을 지속적으로 확보하였습니다.
 
-<img src="https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white"/>Gradle : 프로젝트의 의존성 관리뿐만 아니라, 테스트 자동화의 핵심 도구로 Gradle을 활용하였습니다. Gradle을 통해 꼼꼼하게 작성된 테스트 코드를 지속적으로 검증하며, 이를 통해 코드 품질의 일관성을 유지하고, 버그 발생 리스크를 최소화하였습니다. 테스트 코드 작성은 소프트웨어 개발에서 결함을 조기에 발견하고, 요구 사항의 정확한 구현을 보장하는 중요한 과정입니다. 이러한 테스트 코드의 중요성을 깊이 인지하고 있으며, Gradle의 테스트 자동화 기능을 통해 프로젝트에 적극적으로 반영하였습니다.
+<img src="https://img.shields.io/badge/Gradle-02303A?style=flat-square&logo=gradle&logoColor=white"/> : 프로젝트의 의존성 관리뿐만 아니라, 테스트 자동화의 핵심 도구로 Gradle을 활용하였습니다. Gradle을 통해 꼼꼼하게 작성된 테스트 코드를 지속적으로 검증하며, 이를 통해 코드 품질의 일관성을 유지하고, 버그 발생 리스크를 최소화하였습니다. 테스트 코드 작성은 소프트웨어 개발에서 결함을 조기에 발견하고, 요구 사항의 정확한 구현을 보장하는 중요한 과정입니다. 이러한 테스트 코드의 중요성을 깊이 인지하고 있으며, Gradle의 테스트 자동화 기능을 통해 프로젝트에 적극적으로 반영하였습니다.
 
-<img src="https://img.shields.io/badge/Docker_Hub-2496ED?style=flat-square&logo=docker&logoColor=white"/>Docker Hub : 애플리케이션의 독립적 실행 환경을 보장하기 위해 Docker를 사용했고, Docker Hub를 통해 이미지 버전 관리 및 배포를 효율화했습니다.
+<img src="https://img.shields.io/badge/Docker_Hub-2496ED?style=flat-square&logo=docker&logoColor=white"/> : 애플리케이션의 독립적 실행 환경을 보장하기 위해 Docker를 사용했고, Docker Hub를 통해 이미지 버전 관리 및 배포를 효율화했습니다.
 
 ## 리버스 프록시 & 로드밸런싱
 
@@ -47,15 +47,15 @@
 
 ## 테스트
 
-<img src="https://img.shields.io/badge/Junit5-25A162?style=flat-square&logo=Junit5&logoColor=white"/>Junit5 :  어노테이션과 람다 표현식을 지원해서 유연하고 읽기 쉬운 테스트 코드를 작성 하게 도와줍니다. 모듈 테스트, 컨트롤러 테스트 등을 위해서 사용했습니다.
+<img src="https://img.shields.io/badge/Junit5-25A162?style=flat-square&logo=Junit5&logoColor=white"/> :  어노테이션과 람다 표현식을 지원해서 유연하고 읽기 쉬운 테스트 코드를 작성 하게 도와줍니다. 모듈 테스트, 컨트롤러 테스트 등을 위해서 사용했습니다.
 
-<img src="https://img.shields.io/badge/Apache_Jmeter-D22128?style=flat-square&logo=apachejmeter&logoColor=white"/>Jmeter : 서버가 트래픽을 얼마나 견딜 수 있는지, 응답 시간이 얼마나 걸리는지 등을 미리 알아야 할 필요성을 느꼈습니다. JMeter를 도입하면 HTTP, FTP, JDBC 등 다양한 프로토콜에 대한 테스트가 가능하고, 그 결과를 다양한 형태로 분석할 수 있습니다. 결론적으로, 부하와 응답 시간 테스트를 위해서 사용했습니다.
+<img src="https://img.shields.io/badge/Apache_Jmeter-D22128?style=flat-square&logo=apachejmeter&logoColor=white"/> : 서버가 트래픽을 얼마나 견딜 수 있는지, 응답 시간이 얼마나 걸리는지 등을 미리 알아야 할 필요성을 느꼈습니다. JMeter를 도입하면 HTTP, FTP, JDBC 등 다양한 프로토콜에 대한 테스트가 가능하고, 그 결과를 다양한 형태로 분석할 수 있습니다. 결론적으로, 부하와 응답 시간 테스트를 위해서 사용했습니다.
 
 ##  로깅 & 모니터링
 
-<img src="https://img.shields.io/badge/LogBack-FF4F8B?style=flat-square&logo=LogBack&logoColor=white"/>LogBack : 프로젝트의 초기 설정 복잡성을 최소화하면서, 효과적인 로깅 시스템을 구축하는 것이 필요했습니다. Spring Boot는 기본적으로 Logback을 로깅 라이브러리로 사용하기 때문에, 별도의 로깅 의존성을 추가하거나 제거할 필요가 없었습니다. 이러한 이유로, 초기 설정의 복잡성을 피하면서도 효과적인 로깅 시스템을 구축하기 위해 Logback을 선택하였습니다.
+<img src="https://img.shields.io/badge/LogBack-02303A?style=flat-square&logo=LogBack&logoColor=white"/> : 프로젝트의 초기 설정 복잡성을 최소화하면서, 효과적인 로깅 시스템을 구축하는 것이 필요했습니다. Spring Boot는 기본적으로 Logback을 로깅 라이브러리로 사용하기 때문에, 별도의 로깅 의존성을 추가하거나 제거할 필요가 없었습니다. 이러한 이유로, 초기 설정의 복잡성을 피하면서도 효과적인 로깅 시스템을 구축하기 위해 Logback을 선택하였습니다.
 
-<img src="https://img.shields.io/badge/AmazonCloudWatch-FF4F8B?style=flat-square&logo=AmazonCloudWatch&logoColor=white"/>CloudWatch : 클라우드 환경에서 실시간으로 애플리케이션의 상태를 모니터링하고, 문제 발생 시 즉시 대응하기 위한 효과적인 도구가 필요했습니다. AWS CloudWatch는 실시간 모니터링 및 로깅, 사용자 정의 알람 설정 등 다양한 기능을 제공하여 시스템 전체를 한 눈에 볼 수 있습니다. AWS 환경에서 운영되는 애플리케이션의 모니터링에 최적화되어 있어, 서비스 품질을 보장하며 효과적인 대응이 가능하게 되었습니다.
+<img src="https://img.shields.io/badge/AmazonCloudWatch-FF4F8B?style=flat-square&logo=AmazonCloudWatch&logoColor=white"/> : 클라우드 환경에서 실시간으로 애플리케이션의 상태를 모니터링하고, 문제 발생 시 즉시 대응하기 위한 효과적인 도구가 필요했습니다. AWS CloudWatch는 실시간 모니터링 및 로깅, 사용자 정의 알람 설정 등 다양한 기능을 제공하여 시스템 전체를 한 눈에 볼 수 있습니다. AWS 환경에서 운영되는 애플리케이션의 모니터링에 최적화되어 있어, 서비스 품질을 보장하며 효과적인 대응이 가능하게 되었습니다.
 
 
 ## 캐싱
@@ -70,7 +70,7 @@
 
 ##  쿼리 최적화
 
-<img src="https://img.shields.io/badge/Query_DSL-FFFFFF?style=flat-square&logo=&logoColor=white"/> :  프로젝트 진행 중, ORM의 한계로 인해 복잡한 쿼리 작성과 세부 설정에 어려움을 겪게 되었습니다. 이에 따라, 보다 안정적이고 효율적인 방법을 모색하던 중, QueryDSL의 타입 안전성에 주목하게 되었습니다. 컴파일 시점의 오류 감지 능력은 잘못된 쿼리 작성의 위험성을 크게 줄여주었고, 직관적인 문법 구조는 코드의 가독성을 향상시켰습니다. 더불어, 유지보수 과정에서도 쿼리 로직의 명확성이 이를 더욱 원활하게 만들어 주었습니다. 이러한 이유로, QueryDSL을 프로젝트에 적극 도입하기로 결정하였습니다.
+<img src="https://img.shields.io/badge/Query_DSL-02303A?style=flat-square&logo=&logoColor=white"/> :  프로젝트 진행 중, ORM의 한계로 인해 복잡한 쿼리 작성과 세부 설정에 어려움을 겪게 되었습니다. 이에 따라, 보다 안정적이고 효율적인 방법을 모색하던 중, QueryDSL의 타입 안전성에 주목하게 되었습니다. 컴파일 시점의 오류 감지 능력은 잘못된 쿼리 작성의 위험성을 크게 줄여주었고, 직관적인 문법 구조는 코드의 가독성을 향상시켰습니다. 더불어, 유지보수 과정에서도 쿼리 로직의 명확성이 이를 더욱 원활하게 만들어 주었습니다. 이러한 이유로, QueryDSL을 프로젝트에 적극 도입하기로 결정하였습니다.
 
 
 ##  인증 & 인가
