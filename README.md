@@ -133,7 +133,7 @@ Redis의 빠른 응답 속도와 분산 처리 기능을 활용하여 토큰 정
 ![8rCvbFx3WkkarWNaZ](https://github.com/INOCAM-REALPROJECT-TEAM8/Back-end/assets/123007169/d343120b-f90e-40fb-a7e8-6d95c63f1de5)
 
 # 맡은 역할
-## 전선웅(BE) : 기여도 50 / 100
+## 전선웅(BE) : 기여도 25 / 100
   - **기술적 의사결정에 모두 참여**
   - **ERD 및 아키텍처 설계**: ERD로 데이터베이스 구조 표현, 시스템 아키텍처 정의
   - **스포티파이 API 통합**: API 인터페이스 개발
