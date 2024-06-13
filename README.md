@@ -22,11 +22,8 @@
 | 회원 정보 수정 기능 | 내 프로필 이미지를 등록하거나 닉네임을 변경할 수 있습니다. |
 
 
-# 기술 스택
-| 분류       | 기술 스택                                                                                                                                                                    |
-|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 프론트앤드 | Typescript, Vercel, Git Flow, Redux, React Query, Axios, Styled Components                                                                                                 |
-| 백앤드     | Spring Boot, Github Action, Gradle, Docker Hub, Nginx, JUnit5, Jmeter, CloudWatch, Redis, MySQL, Query DSL, Spring Security, OAuth2.0, JWT, STOMP, S3, EC2, JAVA 17, Spring Data JPA |
+# 기술 스택                                                                                             
+| Spring Boot, Spring Data JPA, Query DSL, Spring Security, Github Action, Docker, JUnit5, MySQL, STOMP |
 
 # 프로젝트 아키텍쳐
 ![Cloud Architecture (2)](https://github.com/INOCAM-REALPROJECT-TEAM8/Back-end/assets/123007169/d6ab4211-c8de-4070-9bba-66b9002f2f66)
@@ -49,40 +46,13 @@
 
 <img src="https://img.shields.io/badge/Junit5-25A162?style=flat-square&logo=Junit5&logoColor=white"/> :  개발된 코드가 예상대로 동작하는지 미리 테스트하여 코드의 예측가능성을 높이고 안정적인 CI를 구축해야 했습니다. gradle로 빌드 시 실행될 단위 테스트, 컨트롤러 테스트 검사를 위해 Junit5를 사용했습니다.
 
-<img src="https://img.shields.io/badge/Apache_Jmeter-D22128?style=flat-square&logo=apachejmeter&logoColor=white"/> : 서버가 트래픽을 얼마나 견딜 수 있는지, 응답 시간이 얼마나 걸리는지 등을 미리 알아야 할 필요성을 느꼈습니다. 부하 및 응답 시간 테스트를 위해서 Jmeter를 사용했습니다.
-
-##  로깅 & 모니터링
-
-<img src="https://img.shields.io/badge/LogBack-02303A?style=flat-square&logo=LogBack&logoColor=white"/> : 프로젝트의 초기 설정 복잡성을 최소화하면서, 효과적인 로깅 시스템을 구축하는 것이 필요했습니다. Spring Boot는 기본적으로 Logback을 로깅 라이브러리로 사용하기 때문에, 별도의 로깅 의존성을 추가하거나 제거할 필요가 없었습니다. 이러한 이유로, 초기 설정의 복잡성을 피하면서도 효과적인 로깅 시스템을 구축하기 위해 Logback을 선택하였습니다.
-
-<img src="https://img.shields.io/badge/AmazonCloudWatch-FF4F8B?style=flat-square&logo=AmazonCloudWatch&logoColor=white"/> : 클라우드 환경에서 실시간으로 애플리케이션의 상태를 모니터링하고, 문제 발생 시 즉시 대응하기 위한 효과적인 도구가 필요했습니다. AWS CloudWatch는 실시간 모니터링 및 로깅, 사용자 정의 알람 설정 등 다양한 기능을 제공하여 시스템 전체를 한 눈에 볼 수 있습니다. AWS 환경에서 운영되는 애플리케이션의 모니터링에 최적화되어 있어, 서비스 품질을 보장하며 효과적인 대응이 가능하게 되었습니다.
-
-
-## 캐싱
-
-<img src="https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white"/> : 소셜 네트워크 프로젝트에서는 각자의 계정에 접근하는 것이 서비스를 제대로 사용하기 위한 첫 단추가 된다는 점에서, 거의 모든 사용자가 로그인 요청을 한다고 판단했습니다. 따라서 응답 시간의 최소화가 필수적입니다. 사용자의 경험성의 극대화를 위하여 refresh토큰을 Redis에 저장하기로 결정했습니다. 또한 저희의 WAS는 2개로 운영되고 있습니다. 각 서버가 Spotify API의 access token을 독립적으로 관리하게 되면, 토큰 갱신 요청이 불필요하게 중복되어 실행되는 경우가 생깁니다. 이러한 문제점을 해결하기 위해, AWS Elasticache의 Redis를 도입하여 access token을 중앙 집중식으로 관리하게 되었습니다. 이렇게 함으로써, 모든 서버는 동일한 토큰 정보를 참조하게 되어 중복된 토큰 갱신 요청을 방지하고, 전체적인 시스템의 효율성을 높였습니다.
-
-
-##  데이터베이스 복제
-
-<img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white"/> : MySQL을 프로젝트에서 사용하면서, DB 하나로 모든 CRUD 작업을 처리하는 부하가 증가할 것으로 예상되었습니다. 특히 타인의 프로필에 자주 접근하는 소셜 프로젝트의 특성을 고려하면, SELECT 쿼리의 요청이 빈번히 발생할 것으로 예상하였습니다. 이를 효율적으로 처리하기 위한 방법이 필요했습니다. 이 문제에 대한 해결책으로, 우리는 읽기 전용 복제본을 도입하기로 결정했습니다. 이 복제본은 SELECT 쿼리에 대한 요청을 전담하게 되어, 원본 DB의 부하를 상당히 줄여주게 됩니다. 더불어, 이러한 복제 전략을 DB 부하의 분산만이 아니라, 장애 발생 시 대응책으로도 활용됩니다. 만약 주 DB에 문제가 발생하면, 복제본을 통해 데이터의 일관성을 유지하고 서비스의 중단 없이 운영을 이어갈 수 있습니다. 이러한 점에서, 복제 전략의 도입은 서비스의 안전성을 높이기 위한 중요 전략으로 작용하였습니다.
-
-
 ##  쿼리 최적화
 
 <img src="https://img.shields.io/badge/Query_DSL-02303A?style=flat-square&logo=&logoColor=white"/> :  프로젝트 진행 중, ORM의 한계로 인해 복잡한 쿼리 작성과 세부 설정에 어려움을 겪게 되었습니다. 이에 따라, 보다 안정적이고 효율적인 방법을 모색하던 중, QueryDSL의 타입 안전성에 주목하게 되었습니다. 컴파일 시점의 오류 감지 능력은 잘못된 쿼리 작성의 위험성을 크게 줄여주었고, 직관적인 문법 구조는 코드의 가독성을 향상시켰습니다. 더불어, 유지보수 과정에서도 쿼리 로직의 명확성이 이를 더욱 원활하게 만들어 주었습니다. 이러한 이유로, QueryDSL을 프로젝트에 적극 도입하기로 결정하였습니다.
 
-
 ##  인증 & 인가
 
 <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white"/>  :  기본적인 일반 로그인 기능뿐만 아니라 다양한 인증, 인가 옵션을 제공하기 때문에 선택했습니다. 특히, CSRF 보호와 SQL 인젝션 등 다양한 보안 취약점에 대한 방어 기능을 내장하고 있어, 이를 통해 개발 속도와 애플리케이션의 안정성을 높일 수 있었습니다.
-
-
-<img src="https://img.shields.io/badge/Oauth2.0-02303A?style=flat-square&logo=&logoColor=white"/> :  사용자가 별도의 회원가입 없이도 소셜 계정을 통해 빠르게 서비스를 이용할 수 있도록 하기 위해 도입했습니다. 선택 가능한 옵션은 카카오톡, 구글 소셜 로그인이 있습니다. 또한, OAuth2.0은 표준 프로토콜이기 때문에 안정성이 검증되어 있고, 이후에 다른 소셜 로그인 기능도 쉽게 확장할 수 있습니다.
-
-
-<img src="https://img.shields.io/badge/JWT-02303A?style=flat-square&logo=&logoColor=white"/> :  세션 기반 인증 방식은 서버에 세션 상태를 유지해야 하므로 확장성에 한계가 있습니다. 반면 JWT는 상태를 클라이언트 측에 저장하기 때문에 서버는 상태를 유지할 필요가 없어, 확장성이 높고 서버 리소스를 효율적으로 사용할 수 있습니다. 보안적인 측면을 고려하여 상대적으로 짧은 만료시간을 가진 엑세스 토큰을 활용해 인증을 하고 엑세스 토큰이 만료되면 함께 발급된 리프레시 토큰을 검증하여 새로운 엑세스 토큰을 발급합니다.
-
 
 # 트러블 슈팅
 
@@ -91,16 +61,6 @@
 💡 프로젝트 중, 유저의 최근 들은 트랙 카운트 조회 시 'User' 엔티티의 불필요한 데이터 로딩 문제를 발견하였습니다. PK인 'user_id'만 필요한 상황에서 전체 'User' 정보를 불러와 성능 저하의 원인이 되었습니다.
 
 이 문제를 해결하기 위해, **Query DSL**을 도입하여 필요한 필드만 선택적으로 불러오는 쿼리를 작성하였습니다. 결과적으로, 데이터베이스의 부하를 크게 줄이며 응답 시간의 개선(약 61.54% 감축)을 이루었습니다.
-
-
-##  나쁜 가독성과 유지보수성
-
-💡 스포티파이 API 호출을 담당하는 클래스(util.spotify 패키지의 클래스)는 초기에 동기식 방식으로 설계되었으나, 시간이 흐름에 따라 클래스의 복잡성이 증가하는 문제에 직면했습니다. 이를 해결하기 위해, 우선 공통된 기능을 재사용 가능한 모듈로 분리하여 중복 코드를 제거하고, 스포티파이 API의 다양한 호출 방법을 유연하게 대응할 수 있도록 인터페이스 기반의 설계를 도입했습니다.
-
-추가로, API 호출 중 발생할 수 있는 예외 상황들에 대응하기 위해 통합된 예외 처리 메커니즘을 구현하여 안정성을 강화했으며, 추후 음악 스트리밍 서비스의 API 호출 로직 추가를 위한 확장성 또한 고려했습니다. 
-
-이렇게 진행한 추상화 작업의 큰 장점은 비동기식 방식으로의 전환을 계획하게 되었을 때 드러났습니다. 이미 구조화되어 있던 코드 덕분에, 비동기 호출로의 변경 작업이 예상보다 훨씬 간편하게 진행되었고, 이 변경을 통해 시스템의 응답 시간과 리소스 활용도가 크게 향상되었습니다.
-
 
 ##  반복되는 로그
 
@@ -133,13 +93,10 @@ Redis의 빠른 응답 속도와 분산 처리 기능을 활용하여 토큰 정
 ![8rCvbFx3WkkarWNaZ](https://github.com/INOCAM-REALPROJECT-TEAM8/Back-end/assets/123007169/d343120b-f90e-40fb-a7e8-6d95c63f1de5)
 
 # 맡은 역할
-## 전선웅(BE) : 기여도 25 / 100
-  - **기술적 의사결정에 모두 참여**
+## 전선웅(BE) : 기여도 20 / 100
+  - **기술적 의사결정 주도**
   - **ERD 및 아키텍처 설계**: ERD로 데이터베이스 구조 표현, 시스템 아키텍처 정의
-  - **스포티파이 API 통합**: API 인터페이스 개발
   - **RESTful API 개발**: 재생 횟수 기반 탑 트랙, 최근 트랙, 사용자별 추천 트랙, 트랙 상세 정보 조회, 사용자 활동 기록, 별점 관리 등
   - **CI/CD 파이프라인 구축**: 자동화 빌드, 테스트, 배포 파이프라인 설정
   - **단위 및 기능 테스트 구현**: 코드 검증을 위한 단위 및 기능 테스트 케이스 작성
   - **코드 품질 개선 및 리팩토링**: 코드의 효율성 및 가독성 향상 작업
-  - **로깅 & 모니터링 설정**: 실시간 사용자 패턴 분석 및 장애 대응 준비
-  - **토큰 중앙화 관리**: access token 및 refresh token의 갱신 및 라이프 사이클을 인메모리 기술을 활용하여 중앙에서 효율적으로 관리
